@@ -7,7 +7,7 @@ from dashboard_ui import MainWindow
 from profileGame_ui import GameDetailWindow
 from wishlist_ui import WishlistWindow
 from profile_ui import ProfileWindow
-from auth_ui import LoginWindow, RegisterWindow
+from auth_ui import LoginWindow, RegisterWindow, SuccessRegisterPage
 
 
 def build_dark_palette():
@@ -43,12 +43,13 @@ class Router(QStackedWidget):
     PAGE_PROFILE   = 3
     PAGE_LOGIN    = 4
     PAGE_REGISTER = 5   
+    PAGE_SUCCESS = 6
 
     def __init__(self, games):
         super().__init__()
         self.setWindowTitle("MAGER — Game Store")
         self.resize(1100, 820)
-        self.setMinimumSize(700, 500)
+        self.setMinimumSize(900, 640)
 
         # ── Buat semua halaman ──────────────────────────────────────────
         self.page_dashboard = MainWindow(games)
@@ -57,13 +58,15 @@ class Router(QStackedWidget):
         self.page_profile   = ProfileWindow()
         self.page_login    = LoginWindow()
         self.page_register = RegisterWindow()
+        self.page_success = SuccessRegisterPage()
         
         self.addWidget(self.page_dashboard)   # index 0
         self.addWidget(self.page_detail)      # index 1
         self.addWidget(self.page_wishlist)    # index 2
         self.addWidget(self.page_profile)     # index 3
-        self.addWidget(self.page_login)     # index 4
-        self.addWidget(self.page_register)
+        self.addWidget(self.page_login)       # index 4
+        self.addWidget(self.page_register)    # index 5
+        self.addWidget(self.page_success)     # index 6
 
         # ── Sambungkan sinyal navigasi ──────────────────────────────────
         # Dashboard → halaman lain
@@ -106,7 +109,8 @@ class Router(QStackedWidget):
         self.page_login.login_success.connect(lambda user: self._on_login(user))
         self.page_login.go_register.connect(lambda: self.go_to(self.PAGE_REGISTER))
         self.page_register.go_login.connect(lambda: self.go_to(self.PAGE_LOGIN))
-        self.page_register.register_success.connect(lambda: self.go_to(self.PAGE_LOGIN))
+        self.page_register.register_success.connect(self._on_register_success)
+        self.page_success.go_login.connect(lambda: self.go_to(self.PAGE_LOGIN))
         
         self.setCurrentIndex(self.PAGE_LOGIN)
 
@@ -119,6 +123,10 @@ class Router(QStackedWidget):
         print(f"[DEBUG] Login berhasil: {user}")
         self.go_to(self.PAGE_DASHBOARD)
 
+    def _on_register_success(self):
+        self.go_to(self.PAGE_SUCCESS)
+        self.page_success.show_and_redirect()
+    
     def _open_detail(self, game: dict):
         """Buka halaman detail dengan data game yang diklik."""
         self.page_detail.load_game(game)
