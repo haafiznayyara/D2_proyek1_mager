@@ -22,6 +22,7 @@ from PyQt5.QtGui import (
 )
 from widget.navbar import Navbar
 from widget.cardGame import PopularGameCard, COVER_RATIO, INFO_H
+from pages.popular.popular_logic import get_popular_games, sort_games, search_games
 
 # ── Colour Palette (dark navy / green accent) ─────────────────────────────
 BG        = "#0A1123"
@@ -45,140 +46,6 @@ COVER_RATIO = 0.58   # cover_h / card_w
 INFO_H      = 183    # fixed info panel height per card (no footer)
 FOOTER_H    = 28     # height of the separate "Tertinggi" bar below card
 FOOTER_GAP  = 5      # gap between card bottom and footer bar
-
-# ── Game data ─────────────────────────────────────────────────────────────
-GAMES = [
-    {
-        "title":    "God of War Ragnarök",
-        "tags":     ["Action", "Adventure", "Story Rich"],
-        "dev":      "Santa Monica Studio",
-        "pub":      "Sony Interactive Entertainment",
-        "rating":   94,
-        "price":    599_999,
-        "orig":     799_999,
-        "discount": 25,
-        "players":  35_615,
-        "ac":       "#c0392b",
-        "img":      None,
-    },
-    {
-        "title":    "Hades",
-        "tags":     ["Action", "Indie", "RPG"],
-        "dev":      "Supergiant Games",
-        "pub":      "Supergiant Games",
-        "rating":   93,
-        "price":    149_999,
-        "orig":     249_999,
-        "discount": 40,
-        "players":  54_240,
-        "ac":       "#e67e22",
-        "img":      None,
-    },
-    {
-        "title":    "Hollow Knight",
-        "tags":     ["Platform", "Indie", "Adventure"],
-        "dev":      "Team Cherry",
-        "pub":      "Team Cherry",
-        "rating":   95,
-        "price":    89_999,
-        "orig":     149_999,
-        "discount": 40,
-        "players":  95_655,
-        "ac":       "#2980b9",
-        "img":      None,
-    },
-    {
-        "title":    "Red Dead Redemption 2",
-        "tags":     ["Action", "Adventure", "Open World"],
-        "dev":      "Rockstar Games",
-        "pub":      "Rockstar Games",
-        "rating":   91,
-        "price":    399_999,
-        "orig":     799_999,
-        "discount": 50,
-        "players":  99_993,
-        "ac":       "#c0392b",
-        "img":      None,
-    },
-    {
-        "title":    "The Witcher 3",
-        "tags":     ["RPG", "Open World", "Story Rich"],
-        "dev":      "CD Projekt Red",
-        "pub":      "CD Projekt",
-        "rating":   92,
-        "price":    179_999,
-        "orig":     449_999,
-        "discount": 60,
-        "players":  102_417,
-        "ac":       "#8e44ad",
-        "img":      None,
-    },
-    {
-        "title":    "Resident Evil 4 Remake",
-        "tags":     ["Horror", "Action", "Shooter"],
-        "dev":      "Capcom",
-        "pub":      "Capcom",
-        "rating":   90,
-        "price":    359_999,
-        "orig":     599_999,
-        "discount": 40,
-        "players":  48_220,
-        "ac":       "#16a085",
-        "img":      None,
-    },
-    {
-        "title":    "Stardew Valley",
-        "tags":     ["Simulation", "Indie", "Casual"],
-        "dev":      "ConcernedApe",
-        "pub":      "ConcernedApe",
-        "rating":   98,
-        "price":    67_999,
-        "orig":     99_999,
-        "discount": 33,
-        "players":  142_880,
-        "ac":       "#27ae60",
-        "img":      None,
-    },
-    {
-        "title":    "Baldur's Gate 3",
-        "tags":     ["RPG", "Strategy", "Story Rich"],
-        "dev":      "Larian Studios",
-        "pub":      "Larian Studios",
-        "rating":   97,
-        "price":    599_999,
-        "orig":     799_999,
-        "discount": 25,
-        "players":  88_540,
-        "ac":       "#8e44ad",
-        "img":      None,
-    },
-    {
-        "title":    "Elden Ring",
-        "tags":     ["Action", "RPG", "Open World"],
-        "dev":      "FromSoftware",
-        "pub":      "Bandai Namco",
-        "rating":   96,
-        "price":    399_999,
-        "orig":     799_999,
-        "discount": 50,
-        "players":  121_660,
-        "ac":       "#d4ac0d",
-        "img":      None,
-    },
-    {
-        "title":    "Cyberpunk 2077",
-        "tags":     ["Action", "RPG", "Open World"],
-        "dev":      "CD Projekt Red",
-        "pub":      "CD Projekt",
-        "rating":   87,
-        "price":    249_999,
-        "orig":     499_999,
-        "discount": 50,
-        "players":  77_330,
-        "ac":       "#f39c12",
-        "img":      None,
-    },
-]
 
 # ── Games Grid ────────────────────────────────────────────────────────────
 class GamesGrid(QWidget):
@@ -272,7 +139,7 @@ class GamesGrid(QWidget):
         self.sort_btn.setText(f"⇅  {label}")
         sorted_games = sorted(
             self._all_games,
-            key=lambda g: g["players"],
+            key=lambda g: g["peak_player"],
             reverse=not self._sorted_asc,
         )
         self._populate(sorted_games)
@@ -306,12 +173,12 @@ class GamesGrid(QWidget):
             fl = QHBoxLayout(footer)
             fl.setContentsMargins(12, 0, 12, 0)
             fl.setSpacing(0)
-            lbl_t = QLabel("Tertinggi")
+            lbl_t = QLabel("Peak Players")
             lbl_t.setFont(QFont("Segoe UI", 8))
             lbl_t.setStyleSheet(f"color: {TEXT2}; background: transparent; border : none;")
             fl.addWidget(lbl_t)
             fl.addStretch()
-            lbl_n = QLabel(f"{g['players']:,}")
+            lbl_n = QLabel(f"{g['peak_player']:,}")
             lbl_n.setFont(QFont("Segoe UI", 8, QFont.Bold))
             lbl_n.setStyleSheet(f"color: {ACCENT}; background: transparent; border : none;")
             fl.addWidget(lbl_n)
@@ -390,6 +257,10 @@ class PopularGamesWindow(QMainWindow):
         self.resize(1280, 820)
         self.setMinimumSize(900, 600)
 
+        # Load dari DB, default desc (peak tertinggi dulu)
+        self._all_games  = get_popular_games(order="desc")
+        self._sort_order = "desc"
+
         central = QWidget()
         self.setCentralWidget(central)
         central.setStyleSheet(f"background: {BG};")
@@ -418,24 +289,31 @@ class PopularGamesWindow(QMainWindow):
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
         """)
 
-        self.grid = GamesGrid(GAMES)
+        self.grid = GamesGrid(self._all_games)
         self.grid.card_clicked.connect(self._on_card_clicked)
+
+        # Sambungkan tombol sort di GamesGrid ke handler
+        self.grid.sort_btn.clicked.disconnect()   # putus koneksi lama
+        self.grid.sort_btn.clicked.connect(self._toggle_sort)
+
         scroll.setWidget(self.grid)
         root.addWidget(scroll)
 
         self.nav.search_changed.connect(self._on_search)
 
+    def _toggle_sort(self):
+        self._sort_order = "asc" if self._sort_order == "desc" else "desc"
+        label = "Terendah - Tertinggi" if self._sort_order == "asc" else "Tertinggi - Terendah"
+        self.grid.sort_btn.setText(f"⇅  {label}")
+        sorted_data = sort_games(self._all_games, self._sort_order)
+        self.grid._populate(sorted_data)
+
     def _on_card_clicked(self, game: dict):
-        print(f"[CLICKED] {game['title']} — {fmt_price(game['price'])}")
+        print(f"[CLICKED] {game['title']} — peak: {game['peak_player']:,}")
 
     def _on_search(self, query: str):
-        q = query.strip().lower()
-        filtered = [
-            g for g in GAMES
-            if q in g["title"].lower()
-            or q in g["dev"].lower()
-            or any(q in t.lower() for t in g["tags"])
-        ]
+        filtered = search_games(self._all_games, query)
+        filtered = sort_games(filtered, self._sort_order)
         self.grid._populate(filtered)
 
 
