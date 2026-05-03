@@ -69,17 +69,17 @@ def stat_card(icon, label, value, color=ACCENT):
 
     ico = QLabel(icon)
     ico.setFont(QFont("Segoe UI", 22))
-    ico.setStyleSheet("background:transparent;")
+    ico.setStyleSheet("background:transparent; border:none;")
     v.addWidget(ico)
 
     val = QLabel(str(value))
     val.setFont(QFont("Segoe UI", 18, QFont.Bold))
-    val.setStyleSheet(f"color:{color};background:transparent;")
+    val.setStyleSheet(f"color:{color};background:transparent; border:none;")
     v.addWidget(val)
 
     lbl = QLabel(label)
     lbl.setFont(QFont("Segoe UI", 10))
-    lbl.setStyleSheet(f"color:{MUTED};background:transparent;")
+    lbl.setStyleSheet(f"color:{MUTED};background:transparent; border:none;")
     v.addWidget(lbl)
 
     return f
@@ -101,16 +101,16 @@ def activity_row(title, genre, time_ago, ac="#58a6ff"):
     info = QVBoxLayout(); info.setSpacing(2)
     t = QLabel(title)
     t.setFont(QFont("Segoe UI", 11, QFont.Bold))
-    t.setStyleSheet(f"color:{WHITE};background:transparent;")
+    t.setStyleSheet(f"color:{WHITE};background:transparent; border:none;")
     g = QLabel(genre)
     g.setFont(QFont("Segoe UI", 9))
-    g.setStyleSheet(f"color:{MUTED};background:transparent;")
+    g.setStyleSheet(f"color:{MUTED};background:transparent; border:none;")
     info.addWidget(t); info.addWidget(g)
     h.addLayout(info, stretch=1)
 
     tm = QLabel(time_ago)
     tm.setFont(QFont("Segoe UI", 9))
-    tm.setStyleSheet(f"color:{MUTED};background:transparent;")
+    tm.setStyleSheet(f"color:{MUTED};background:transparent;border:none;")
     h.addWidget(tm)
     return row
 
@@ -144,7 +144,7 @@ class ProfileWindow(QWidget):
         """)
 
         content = QWidget()
-        content.setStyleSheet(f"background:{BG};")
+        content.setStyleSheet(f"background:{BG};border:none;")
         cl = QVBoxLayout(content)
         cl.setContentsMargins(28, 16, 28, 28)
         cl.setSpacing(20)
@@ -257,11 +257,11 @@ class ProfileWindow(QWidget):
         info = QVBoxLayout(); info.setSpacing(4)
         name = QLabel("Ahmad Gamer")
         name.setFont(QFont("Segoe UI", 18, QFont.Bold))
-        name.setStyleSheet(f"color:{WHITE};background:transparent;")
+        name.setStyleSheet(f"color:{WHITE};background:transparent;border:none;")
         info.addWidget(name)
 
         username = QLabel("@ahmadgamer · Bergabung Jan 2023")
-        username.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent;")
+        username.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent; border:none;")
         info.addWidget(username)
 
         badge_row = QHBoxLayout(); badge_row.setSpacing(6)
@@ -290,7 +290,7 @@ class ProfileWindow(QWidget):
 
     # ── Stats ─────────────────────────────────────────────────────────────
     def _stats_section(self):
-        container = QWidget(); container.setStyleSheet("background:transparent;")
+        container = QWidget(); container.setStyleSheet("background:transparent; border:none;")
         grid = QGridLayout(container)
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setSpacing(12)
@@ -321,7 +321,7 @@ class ProfileWindow(QWidget):
 
         title = QLabel("📋  Aktivitas Terakhir")
         title.setFont(QFont("Segoe UI", 13, QFont.Bold))
-        title.setStyleSheet(f"color:{WHITE};background:transparent;")
+        title.setStyleSheet(f"color:{WHITE};background:transparent; border:none;")
         v.addWidget(title)
 
         activities = [
@@ -351,7 +351,7 @@ class ProfileWindow(QWidget):
 
         title = QLabel("🏅  Pencapaian")
         title.setFont(QFont("Segoe UI", 13, QFont.Bold))
-        title.setStyleSheet(f"color:{WHITE};background:transparent;")
+        title.setStyleSheet(f"color:{WHITE};background:transparent; border:none;")
         v.addWidget(title)
 
         badges = [
@@ -371,16 +371,16 @@ class ProfileWindow(QWidget):
 
             ico = QLabel(icon)
             ico.setFont(QFont("Segoe UI", 18))
-            ico.setStyleSheet("background:transparent;")
+            ico.setStyleSheet("background:transparent; border:none;")
             rh.addWidget(ico)
 
             text = QVBoxLayout(); text.setSpacing(1)
             n = QLabel(name)
             n.setFont(QFont("Segoe UI", 10, QFont.Bold))
-            n.setStyleSheet(f"color:{color};background:transparent;")
+            n.setStyleSheet(f"color:{color};background:transparent; border:none;")
             d = QLabel(desc)
             d.setFont(QFont("Segoe UI", 8))
-            d.setStyleSheet(f"color:{MUTED};background:transparent;")
+            d.setStyleSheet(f"color:{MUTED};background:transparent; border:none;")
             text.addWidget(n); text.addWidget(d)
             rh.addLayout(text, stretch=1)
 
@@ -405,7 +405,7 @@ class ProfileWindow(QWidget):
 
         title = QLabel("⚙  Pengaturan Akun")
         title.setFont(QFont("Segoe UI", 13, QFont.Bold))
-        title.setStyleSheet(f"color:{WHITE};background:transparent;")
+        title.setStyleSheet(f"color:{WHITE};background:transparent; border:none;")
         v.addWidget(title)
 
         grid = QGridLayout(); grid.setSpacing(10)
@@ -423,7 +423,7 @@ class ProfileWindow(QWidget):
                 f"QLineEdit:focus{{border:1px solid {ACCENT};}}"
             )
             box.addWidget(lbl); box.addWidget(inp)
-            w = QWidget(); w.setStyleSheet("background:transparent;")
+            w = QWidget(); w.setStyleSheet("background:transparent; border:none;")
             QVBoxLayout(w).addLayout(box)
             # simpler: just add to grid
             container = QFrame()
