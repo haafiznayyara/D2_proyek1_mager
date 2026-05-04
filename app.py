@@ -113,7 +113,7 @@ class Router(QStackedWidget):
         self.page_profile.back_clicked.connect(
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
-        self.page_profile.wishlist_clicked.connect(
+        self.page_profile.nav.wishlist_clicked.connect(
             lambda: self.go_to(self.PAGE_WISHLIST)
         )
         self.page_profile.nav.dashboard_clicked.connect(

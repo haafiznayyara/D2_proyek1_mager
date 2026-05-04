@@ -1,288 +1,489 @@
-"""
-MAGER - Halaman Wishlist
-"""
+# -*- coding: utf-8 -*-
 
+import sys
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QScrollArea, QFrame, QSizePolicy, QLineEdit
+    QApplication, QMainWindow, QWidget, QLabel, QPushButton,
+    QVBoxLayout, QHBoxLayout, QStackedWidget, QSizePolicy, QSpacerItem
 )
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont, QColor, QCursor
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QCursor
 from widget.navbar import Navbar
 
-# Palette (sync dengan dashboard)
-BG      = "#0d1117"
-BG_DARK = "#161b27"
-BG_CARD = "#1a2035"
-BG_ELEM = "#1e2840"
-BORDER  = "#2a3555"
-WHITE   = "#ffffff"
-LIGHT   = "#c9d1e0"
-MUTED   = "#7b8db0"
-GREEN   = "#00c853"
-RED     = "#e05252"
-ACCENT  = "#58a6ff"
+# ── Palette (Disamakan dengan cardGame.py & global app) ───────────────────
+BG           = "#0A1123"  # Background utama aplikasi
+CARD         = "#1A2332"
+CARD_HOV     = "#1e2a42"
+ACCENT       = "#39d353"
+ACCENT_HOVER = "#2ea84a"
+TEXT1        = "#e8eaf0"
+TEXT2        = "#8899aa"
+BORDER       = "#1e3a50"
+TAG_BG       = "#162840"
 
-# Data wishlist dummy
-WISHLIST_GAMES = [
-    {
-        "title": "Cyberpunk 2077",
-        "genre": "RPG",
-        "dev": "CD Projekt",
-        "price": 299999,
-        "old_price": 599999,
-        "discount": 50,
-        "rating": 86,
-        "ac": "#ffd700",
-    },
-    {
-        "title": "Elden Ring",
-        "genre": "Action RPG",
-        "dev": "FromSoftware",
-        "price": 449000,
-        "old_price": 449000,
-        "discount": 0,
-        "rating": 96,
-        "ac": "#c0a060",
-    },
-    {
-        "title": "Hades",
-        "genre": "Roguelite",
-        "dev": "Supergiant Games",
-        "price": 89000,
-        "old_price": 179000,
-        "discount": 50,
-        "rating": 94,
-        "ac": "#e05252",
-    },
-    {
-        "title": "Hollow Knight",
-        "genre": "Metroidvania",
-        "dev": "Team Cherry",
-        "price": 59000,
-        "old_price": 59000,
-        "discount": 0,
-        "rating": 95,
-        "ac": "#7c6fa0",
-    },
-]
-
-
-def fmt_price(p):
-    if p == 0:
-        return "Gratis"
-    return f"Rp {p:,.0f}".replace(",", ".")
-
-
-class WishlistCard(QFrame):
-    remove_clicked = pyqtSignal(dict)
-    view_clicked   = pyqtSignal(dict)
-
-    def __init__(self, game: dict):
+class WishlistWindow(QMainWindow):
+    def __init__(self):
         super().__init__()
-        self.game = game
-        self.setObjectName("wcard")
+        self.setWindowTitle("MAGER - Wishlist Saya")
+        self.setGeometry(0, 0, 1160, 660)
         self.setStyleSheet(f"""
-            QFrame#wcard {{
-                background: {BG_CARD};
-                border: 1px solid {BORDER};
-                border-radius: 10px;
-            }}
-            QFrame#wcard:hover {{ border-color: {ACCENT}; }}
+            QMainWindow {{ background-color: {BG}; }}
+            QWidget#centralwidget {{ background-color: {BG}; }}
         """)
 
-        lay = QHBoxLayout(self)
-        lay.setContentsMargins(16, 14, 16, 14)
-        lay.setSpacing(16)
+        self.centralwidget = QWidget(self)
+        self.centralwidget.setObjectName("centralwidget")
+        self.setCentralWidget(self.centralwidget)
 
-        # Thumbnail warna
-        thumb = QLabel()
-        thumb.setFixedSize(72, 72)
-        thumb.setStyleSheet(
-            f"background: qlineargradient(x1:0,y1:0,x2:1,y2:1,"
-            f"stop:0 {game['ac']}, stop:1 #0d1117);"
-            f"border-radius:8px;"
-        )
-        initials = "".join(w[0] for w in game["title"].split()[:2]).upper()
-        thumb.setText(initials)
+        self.mainLayout = QVBoxLayout(self.centralwidget)
+        self.mainLayout.setSpacing(0)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+
+        # ===== PENGGUNAAN WIDGET NAVBAR =====
+        self.nav = Navbar(active_page="wishlist")
+        self.mainLayout.addWidget(self.nav)
+
+        # Konten Utama
+        self._build_content_area()
+
+    # ===== CONTENT AREA =====
+    def _build_content_area(self):
+        self.contentArea = QWidget()
+        self.contentArea.setObjectName("contentArea")
+        self.contentArea.setStyleSheet(f"QWidget#contentArea {{ background-color: {BG}; }}")
+
+        contentLayout = QVBoxLayout(self.contentArea)
+        contentLayout.setContentsMargins(40, 30, 40, 30)
+        contentLayout.setSpacing(16)
+
+        # Tombol Kembali
+        self.btnKembali = QPushButton("← Kembali")
+        self.btnKembali.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btnKembali.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent;
+                color: {TEXT2};
+                font-size: 13px;
+                font-family: Arial;
+                border: none;
+                padding: 0px;
+                text-align: left;
+                max-width: 100px;
+            }}
+            QPushButton:hover {{ color: {TEXT1}; }}
+        """)
+        contentLayout.addWidget(self.btnKembali)
+
+        # Judul halaman
+        self.titleLabel = QLabel("Wishlist Saya")
+        self.titleLabel.setStyleSheet(f"""
+            QLabel {{
+                color: {TEXT1};
+                font-size: 26px;
+                font-weight: bold;
+                font-family: Arial;
+            }}
+        """)
+        contentLayout.addWidget(self.titleLabel)
+
+        # Subjudul / jumlah game
+        self.subtitleLabel = QLabel("Anda memiliki 2 game dalam wishlist")
+        self.subtitleLabel.setStyleSheet(f"""
+            QLabel {{
+                color: {TEXT2};
+                font-size: 13px;
+                font-family: Arial;
+            }}
+        """)
+        contentLayout.addWidget(self.subtitleLabel)
+
+        # Stacked Widget: kosong vs berisi
+        self.stackedWidget = QStackedWidget()
+        self.stackedWidget.addWidget(self._build_page_with_items())   # index 0
+        self.stackedWidget.addWidget(self._build_page_empty())         # index 1
+        self.stackedWidget.setCurrentIndex(0)
+
+        contentLayout.addWidget(self.stackedWidget)
+        self.mainLayout.addWidget(self.contentArea)
+
+    # ===== PAGE 0: Ada isi (berisi game) =====
+    def _build_page_with_items(self):
+        self.pageWithItems = QWidget()
+        itemsLayout = QVBoxLayout(self.pageWithItems)
+        itemsLayout.setSpacing(12)
+        itemsLayout.setContentsMargins(0, 0, 0, 0)
+
+        itemsLayout.addWidget(self._build_game_card_1())
+        itemsLayout.addWidget(self._build_game_card_2())
+        itemsLayout.addWidget(self._build_cta_card())
+        itemsLayout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
+        return self.pageWithItems
+
+    def _build_game_card_1(self):
+        """Card: Cyberpunk 2077"""
+        card = QWidget()
+        card.setObjectName("card1")
+        card.setStyleSheet(f"""
+            QWidget#card1 {{
+                background-color: {CARD};
+                border: 1px solid {BORDER};
+                border-radius: 8px;
+            }}
+            QWidget#card1:hover {{ border: 1px solid {ACCENT_HOVER}; }}
+        """)
+
+        layout = QHBoxLayout(card)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(16)
+
+        # Thumbnail
+        thumb = QLabel("[ Cyberpunk 2077 ]")
         thumb.setAlignment(Qt.AlignCenter)
-        thumb.setFont(QFont("Segoe UI", 16, QFont.Bold))
-        thumb.setStyleSheet(
-            thumb.styleSheet() +
-            f"color: rgba(255,255,255,0.6);"
-        )
-        lay.addWidget(thumb)
+        thumb.setFixedSize(QSize(170, 90))
+        thumb.setStyleSheet(f"""
+            QLabel {{
+                background-color: {TAG_BG};
+                color: {TEXT2};
+                font-size: 11px;
+                font-family: Arial;
+                border-radius: 4px;
+            }}
+        """)
+        layout.addWidget(thumb)
 
-        # Info tengah
-        info = QVBoxLayout()
-        info.setSpacing(4)
+        # Info game
+        infoWidget = QWidget()
+        infoLayout = QVBoxLayout(infoWidget)
+        infoLayout.setSpacing(6)
+        infoLayout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel(game["title"])
-        title.setFont(QFont("Segoe UI", 13, QFont.Bold))
-        title.setStyleSheet(f"color:{WHITE};background:transparent;")
-        info.addWidget(title)
+        nameLabel = QLabel("Cyberpunk 2077")
+        nameLabel.setStyleSheet(f"""
+            QLabel {{ color: {TEXT1}; font-size: 17px; font-weight: bold; font-family: Arial; }}
+        """)
+        infoLayout.addWidget(nameLabel)
 
-        meta = QHBoxLayout(); meta.setSpacing(8)
-        genre = QLabel(game["genre"])
-        genre.setStyleSheet(
-            f"background:{BG_ELEM};color:{MUTED};font-size:10px;"
-            "padding:2px 8px;border-radius:3px;"
-        )
-        dev = QLabel(game["dev"])
-        dev.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent;")
-        meta.addWidget(genre)
-        meta.addWidget(dev)
-        meta.addStretch()
-        info.addLayout(meta)
+        # Tags
+        tagsWidget = QWidget()
+        tagsLayout = QHBoxLayout(tagsWidget)
+        tagsLayout.setSpacing(6)
+        tagsLayout.setContentsMargins(0, 0, 0, 0)
+        tag_style = f"""
+            QLabel {{
+                background-color: {TAG_BG}; color: {TEXT2}; font-size: 11px;
+                font-family: Arial; border-radius: 4px; padding: 2px 8px;
+                border: 1px solid {BORDER};
+            }}
+        """
+        for tag_text in ["Action", "RPG", "Open World"]:
+            t = QLabel(tag_text)
+            t.setStyleSheet(tag_style)
+            tagsLayout.addWidget(t)
+        tagsLayout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        infoLayout.addWidget(tagsWidget)
 
         # Harga
-        price_row = QHBoxLayout(); price_row.setSpacing(8)
-        if game["discount"] > 0:
-            badge = QLabel(f"-{game['discount']}%")
-            badge.setStyleSheet(
-                f"background:#1a7a3a;color:{GREEN};font-size:10px;"
-                "font-weight:bold;padding:2px 7px;border-radius:3px;"
-            )
-            price_row.addWidget(badge)
-            old = QLabel(fmt_price(game["old_price"]))
-            old.setStyleSheet(
-                f"color:{MUTED};font-size:11px;text-decoration:line-through;background:transparent;"
-            )
-            price_row.addWidget(old)
-        price = QLabel(fmt_price(game["price"]))
-        price.setFont(QFont("Segoe UI", 13, QFont.Bold))
-        price.setStyleSheet(f"color:{GREEN};background:transparent;")
-        price_row.addWidget(price)
-        price_row.addStretch()
-        info.addLayout(price_row)
-        info.addStretch()
+        priceRow = QWidget()
+        priceLayout = QHBoxLayout(priceRow)
+        priceLayout.setSpacing(8)
+        priceLayout.setContentsMargins(0, 0, 0, 0)
 
-        lay.addLayout(info, stretch=1)
+        rating1 = QLabel("86")
+        rating1.setFixedSize(QSize(44, 44))
+        rating1.setAlignment(Qt.AlignCenter)
+        rating1.setStyleSheet(f"""
+            QLabel {{
+                background-color: transparent; color: {ACCENT}; font-size: 12px;
+                font-weight: bold; font-family: Arial; border: 3px solid {ACCENT}; border-radius: 22px;
+            }}
+        """)
+        priceLayout.addWidget(rating1)
 
-        # Tombol kanan
-        btn_col = QVBoxLayout(); btn_col.setSpacing(6)
+        discount1 = QLabel("-20%")
+        discount1.setStyleSheet(f"""
+            QLabel {{
+                background-color: {ACCENT}; color: #000000; font-size: 12px;
+                font-weight: bold; font-family: Arial; border-radius: 4px; padding: 2px 6px;
+            }}
+        """)
+        priceLayout.addWidget(discount1)
 
-        btn_view = QPushButton("Lihat Detail")
-        btn_view.setFixedHeight(34)
-        btn_view.setCursor(QCursor(Qt.PointingHandCursor))
-        btn_view.setStyleSheet(
-            f"QPushButton{{background:{ACCENT};border:none;border-radius:6px;"
-            f"color:#000;font-size:12px;font-weight:bold;padding:0 14px;}}"
-            f"QPushButton:hover{{background:#79b8ff;}}"
-        )
-        btn_view.clicked.connect(lambda: self.view_clicked.emit(self.game))
-        btn_col.addWidget(btn_view)
+        origPrice1 = QLabel("Rp 499.999")
+        origPrice1.setStyleSheet(f"""
+            QLabel {{ color: {TEXT2}; font-size: 12px; font-family: Arial; text-decoration: line-through; }}
+        """)
+        priceLayout.addWidget(origPrice1)
 
-        btn_rm = QPushButton("✕ Hapus")
-        btn_rm.setFixedHeight(34)
-        btn_rm.setCursor(QCursor(Qt.PointingHandCursor))
-        btn_rm.setStyleSheet(
-            f"QPushButton{{background:transparent;border:1px solid {BORDER};"
-            f"border-radius:6px;color:{MUTED};font-size:12px;padding:0 14px;}}"
-            f"QPushButton:hover{{border-color:{RED};color:{RED};}}"
-        )
-        btn_rm.clicked.connect(lambda: self.remove_clicked.emit(self.game))
-        btn_col.addWidget(btn_rm)
+        salePrice1 = QLabel("Rp 399.999")
+        salePrice1.setStyleSheet(f"""
+            QLabel {{ color: {ACCENT}; font-size: 15px; font-weight: bold; font-family: Arial; }}
+        """)
+        priceLayout.addWidget(salePrice1)
+        priceLayout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        lay.addLayout(btn_col)
+        infoLayout.addWidget(priceRow)
+        layout.addWidget(infoWidget)
 
+        layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-class WishlistWindow(QWidget):
-    back_clicked    = pyqtSignal()
-    profile_clicked = pyqtSignal()
-    card_clicked    = pyqtSignal(dict)
+        # Kolom kanan: tanggal + hapus
+        rightCol = QWidget()
+        rightColLayout = QVBoxLayout(rightCol)
+        rightColLayout.setSpacing(8)
+        rightColLayout.setContentsMargins(0, 0, 0, 0)
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._games = list(WISHLIST_GAMES)
-        self._build()
+        dateAdded1 = QLabel("Ditambahkan pada 15 Maret 2026")
+        dateAdded1.setAlignment(Qt.AlignRight)
+        dateAdded1.setStyleSheet(f"""
+            QLabel {{ color: {TEXT2}; font-size: 12px; font-family: Arial; }}
+        """)
+        rightColLayout.addWidget(dateAdded1)
 
-    def _build(self):
-        self.setStyleSheet(f"background:{BG};")
-        root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
+        rightColLayout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        self.nav = Navbar(active_page="wishlist")
-        self.nav.profile_clicked.connect(self.profile_clicked)
-        root.addWidget(self.nav)
+        btnDelete1 = QPushButton("🗑")
+        btnDelete1.setFixedSize(QSize(36, 36))
+        btnDelete1.setCursor(QCursor(Qt.PointingHandCursor))
+        btnDelete1.setStyleSheet(f"""
+            QPushButton {{
+                background-color: rgba(231, 76, 60, 0.1); color: #e74c3c;
+                border: 1px solid rgba(231, 76, 60, 0.4); border-radius: 6px; font-size: 14px;
+            }}
+            QPushButton:hover {{ background-color: #e74c3c; color: {TEXT1}; }}
+        """)
+        rightColLayout.addWidget(btnDelete1, alignment=Qt.AlignRight)
 
-        # Header
-        hdr = QWidget()
-        hdr.setStyleSheet(f"background:{BG};")
-        hl = QVBoxLayout(hdr)
-        hl.setContentsMargins(28, 18, 28, 10)
-        hl.setSpacing(4)
+        layout.addWidget(rightCol)
+        return card
 
-        top_row = QHBoxLayout()
-        btn_back = QPushButton("← Kembali")
-        btn_back.setCursor(QCursor(Qt.PointingHandCursor))
-        btn_back.setStyleSheet(
-            f"QPushButton{{background:transparent;border:none;color:{MUTED};"
-            f"font-size:13px;}} QPushButton:hover{{color:{WHITE};}}"
-        )
-        btn_back.clicked.connect(self.back_clicked)
-        top_row.addWidget(btn_back)
-        top_row.addStretch()
-        hl.addLayout(top_row)
-
-        t = QLabel("♡  Wishlist Saya")
-        t.setFont(QFont("Segoe UI", 20, QFont.Bold))
-        t.setStyleSheet(f"color:{WHITE};")
-        hl.addWidget(t)
-
-        self.sub_lbl = QLabel(f"{len(self._games)} game tersimpan")
-        self.sub_lbl.setFont(QFont("Segoe UI", 10))
-        self.sub_lbl.setStyleSheet(f"color:{MUTED};")
-        hl.addWidget(self.sub_lbl)
-
-        root.addWidget(hdr)
-
-        # Scroll area berisi daftar
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setStyleSheet(f"""
-            QScrollArea {{ background:{BG}; border:none; }}
-            QScrollBar:vertical {{ background:{BG_CARD}; width:6px; border-radius:3px; }}
-            QScrollBar::handle:vertical {{ background:{BORDER}; border-radius:3px; min-height:20px; }}
-            QScrollBar::add-line, QScrollBar::sub-line {{ height:0; }}
+    def _build_game_card_2(self):
+        """Card: Hollow Knight"""
+        card = QWidget()
+        card.setObjectName("card2")
+        card.setStyleSheet(f"""
+            QWidget#card2 {{
+                background-color: {CARD};
+                border: 1px solid {BORDER};
+                border-radius: 8px;
+            }}
+            QWidget#card2:hover {{ border: 1px solid {ACCENT_HOVER}; }}
         """)
 
-        self.list_widget = QWidget()
-        self.list_widget.setStyleSheet(f"background:{BG};")
-        self.list_layout = QVBoxLayout(self.list_widget)
-        self.list_layout.setContentsMargins(28, 8, 28, 28)
-        self.list_layout.setSpacing(10)
+        layout = QHBoxLayout(card)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(16)
 
-        self._populate()
-        self.list_layout.addStretch()
+        # Thumbnail
+        thumb = QLabel("[ Hollow Knight ]")
+        thumb.setAlignment(Qt.AlignCenter)
+        thumb.setFixedSize(QSize(170, 90))
+        thumb.setStyleSheet(f"""
+            QLabel {{
+                background-color: {TAG_BG}; color: {TEXT2}; font-size: 11px;
+                font-family: Arial; border-radius: 4px;
+            }}
+        """)
+        layout.addWidget(thumb)
 
-        scroll.setWidget(self.list_widget)
-        root.addWidget(scroll)
+        # Info game
+        infoWidget = QWidget()
+        infoLayout = QVBoxLayout(infoWidget)
+        infoLayout.setSpacing(6)
+        infoLayout.setContentsMargins(0, 0, 0, 0)
 
-    def _populate(self):
-        # Hapus semua card lama
-        while self.list_layout.count():
-            item = self.list_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+        nameLabel = QLabel("Hollow Knight")
+        nameLabel.setStyleSheet(f"""
+            QLabel {{ color: {TEXT1}; font-size: 17px; font-weight: bold; font-family: Arial; }}
+        """)
+        infoLayout.addWidget(nameLabel)
 
-        if not self._games:
-            empty = QLabel("Wishlist-mu masih kosong.\nTemukan game favoritmu di dashboard!")
-            empty.setAlignment(Qt.AlignCenter)
-            empty.setFont(QFont("Segoe UI", 13))
-            empty.setStyleSheet(f"color:{MUTED};padding:60px;")
-            self.list_layout.addWidget(empty)
-        else:
-            for g in self._games:
-                card = WishlistCard(g)
-                card.remove_clicked.connect(self._remove_game)
-                card.view_clicked.connect(self.card_clicked)
-                self.list_layout.addWidget(card)
+        # Tags
+        tagsWidget = QWidget()
+        tagsLayout = QHBoxLayout(tagsWidget)
+        tagsLayout.setSpacing(6)
+        tagsLayout.setContentsMargins(0, 0, 0, 0)
+        tag_style = f"""
+            QLabel {{
+                background-color: {TAG_BG}; color: {TEXT2}; font-size: 11px;
+                font-family: Arial; border-radius: 4px; padding: 2px 8px;
+                border: 1px solid {BORDER};
+            }}
+        """
+        for tag_text in ["Platform", "Indie", "Adventure"]:
+            t = QLabel(tag_text)
+            t.setStyleSheet(tag_style)
+            tagsLayout.addWidget(t)
+        tagsLayout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        infoLayout.addWidget(tagsWidget)
 
-        self.list_layout.addStretch()
+        # Harga
+        priceRow = QWidget()
+        priceLayout = QHBoxLayout(priceRow)
+        priceLayout.setSpacing(8)
+        priceLayout.setContentsMargins(0, 0, 0, 0)
 
-    def _remove_game(self, game: dict):
-        self._games = [g for g in self._games if g["title"] != game["title"]]
-        self.sub_lbl.setText(f"{len(self._games)} game tersimpan")
-        self._populate()
+        rating2 = QLabel("95")
+        rating2.setFixedSize(QSize(44, 44))
+        rating2.setAlignment(Qt.AlignCenter)
+        rating2.setStyleSheet(f"""
+            QLabel {{
+                background-color: transparent; color: {ACCENT}; font-size: 12px;
+                font-weight: bold; font-family: Arial; border: 3px solid {ACCENT}; border-radius: 22px;
+            }}
+        """)
+        priceLayout.addWidget(rating2)
+
+        discount2 = QLabel("-40%")
+        discount2.setStyleSheet(f"""
+            QLabel {{
+                background-color: {ACCENT}; color: #000000; font-size: 12px;
+                font-weight: bold; font-family: Arial; border-radius: 4px; padding: 2px 6px;
+            }}
+        """)
+        priceLayout.addWidget(discount2)
+
+        origPrice2 = QLabel("Rp 149.999")
+        origPrice2.setStyleSheet(f"""
+            QLabel {{ color: {TEXT2}; font-size: 12px; font-family: Arial; text-decoration: line-through; }}
+        """)
+        priceLayout.addWidget(origPrice2)
+
+        salePrice2 = QLabel("Rp 89.999")
+        salePrice2.setStyleSheet(f"""
+            QLabel {{ color: {ACCENT}; font-size: 15px; font-weight: bold; font-family: Arial; }}
+        """)
+        priceLayout.addWidget(salePrice2)
+        priceLayout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        infoLayout.addWidget(priceRow)
+        layout.addWidget(infoWidget)
+
+        layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        # Kolom kanan: tanggal + hapus
+        rightCol = QWidget()
+        rightColLayout = QVBoxLayout(rightCol)
+        rightColLayout.setSpacing(8)
+        rightColLayout.setContentsMargins(0, 0, 0, 0)
+
+        dateAdded2 = QLabel("Ditambahkan pada 1 April 2026")
+        dateAdded2.setAlignment(Qt.AlignRight)
+        dateAdded2.setStyleSheet(f"""
+            QLabel {{ color: {TEXT2}; font-size: 12px; font-family: Arial; }}
+        """)
+        rightColLayout.addWidget(dateAdded2)
+
+        rightColLayout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
+        btnDelete2 = QPushButton("🗑")
+        btnDelete2.setFixedSize(QSize(36, 36))
+        btnDelete2.setCursor(QCursor(Qt.PointingHandCursor))
+        btnDelete2.setStyleSheet(f"""
+            QPushButton {{
+                background-color: rgba(231, 76, 60, 0.1); color: #e74c3c;
+                border: 1px solid rgba(231, 76, 60, 0.4); border-radius: 6px; font-size: 14px;
+            }}
+            QPushButton:hover {{ background-color: #e74c3c; color: {TEXT1}; }}
+        """)
+        rightColLayout.addWidget(btnDelete2, alignment=Qt.AlignRight)
+
+        layout.addWidget(rightCol)
+        return card
+
+    def _build_cta_card(self):
+        """Card CTA: Tambah Game"""
+        self.ctaCard = QWidget()
+        self.ctaCard.setObjectName("ctaCard")
+        self.ctaCard.setStyleSheet(f"""
+            QWidget#ctaCard {{
+                background-color: {CARD};
+                border: 1px dashed {BORDER};
+                border-radius: 8px;
+            }}
+        """)
+
+        ctaLayout = QVBoxLayout(self.ctaCard)
+        ctaLayout.setContentsMargins(32, 24, 32, 24)
+        ctaLayout.setSpacing(12)
+
+        ctaText = QLabel("Ingin tambah game lagi pada Wishlist?")
+        ctaText.setAlignment(Qt.AlignCenter)
+        ctaText.setStyleSheet(f"""
+            QLabel {{ color: {TEXT2}; font-size: 13px; font-family: Arial; }}
+        """)
+        ctaLayout.addWidget(ctaText)
+
+        btnRow = QHBoxLayout()
+        btnRow.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        self.btnJelajahiGame1 = QPushButton("Jelajahi Game")
+        self.btnJelajahiGame1.setFixedSize(QSize(140, 36))
+        self.btnJelajahiGame1.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btnJelajahiGame1.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {ACCENT}; color: #000000; font-size: 13px;
+                font-weight: bold; font-family: Arial; border: none; border-radius: 6px;
+            }}
+            QPushButton:hover {{ background-color: {ACCENT_HOVER}; }}
+        """)
+        btnRow.addWidget(self.btnJelajahiGame1)
+        btnRow.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        ctaLayout.addLayout(btnRow)
+        return self.ctaCard
+
+    # ===== PAGE 1: Wishlist Kosong =====
+    def _build_page_empty(self):
+        self.pageEmpty = QWidget()
+        emptyLayout = QVBoxLayout(self.pageEmpty)
+        emptyLayout.setSpacing(0)
+        emptyLayout.setContentsMargins(0, 0, 0, 0)
+
+        emptyCard = QWidget()
+        emptyCard.setObjectName("emptyCard")
+        emptyCard.setStyleSheet(f"""
+            QWidget#emptyCard {{
+                background-color: {CARD};
+                border: 1px dashed {BORDER};
+                border-radius: 8px;
+            }}
+        """)
+
+        emptyCardLayout = QVBoxLayout(emptyCard)
+        emptyCardLayout.setContentsMargins(40, 60, 40, 60)
+        emptyCardLayout.setSpacing(16)
+
+        emptyLabel = QLabel("Wishlist Anda masih kosong")
+        emptyLabel.setAlignment(Qt.AlignCenter)
+        emptyLabel.setStyleSheet(f"""
+            QLabel {{ color: {TEXT2}; font-size: 14px; font-family: Arial; }}
+        """)
+        emptyCardLayout.addWidget(emptyLabel)
+
+        btnRow = QHBoxLayout()
+        btnRow.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        self.btnJelajahiGame2 = QPushButton("Jelajahi Game")
+        self.btnJelajahiGame2.setFixedSize(QSize(140, 36))
+        self.btnJelajahiGame2.setCursor(QCursor(Qt.PointingHandCursor))
+        self.btnJelajahiGame2.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {ACCENT}; color: #000000; font-size: 13px;
+                font-weight: bold; font-family: Arial; border: none; border-radius: 6px;
+            }}
+            QPushButton:hover {{ background-color: {ACCENT_HOVER}; }}
+        """)
+        btnRow.addWidget(self.btnJelajahiGame2)
+        btnRow.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        emptyCardLayout.addLayout(btnRow)
+        emptyLayout.addWidget(emptyCard)
+        emptyLayout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
+        return self.pageEmpty
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = WishlistWindow()
+    window.show()
+    sys.exit(app.exec_())
