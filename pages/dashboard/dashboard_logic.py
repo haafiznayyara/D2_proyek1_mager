@@ -1,6 +1,7 @@
 import threading
 import urllib.request
 from PyQt5.QtCore import pyqtSignal, QObject
+from difflib import SequenceMatcher
 from database.connection import connection_database
 
 # ── Palette ───────────────────────────────────────────────────────────────
@@ -147,19 +148,48 @@ def rating_color(r):
         return "#f59e0b"
     return "#ef4444"
 
+def similarity(a, b):
+    return SequenceMatcher(None, a, b).ratio()
 
 def filter_games(all_games, cat, query=""):
     query = query.lower().strip()
+    keywords = query.split()
+
     filtered = []
+
     for g in all_games:
-        # Cek di semua genre, bukan hanya genre[0]
         if cat != "Semua" and cat not in g.get("genres", []):
             continue
-        if query and query not in g["title"].lower() and query not in g["dev"].lower():
-            continue
-        filtered.append(g)
-    return filtered
 
+        if not query:
+            filtered.append(g)
+            continue
+
+        title = (g.get("title") or "").lower()
+        dev = (g.get("dev") or "").lower()
+        pub = (g.get("pub") or "").lower()
+        genres = " ".join(g.get("genres", [])).lower()
+
+        searchable_text = f"{title} {dev} {pub} {genres}"
+        searchable_words = searchable_text.split()
+
+        exact_match = all(
+            keyword in searchable_text
+            for keyword in keywords
+        )
+
+        fuzzy_match = all(
+            any(
+                keyword in word or similarity(keyword, word) >= 0.72
+                for word in searchable_words
+            )
+            for keyword in keywords
+        )
+
+        if exact_match or fuzzy_match:
+            filtered.append(g)
+
+    return filtered
 
 class ImageFetcher(QObject):
     """Download gambar dari URL di thread terpisah, emit signal saat selesai."""
