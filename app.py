@@ -83,6 +83,7 @@ class Router(QStackedWidget):
             lambda: self.go_to(self.PAGE_POPULAR)
         )
         self.page_dashboard.card_clicked.connect(self._open_detail)
+        self.page_popular.grid.card_clicked.connect(self._open_detail)
 
         # Game Detail → kembali
         self.page_detail.back_clicked.connect(
