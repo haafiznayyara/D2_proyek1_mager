@@ -13,12 +13,12 @@ import sys
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QScrollArea, QFrame, QLineEdit,
-    QSizePolicy, QGridLayout, QSpacerItem
+    QSizePolicy, QGridLayout, QSpacerItem,
 )
 from PyQt5.QtCore import Qt, QRectF, pyqtSignal, QThread, QObject, QSize
 from PyQt5.QtGui import (
     QFont, QColor, QPainter, QPixmap, QLinearGradient,
-    QBrush, QPen, QPalette, QCursor, QRadialGradient, QFontMetrics
+    QBrush, QPen, QPalette, QCursor, QRadialGradient, QFontMetrics, QIcon
 )
 from widget.navbar import Navbar
 from widget.cardGame import PopularGameCard, COVER_RATIO, INFO_H
@@ -26,7 +26,7 @@ from pages.popular.popular_logic import get_popular_games, sort_games, search_ga
 
 # ── Colour Palette (dark navy / green accent) ─────────────────────────────
 BG        = "#0A1123"
-BG2       = "#0f2236"
+BG2       = "#1A1F36"
 CARD      = "#1A2332"
 CARD_HOV  = "#1A2332"
 ACCENT    = "#39d353"       # green
@@ -61,64 +61,6 @@ class GamesGrid(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(20, 0, 20, 20)
         outer.setSpacing(8)
-
-        # Section header
-        hdr = QWidget()
-        hdr.setStyleSheet(f"""
-            background: {BG2};
-            border-radius: 10px;
-            border: 1px solid {BORDER};
-            QLabel {{ border: none; }}
-        """)
-        hdr_lay = QHBoxLayout(hdr)
-        hdr_lay.setContentsMargins(14, 12, 14, 12)
-
-        hdr_left = QVBoxLayout()
-        hdr_left.setSpacing(2)
-
-        title_row = QHBoxLayout()
-        title_row.setSpacing(8)
-        title_row.setContentsMargins(0, 0, 0, 0)
-        arrow_lbl = QLabel("↑")
-        arrow_lbl.setFont(QFont("Segoe UI", 16, QFont.Bold))
-        arrow_lbl.setStyleSheet(f"color: {ACCENT}; border: none;")
-        arrow_lbl.setFixedSize(22, 22)
-        title_row.addWidget(arrow_lbl, alignment=Qt.AlignVCenter)
-        sec_title = QLabel("Game Populer")
-        sec_title.setFont(QFont("Segoe UI", 14, QFont.Bold))
-        sec_title.setStyleSheet(f"color: {TEXT1}; border: none;")
-        title_row.addWidget(sec_title, alignment=Qt.AlignVCenter)
-        title_row.addStretch()
-        hdr_left.addLayout(title_row)
-
-        sec_sub = QLabel("        Berdasarkan jumlah pemain tertinggi")
-        sec_sub.setFont(QFont("Segoe UI", 8))
-        sec_sub.setStyleSheet(f"color: {TEXT2}; border: none;")
-        hdr_left.addWidget(sec_sub)
-
-        hdr_lay.addLayout(hdr_left)
-        hdr_lay.addStretch()
-
-        self.sort_btn = QPushButton("⇅  Terendah - Tertinggi")
-        self.sort_btn.setFixedHeight(36)
-        self.sort_btn.setFont(QFont("Segoe UI", 9, QFont.Bold))
-        self.sort_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        self.sort_btn.setStyleSheet(f"""
-            QPushButton {{
-                background: {SORT_BG};
-                color: {TEXT1};
-                border: 1px solid {BORDER};
-                border-radius: 8px;
-                padding: 0 14px;
-            }}
-            QPushButton:hover {{
-                background: {CARD_HOV};
-                border-color: {ACCENT2};
-            }}
-        """)
-        hdr_lay.addWidget(self.sort_btn)
-        outer.addWidget(hdr)
-
         self.count_lbl = QLabel()
         self.count_lbl.setFont(QFont("Segoe UI", 9))
         self.count_lbl.setStyleSheet(f"color: {TEXT2}; padding-left: 4px;")
@@ -129,20 +71,7 @@ class GamesGrid(QWidget):
         outer.addWidget(self.canvas)
         outer.addStretch()
 
-        self._sorted_asc = True
-        self.sort_btn.clicked.connect(self._toggle_sort)
         self._populate(games)
-
-    def _toggle_sort(self):
-        self._sorted_asc = not self._sorted_asc
-        label = "Terendah - Tertinggi" if self._sorted_asc else "Tertinggi - Terendah"
-        self.sort_btn.setText(f"⇅  {label}")
-        sorted_games = sorted(
-            self._all_games,
-            key=lambda g: g["peak_player"],
-            reverse=not self._sorted_asc,
-        )
-        self._populate(sorted_games)
 
     def _populate(self, games: list):
         for c in self.cards:
@@ -220,14 +149,101 @@ class GamesGrid(QWidget):
         super().resizeEvent(e)
         self._relayout()
 
+# --- Popular Game Header --------------------------------------------------
+class PopularHeader(QFrame):
+    sort_clicked = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+        self.setFixedHeight(76)
+        self.setObjectName("PopularHeader")
+
+        self.setStyleSheet(f"""
+            QFrame#PopularHeader {{
+                background: {BORDER};
+                border-radius: 10px;
+                border: 1px solid {BORDER};
+            }}
+            QFrame#PopularHeader QLabel {{
+                background: transparent;
+                border: none;
+            }}
+        """)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(8)
+
+        left = QVBoxLayout()
+        left.setSpacing(2)
+        left.setContentsMargins(0, 0, 0, 0)
+
+        title_row = QHBoxLayout()
+        title_row.setSpacing(8)
+        title_row.setContentsMargins(0, 0, 0, 0)
+
+        icon = QLabel()
+        pixmap = QPixmap("assets/green_arrow.png")
+        icon.setPixmap(
+            pixmap.scaled(
+                22, 22,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+        )
+        icon.setFixedSize(24, 24)
+        icon.setAlignment(Qt.AlignCenter)
+        icon.setStyleSheet("background: transparent; border: none;")
+        title_row.addWidget(icon, alignment=Qt.AlignVCenter)
+
+        title = QLabel("Game Populer")
+        title.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        title.setStyleSheet(f"color: {TEXT1}; background: transparent; border: none;")
+        title_row.addWidget(title, alignment=Qt.AlignVCenter)
+
+        title_row.addStretch()
+        left.addLayout(title_row)
+
+        subtitle = QLabel("Berdasarkan jumlah pemain tertinggi")
+        subtitle.setFont(QFont("Segoe UI", 8))
+        subtitle.setStyleSheet(f"color: {TEXT2}; background: transparent; border: none;")
+        left.addWidget(subtitle)
+
+        layout.addLayout(left)
+        layout.addStretch()
+
+        filter_icon = QIcon("assets/filter_outline.png")
+        self.sort_btn = QPushButton("Tertinggi - Terendah")
+        self.sort_btn.setIcon(filter_icon)
+        self.sort_btn.setIconSize(QSize(16, 16))
+        self.sort_btn.setFixedHeight(32)
+        self.sort_btn.setFont(QFont("Segoe UI", 8, QFont.Bold))
+        self.sort_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        self.sort_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: {SORT_BG};
+                color: {TEXT1};
+                border: 1px solid {BORDER};
+                border-radius: 8px;
+                padding: 0 12px;
+            }}
+            QPushButton:hover {{
+                background: {CARD_HOV};
+                border-color: {ACCENT2};
+            }}
+        """)
+        self.sort_btn.clicked.connect(self.sort_clicked.emit)
+        layout.addWidget(self.sort_btn)
+
 
 # ── Hero Banner ───────────────────────────────────────────────────────────
 class HeroBanner(QWidget):
     def __init__(self):
         super().__init__()
-        self.setFixedHeight(90)
+        self.setFixedHeight(125)
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(24, 16, 24, 10)
+        lay.setContentsMargins(24, 18, 24, 16)
         lay.setSpacing(4)
 
         title = QLabel("Temukan Game Terbaik dengan Harga Terbaik")
@@ -242,11 +258,7 @@ class HeroBanner(QWidget):
 
     def paintEvent(self, _event):
         p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
-        g = QLinearGradient(0, 0, self.width(), self.height())
-        g.setColorAt(0.0, QColor("#0d1b2a"))
-        g.setColorAt(1.0, QColor("#061020"))
-        p.fillRect(self.rect(), g)
+        p.fillRect(self.rect(), QColor(BG))
 
 
 # ── Main Window ───────────────────────────────────────────────────────────
@@ -274,6 +286,17 @@ class PopularGamesWindow(QMainWindow):
 
         self.hero = HeroBanner()
         root.addWidget(self.hero)
+        
+        header_wrap = QWidget()
+        header_wrap.setStyleSheet(f"background: {BG};")
+        header_lay = QVBoxLayout(header_wrap)
+        header_lay.setContentsMargins(20, 0, 20, 10)
+        header_lay.setSpacing(0)
+
+        self.popular_header = PopularHeader()
+        header_lay.addWidget(self.popular_header)
+
+        root.addWidget(header_wrap)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -293,8 +316,7 @@ class PopularGamesWindow(QMainWindow):
         self.grid.card_clicked.connect(self._on_card_clicked)
 
         # Sambungkan tombol sort di GamesGrid ke handler
-        self.grid.sort_btn.clicked.disconnect()   # putus koneksi lama
-        self.grid.sort_btn.clicked.connect(self._toggle_sort)
+        self.popular_header.sort_clicked.connect(self._toggle_sort)
 
         scroll.setWidget(self.grid)
         root.addWidget(scroll)
@@ -304,7 +326,7 @@ class PopularGamesWindow(QMainWindow):
     def _toggle_sort(self):
         self._sort_order = "asc" if self._sort_order == "desc" else "desc"
         label = "Terendah - Tertinggi" if self._sort_order == "asc" else "Tertinggi - Terendah"
-        self.grid.sort_btn.setText(f"⇅  {label}")
+        self.popular_header.sort_btn.setText(label)
         sorted_data = sort_games(self._all_games, self._sort_order)
         self.grid._populate(sorted_data)
 
