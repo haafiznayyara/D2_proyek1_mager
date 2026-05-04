@@ -1,6 +1,5 @@
 # popular_logic.py
 from difflib import SequenceMatcher
-
 from database.connection import connection_database
 
 
