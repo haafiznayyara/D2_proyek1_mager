@@ -82,7 +82,7 @@ QPushButton#btnSave {
     padding: 10px;
 }
 QPushButton#btnSave:hover {
-    background-color: #3ddc74;
+    background-color: #16a34a;
 }
 QLabel#sectionLabel {
     color: #FFFFFF;
@@ -136,15 +136,15 @@ QPushButton#btnWishlist {
     padding: 10px;
 }
 QPushButton#btnWishlist:hover {
-    background-color: #3ddc74;
+    background-color: #16a34a;
 }
 """
 
 
 def icon_path(filename):
-    """Resolve path ikon relatif terhadap lokasi script ini."""
+    """Resolve path ikon dari folder assets."""
     base = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base, filename)
+    return os.path.join(base, "..", "..", "assets", filename)
 
 
 def make_icon_label(png_file, size=20):
@@ -161,7 +161,30 @@ class ProfileWindow(QtWidgets.QMainWindow):
     # Signal khusus jika diperlukan untuk pindah ke wishlist langsung dari profile
     wishlist_clicked = QtCore.pyqtSignal() 
     back_clicked = QtCore.pyqtSignal()
-    
+    logout_clicked = QtCore.pyqtSignal()
+
+    def _on_save_clicked(self):
+        new_username = self.usernameEdit.text().strip()
+        if not new_username:
+            return  # abaikan jika kosong
+        # Update Display Name
+        self.displayNameEdit.setText(new_username)
+        # Update huruf avatar
+        self.avatarLabel.setText(new_username[0].upper())
+
+    def load_user(self, user: dict):
+        username = user.get("username", "")
+        self.displayNameEdit.setText(username)
+        self.usernameEdit.setText(username)
+        # Set huruf pertama sebagai avatar
+        self.avatarLabel.setText(username[0].upper() if username else "?")
+
+    def update_wishlist_count(self, jumlah: int):
+        for lbl in self.cardWishlist.findChildren(QtWidgets.QLabel):
+            if lbl.text().startswith("Total:"):
+                lbl.setText(f"Total: {jumlah} Game")
+                break
+
     def __init__(self):
         super().__init__()
         self.setObjectName("ProfileWindow")
@@ -194,6 +217,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.btnBack.setObjectName("btnBack")
         self.btnBack.setMaximumWidth(120)
         contentVLayout.addWidget(self.btnBack)
+        self.btnBack.clicked.connect(self.back_clicked.emit)
 
         # Main content row
         mainContentLayout = QtWidgets.QHBoxLayout()
@@ -245,6 +269,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.btnSave = QtWidgets.QPushButton("Simpan Perubahan")
         self.btnSave.setObjectName("btnSave")
         leftPanelLayout.addWidget(self.btnSave)
+        self.btnSave.clicked.connect(self._on_save_clicked)
 
         # Statistik Preferensi
         self.sectionLabel = QtWidgets.QLabel("Statistik Preferensi")
@@ -267,6 +292,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.btnLogout.setObjectName("btnLogout")
         self.btnLogout.setIcon(QtGui.QIcon(icon_path("material-symbols_logout-rounded.png")))
         self.btnLogout.setIconSize(QtCore.QSize(18, 18))
+        self.btnLogout.clicked.connect(self.logout_clicked.emit)
         leftPanelLayout.addWidget(self.btnLogout)
 
         mainContentLayout.addWidget(self.leftPanel)
@@ -340,7 +366,8 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.btnWishlist.setObjectName("btnWishlist")
         # Hubungkan tombol ini dengan signal
         self.btnWishlist.clicked.connect(self.wishlist_clicked.emit) 
-        
+        self.btnWishlist.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+
         self.cardWishlist = make_card(
             "cardWishlist", "Vector (3).png", "Riwayat Wishlist", "#FFFFFF",
             "Total: 0 Game", "", extra_widget=self.btnWishlist

@@ -22,6 +22,7 @@ from widget.cardGame import PopularGameCard, COVER_RATIO as _COVER_RATIO, INFO_H
 class GamesGrid(QWidget):
     # Bubble-up signal dari card ke MainWindow
     card_clicked = pyqtSignal(dict)
+    wishlist_clicked = pyqtSignal(dict) 
 
     def __init__(self, games):
         super().__init__()
@@ -58,6 +59,7 @@ class GamesGrid(QWidget):
             card.show()
             # Teruskan sinyal klik ke atas
             card.clicked.connect(self.card_clicked)
+            card.wishlist_clicked.connect(self.wishlist_clicked)          
             self.cards.append(card)
         self._relayout()
 
@@ -194,6 +196,7 @@ class CategoryBar(QWidget):
 class MainWindow(QWidget):
     # Signal diteruskan ke Router
     card_clicked     = pyqtSignal(dict)
+    wishlist_clicked = pyqtSignal(dict)
 
     def __init__(self, games):
         super().__init__()
@@ -242,6 +245,7 @@ class MainWindow(QWidget):
         self.grid_widget = GamesGrid(games)
         # Bubble-up card click ke MainWindow → Router
         self.grid_widget.card_clicked.connect(self.card_clicked)
+        self.grid_widget.wishlist_clicked.connect(self.wishlist_clicked)
         scroll.setWidget(self.grid_widget)
         root.addWidget(scroll)
 
