@@ -9,6 +9,9 @@ from pages.gameProfile.profileGame_ui import GameDetailWindow
 from pages.wishlist.wishlist_ui import WishlistWindow
 from pages.userProfile.profile_ui import ProfileWindow
 from pages.auth.auth_ui import LoginWindow, RegisterWindow, SuccessRegisterPage
+from pages.cheapest.filterHarga_logic import (
+        get_games_by_price, filter_games_by_price, search_games, parse_price_input)
+from pages.cheapest.filterHarga_ui import FilterHargaWindow 
 
 
 def build_dark_palette():
@@ -62,7 +65,7 @@ class Router(QStackedWidget):
         self.page_register = RegisterWindow()
         self.page_success = SuccessRegisterPage()
         self.page_popular = PopularGamesWindow()
-        
+        self.page_filter_harga = FilterHargaWindow()
         self.addWidget(self.page_dashboard)   # index 0
         self.addWidget(self.page_detail)      # index 1
         self.addWidget(self.page_wishlist)    # index 2
