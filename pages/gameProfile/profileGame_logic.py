@@ -12,14 +12,14 @@ from PyQt5.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool
 # Konfigurasi koneksi  →  sesuaikan dengan environment kamu
 # ─────────────────────────────────────────────────────────────────────────────
 DB_CONFIG: dict = {
-    "host":     "localhost",
-    "port":     3306,
-    "user":     "root",
-    "password": "",          # ← ganti
-    "database": "mager_db",  # ← ganti
-    "charset":  "utf8mb4",
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "mager_db",
+    "charset": "utf8mb4",
     "autocommit": True,
 }
+DB_PORTS = [3306, 3307]
 
 TABLE_GAMES = "games"
 
@@ -28,8 +28,24 @@ TABLE_GAMES = "games"
 # Helper: koneksi
 # ─────────────────────────────────────────────────────────────────────────────
 def _get_connection():
-    """Buka koneksi baru ke MySQL. Lempar MySQLError jika gagal."""
-    return mysql.connector.connect(**DB_CONFIG)
+    """Coba koneksi ke beberapa port MySQL."""
+    
+    for port in DB_PORTS:
+        try:
+            conn = mysql.connector.connect(
+                **DB_CONFIG,
+                port=port
+            )
+
+            print(f"[DB] Connected to MySQL port {port}")
+            return conn
+
+        except MySQLError:
+            print(f"[DB] Failed port {port}")
+
+    raise MySQLError(
+        "Tidak bisa terhubung ke MySQL di port 3306 maupun 3307"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
