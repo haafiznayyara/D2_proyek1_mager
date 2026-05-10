@@ -39,16 +39,22 @@ class Router(QStackedWidget):
         1 → Game Detail
         2 → Wishlist
         3 → Profile
+        4 → Login
+        5 → Register
+        6 → Success
+        7 → Popular
+        8 → Filter Harga
     """
 
     PAGE_DASHBOARD = 0
     PAGE_DETAIL    = 1
     PAGE_WISHLIST  = 2
     PAGE_PROFILE   = 3
-    PAGE_LOGIN    = 4
-    PAGE_REGISTER = 5   
-    PAGE_SUCCESS = 6
-    PAGE_POPULAR = 7
+    PAGE_LOGIN     = 4
+    PAGE_REGISTER  = 5   
+    PAGE_SUCCESS   = 6
+    PAGE_POPULAR   = 7
+    PAGE_FILTER_HARGA = 8
 
     def __init__(self, games):
         super().__init__()
@@ -66,14 +72,16 @@ class Router(QStackedWidget):
         self.page_success = SuccessRegisterPage()
         self.page_popular = PopularGamesWindow()
         self.page_filter_harga = FilterHargaWindow()
-        self.addWidget(self.page_dashboard)   # index 0
-        self.addWidget(self.page_detail)      # index 1
-        self.addWidget(self.page_wishlist)    # index 2
-        self.addWidget(self.page_profile)     # index 3
-        self.addWidget(self.page_login)       # index 4
-        self.addWidget(self.page_register)    # index 5
-        self.addWidget(self.page_success)     # index 6
-        self.addWidget(self.page_popular)     # index 7
+        
+        self.addWidget(self.page_dashboard)      # index 0
+        self.addWidget(self.page_detail)         # index 1
+        self.addWidget(self.page_wishlist)       # index 2
+        self.addWidget(self.page_profile)        # index 3
+        self.addWidget(self.page_login)          # index 4
+        self.addWidget(self.page_register)       # index 5
+        self.addWidget(self.page_success)        # index 6
+        self.addWidget(self.page_popular)        # index 7
+        self.addWidget(self.page_filter_harga)   # index 8
 
         #ROUTE DASHBOARD
         self.page_dashboard.nav.wishlist_clicked.connect(
@@ -84,6 +92,9 @@ class Router(QStackedWidget):
         )
         self.page_dashboard.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
+        )
+        self.page_dashboard.nav.cheapest_clicked.connect(
+            lambda: self.go_to(self.PAGE_FILTER_HARGA)
         )
         self.page_dashboard.card_clicked.connect(self._open_detail)
         self.page_popular.grid.card_clicked.connect(self._open_detail)
@@ -102,6 +113,9 @@ class Router(QStackedWidget):
         self.page_detail.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
         )
+        self.page_detail.nav.cheapest_clicked.connect(
+            lambda: self.go_to(self.PAGE_FILTER_HARGA)
+        )
         self.page_detail.nav.dashboard_clicked.connect(
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
@@ -109,6 +123,9 @@ class Router(QStackedWidget):
         # ROUTE WISHLIST
         self.page_wishlist.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
+        )
+        self.page_wishlist.nav.cheapest_clicked.connect(
+            lambda: self.go_to(self.PAGE_FILTER_HARGA)
         )
         self.page_wishlist.nav.wishlist_clicked.connect(
             lambda: self.go_to(self.PAGE_WISHLIST)
@@ -133,6 +150,9 @@ class Router(QStackedWidget):
         self.page_profile.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
         )
+        self.page_profile.nav.cheapest_clicked.connect(
+            lambda: self.go_to(self.PAGE_FILTER_HARGA)
+        )
         
         #ROUTE POPULAR
         self.page_popular.nav.dashboard_clicked.connect(
@@ -144,6 +164,27 @@ class Router(QStackedWidget):
         self.page_popular.nav.profile_clicked.connect(
             lambda: self.go_to(self.PAGE_PROFILE)
         )
+        self.page_popular.nav.cheapest_clicked.connect(
+            lambda: self.go_to(self.PAGE_FILTER_HARGA)
+        )
+        
+        #ROUTE FILTER HARGA
+        self.page_filter_harga.nav.dashboard_clicked.connect(
+            lambda: self.go_to(self.PAGE_DASHBOARD)
+        )
+        self.page_filter_harga.nav.popular_clicked.connect(
+            lambda: self.go_to(self.PAGE_POPULAR)
+        )
+        self.page_filter_harga.nav.wishlist_clicked.connect(
+            lambda: self.go_to(self.PAGE_WISHLIST)
+        )
+        self.page_filter_harga.nav.profile_clicked.connect(
+            lambda: self.go_to(self.PAGE_PROFILE)
+        )
+        self.page_filter_harga.nav.cheapest_clicked.connect(
+            lambda: self.go_to(self.PAGE_FILTER_HARGA)
+        )
+        self.page_filter_harga.card_clicked.connect(self._open_detail)
         
         self.page_login.login_success.connect(lambda user: self._on_login(user))
         self.page_login.go_register.connect(lambda: self.go_to(self.PAGE_REGISTER))

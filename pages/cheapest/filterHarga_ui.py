@@ -447,7 +447,7 @@ class FilterHargaWindow(QWidget):
         root.setSpacing(0)
         
         # ── Navbar ────────────────────────────────────────────────────────
-        self.nav = Navbar(active_page="filter_harga")
+        self.nav = Navbar(active_page="cheapest")
         self.nav.setAttribute(Qt.WA_StyledBackground, True)
         self.nav.setStyleSheet("background: #000000;")
         root.addWidget(self.nav)
