@@ -205,6 +205,8 @@ class MainWindow(QWidget):
         root.setSpacing(0)
 
         self.nav = Navbar(active_page="dashboard")
+        self.nav.setAttribute(Qt.WA_StyledBackground, True)
+        self.nav.setStyleSheet("background: #000000;")
         root.addWidget(self.nav)
 
         header = QWidget()
