@@ -69,7 +69,7 @@ class SearchBox(QWidget):
 
         # Placeholder overlay
         self._ph = QLabel("Search games...", self)
-        self._ph.setFont(QFont("Segoe UI", 10))
+        self._ph.setFont(QFont("Segoe UI", 11))
         self._ph.setStyleSheet(f"color:{_MUTED}; background:transparent; border:none;")
         self._ph.setAttribute(Qt.WA_TransparentForMouseEvents)
         self._ph.raise_()
@@ -136,10 +136,22 @@ class Navbar(QWidget):
         h.setContentsMargins(28, 0, 28, 0)
         h.setSpacing(0)
 
-        # Logo
-        logo = QLabel("MAGER")
+        # Logo — klik untuk balik ke dashboard, warna tetap putih
+        logo = QPushButton("MAGER")
         logo.setFont(QFont("Consolas", 18, QFont.Bold))
-        logo.setStyleSheet(f"color:{_WHITE}; letter-spacing:4px; background:transparent;")
+        logo.setCursor(QCursor(Qt.PointingHandCursor))
+        logo.setStyleSheet(f"""
+            QPushButton {{
+                color: {_WHITE};
+                letter-spacing: 4px;
+                background: transparent;
+                border: none;
+                padding: 0;
+            }}
+            QPushButton:hover {{ color: {_WHITE}; }}
+            QPushButton:pressed {{ color: {_WHITE}; }}
+        """)
+        logo.clicked.connect(self.dashboard_clicked)
         h.addWidget(logo)
         h.addSpacing(36)
 
