@@ -1,4 +1,5 @@
 import sys
+from pages.wishlist.wishlist_logic import WishlistLogic, fetch_wishlist
 from PyQt5.QtWidgets import QApplication, QStackedWidget
 from PyQt5.QtGui import QColor, QPalette
 
@@ -7,6 +8,7 @@ from pages.dashboard.dashboard_ui import MainWindow
 from pages.popular.popular_ui import PopularGamesWindow
 from pages.gameProfile.profileGame_ui import GameDetailWindow
 from pages.wishlist.wishlist_ui import WishlistWindow
+from pages.wishlist.wishlist_logic import WishlistLogic
 from pages.userProfile.profile_ui import ProfileWindow
 from pages.auth.auth_ui import LoginWindow, RegisterWindow, SuccessRegisterPage
 from pages.cheapest.filterHarga_logic import (
@@ -56,6 +58,10 @@ class Router(QStackedWidget):
     PAGE_POPULAR   = 7
     PAGE_FILTER_HARGA = 8
 
+    def _on_add_to_wishlist(self, game: dict):
+        self.wishlist_logic.on_add_clicked(game)
+        self.wishlist_logic.load_wishlist()
+
     def __init__(self, games):
         super().__init__()
         self.setWindowTitle("MAGER — Game Store")
@@ -63,6 +69,8 @@ class Router(QStackedWidget):
         self.setMinimumSize(900, 640)
 
         # ── Buat semua halaman ──────────────────────────────────────────
+        self.current_user = None   # diisi saat login berhasil
+
         self.page_dashboard = MainWindow(games)
         self.page_detail    = GameDetailWindow()
         self.page_wishlist  = WishlistWindow()
@@ -112,17 +120,7 @@ class Router(QStackedWidget):
         self.page_detail.nav_profile_clicked.connect(
             lambda: self.go_to(self.PAGE_PROFILE)
         )
-        
-        self.page_detail.nav.popular_clicked.connect(
-            lambda: self.go_to(self.PAGE_POPULAR)
-        )
-        self.page_detail.nav.cheapest_clicked.connect(
-            lambda: self.go_to(self.PAGE_FILTER_HARGA)
-        )
-        self.page_detail.nav.dashboard_clicked.connect(
-            lambda: self.go_to(self.PAGE_DASHBOARD)
-        )
-        
+
         # ROUTE WISHLIST
         self.page_wishlist.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
@@ -140,11 +138,14 @@ class Router(QStackedWidget):
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
 
+        # WishlistLogic — dibuat setelah login (lihat _on_login)
+        self.wishlist_logic = None
+
         # ROUTE PROFILE
         self.page_profile.back_clicked.connect(
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
-        self.page_profile.wishlist_clicked.connect(
+        self.page_profile.nav.wishlist_clicked.connect(
             lambda: self.go_to(self.PAGE_WISHLIST)
         )
         self.page_profile.nav.dashboard_clicked.connect(
@@ -152,9 +153,6 @@ class Router(QStackedWidget):
         )
         self.page_profile.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
-        )
-        self.page_profile.nav.cheapest_clicked.connect(
-            lambda: self.go_to(self.PAGE_FILTER_HARGA)
         )
         
         #ROUTE POPULAR
@@ -204,12 +202,50 @@ class Router(QStackedWidget):
             
     def _on_login(self, user: dict):
         print(f"[DEBUG] Login berhasil: {user}")
+        self.current_user = user
+        self.page_profile.load_user(user) 
+        # Inisialisasi WishlistLogic dengan id_user yang baru login
+        id_user = user.get("id_user", 1)
+        self.wishlist_logic = WishlistLogic(self.page_wishlist, id_user)
+
+        # Navigasi: "Jelajahi Game" & "← Kembali" → Dashboard
+        self.wishlist_logic.go_to_dashboard.connect(
+            lambda: self.go_to(self.PAGE_DASHBOARD)
+        )
+        # Tombol 🗑 pada tiap card → hapus dari DB lalu refresh
+        self.page_wishlist.delete_requested.connect(
+            self.wishlist_logic.on_delete_clicked
+        )
+        self.page_dashboard.wishlist_clicked.connect(
+            self._on_add_to_wishlist
+        )
+        self.wishlist_logic.wishlist_count_changed.connect(
+            self.page_profile.update_wishlist_count
+        )
+        self.page_profile.update_wishlist_count(
+            len(fetch_wishlist(id_user))
+        )
+
         self.go_to(self.PAGE_DASHBOARD)
 
     def _on_register_success(self):
         self.go_to(self.PAGE_SUCCESS)
         self.page_success.show_and_redirect()
-    
+
+    def _on_logout(self):
+        print("[DEBUG] Logout: sesi dihapus")
+        if self.wishlist_logic is not None:
+            try:
+                self.page_wishlist.delete_requested.disconnect(
+                    self.wishlist_logic.on_delete_clicked
+                )
+                self.wishlist_logic.go_to_dashboard.disconnect()
+            except TypeError:
+                pass
+            self.wishlist_logic = None
+        self.current_user = None
+        self.go_to(self.PAGE_LOGIN)
+
     def _open_detail(self, game: dict):
         """Buka halaman detail dengan data game yang diklik."""
         self.page_detail.load_game(game)

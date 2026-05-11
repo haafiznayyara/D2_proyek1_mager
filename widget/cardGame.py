@@ -122,6 +122,7 @@ class TagPill(QLabel):
 # ── Game Card (shared, reusable) ──────────────────────────────────────────
 class PopularGameCard(QFrame):
     clicked = pyqtSignal(dict)
+    wishlist_clicked = pyqtSignal(dict)
 
     def __init__(self, game: dict, parent=None):
         super().__init__(parent)
@@ -175,7 +176,10 @@ class PopularGameCard(QFrame):
             }}
             QPushButton:hover {{ color: #e74c3c; border-color: #e74c3c; }}
         """)
-
+        self._wish_btn.clicked.connect(
+            lambda: self.wishlist_clicked.emit(self.game)
+        )
+        
         # ── Info panel ────────────────────────────────────────────────────
         info = QWidget()
         info.setFixedHeight(INFO_H)
@@ -232,7 +236,6 @@ class PopularGameCard(QFrame):
 
     def _load_poster_raw(self) -> QPixmap | None:
         filename = self.game.get("img", "")
-        
         # Handle jika nilai adalah None, string "None", atau string kosong
         if not filename or str(filename).strip().lower() in ("none", "null", ""):
             return None
@@ -251,7 +254,7 @@ class PopularGameCard(QFrame):
         super().mousePressEvent(event)
 
     def set_width(self, w: int):
-        if w == self._cw:
+        if w == self._cw:  # ← kembalikan ini
             return
         self._cw = w
         ch = int(w * COVER_RATIO)
