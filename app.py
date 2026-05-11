@@ -84,6 +84,9 @@ class Router(QStackedWidget):
         self.addWidget(self.page_filter_harga)   # index 8
 
         #ROUTE DASHBOARD
+        self.page_dashboard.nav.dashboard_clicked.connect(
+            lambda: self.go_to(self.PAGE_DASHBOARD)
+        )
         self.page_dashboard.nav.wishlist_clicked.connect(
             lambda: self.go_to(self.PAGE_WISHLIST)
         )
