@@ -390,9 +390,9 @@ class RegisterWindow(QWidget):
         cl.addWidget(sub)
 
         # Fields
-        self.inp_user    = _IconField("Masukkan username",   _asset("avatar_outline.png"))
-        self.inp_pass    = _IconField("Masukkan password",   _asset("lock_outline.png"), QLineEdit.Password)
-        self.inp_confirm = _IconField("Konfirmasi password", _asset("lock_outline.png"), QLineEdit.Password)
+        self.inp_user    = _IconField("Masukkan username",   _asset(avatar_icon))
+        self.inp_pass    = _IconField("Masukkan password",   _asset(lock_icon), QLineEdit.Password)
+        self.inp_confirm = _IconField("Konfirmasi password", _asset(lock_icon), QLineEdit.Password)
         _field_block(cl, "Username",            self.inp_user,    spacing_before=16)
         _field_block(cl, "Password",            self.inp_pass,    spacing_before=10)
         _field_block(cl, "Konfirmasi Password", self.inp_confirm, spacing_before=10)
