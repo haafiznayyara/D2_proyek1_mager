@@ -6,7 +6,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QLabel, QPushButton,
     QVBoxLayout, QHBoxLayout, QStackedWidget, QSizePolicy, QSpacerItem,
-    QDialog, QGraphicsDropShadowEffect
+    QDialog, QGraphicsDropShadowEffect, QScrollArea
 )
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from PyQt5.QtGui import QCursor, QColor
@@ -234,7 +234,33 @@ class WishlistWindow(QMainWindow):
         self.stackedWidget.addWidget(self._build_page_empty())
         self.stackedWidget.setCurrentIndex(1)
 
-        self.contentLayout.addWidget(self.stackedWidget)
+        # Bungkus stackedWidget dengan ScrollArea
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.stackedWidget)
+        scroll.setStyleSheet(f"""
+            QScrollArea {{
+                background-color: {BG};
+                border: none;
+            }}
+            QScrollBar:vertical {{
+                background: {CARD};
+                width: 8px;
+                border-radius: 4px;
+            }}
+            QScrollBar::handle:vertical {{
+                background: {BORDER};
+                border-radius: 4px;
+                min-height: 30px;
+            }}
+            QScrollBar::handle:vertical:hover {{
+                background: {ACCENT};
+            }}
+            QScrollBar::add-line:vertical,
+            QScrollBar::sub-line:vertical {{ height: 0; }}
+        """)
+
+        self.contentLayout.addWidget(scroll)
         self.mainLayout.addWidget(self.contentArea)
 
     # ── Render Wishlist ───────────────────────────────────────────────
