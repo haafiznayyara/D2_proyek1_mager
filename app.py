@@ -14,6 +14,7 @@ from pages.auth.auth_ui import LoginWindow, RegisterWindow, SuccessRegisterPage
 from pages.cheapest.filterHarga_logic import (
         get_games_by_price, filter_games_by_price, search_games, parse_price_input)
 from pages.cheapest.filterHarga_ui import FilterHargaWindow 
+from pages.userProfile.profile_logic import ProfileLogic
 
 
 def build_dark_palette():
@@ -213,6 +214,7 @@ class Router(QStackedWidget):
         # Inisialisasi WishlistLogic dengan id_user yang baru login
         id_user = user.get("id_user", 1)
         self.wishlist_logic = WishlistLogic(self.page_wishlist, id_user)
+        self.profile_logic = ProfileLogic(self.page_profile, id_user)
 
         # Navigasi: "Jelajahi Game" & "← Kembali" → Dashboard
         self.wishlist_logic.go_to_dashboard.connect(

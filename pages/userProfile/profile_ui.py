@@ -1,7 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+pages/userProfile/profile_ui.py
+Tampilan halaman Profile User — hanya UI, tanpa logic/DB.
+"""
+
 import os
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets  
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 from widget.navbar import Navbar
+from pages.userProfile.crop_dialog import CropDialog
 
 STYLESHEET = """
 QMainWindow {
@@ -35,18 +43,6 @@ QLabel#panelTitle {
     font-size: 18px;
     font-weight: bold;
     font-family: 'Segoe UI';
-}
-QLabel#avatarLabel {
-    color: #FFFFFF;
-    font-size: 36px;
-    font-weight: bold;
-    font-family: 'Segoe UI';
-    background-color: #2A3647;
-    border-radius: 50px;
-    min-width: 100px;
-    max-width: 100px;
-    min-height: 100px;
-    max-height: 100px;
 }
 QLabel#fieldLabel, QLabel#fieldLabel_2 {
     color: #8B96A5;
@@ -152,39 +148,100 @@ def make_icon_label(png_file, size=20):
     lbl = QtWidgets.QLabel()
     lbl.setFixedSize(size, size)
     lbl.setScaledContents(True)
-    pixmap = QtGui.QPixmap(icon_path(png_file))
-    lbl.setPixmap(pixmap)
+    lbl.setPixmap(QtGui.QPixmap(icon_path(png_file)))
     return lbl
 
 
 class ProfileWindow(QtWidgets.QMainWindow):
-    # Signal khusus jika diperlukan untuk pindah ke wishlist langsung dari profile
-    wishlist_clicked = QtCore.pyqtSignal() 
-    back_clicked = QtCore.pyqtSignal()
-    logout_clicked = QtCore.pyqtSignal()
+
+    # ── Signals ───────────────────────────────────────────────────────
+    wishlist_clicked = QtCore.pyqtSignal()
+    back_clicked     = QtCore.pyqtSignal()
+    logout_clicked   = QtCore.pyqtSignal()
+    photo_changed    = QtCore.pyqtSignal(str)   # membawa path foto asli
+    save_requested   = QtCore.pyqtSignal(str)   # membawa username baru
+
+    # ── Metode publik (dipanggil dari logic/router) ───────────────────
+
+    def load_user(self, user: dict):
+        """Isi form dengan data user dari DB."""
+        username = user.get("username", "")
+        self.displayNameEdit.setText(username)
+        self.usernameEdit.setText(username)
+        self._current_photo = user.get("foto_profil") or ""
+        if self._current_photo and os.path.exists(self._current_photo):
+            self.update_photo(self._current_photo)
+        else:
+            self.avatarLabel.setPixmap(QtGui.QPixmap())
+            self.avatarLabel.setText(username[0].upper() if username else "?")
+
+    def update_photo(self, path: str):
+        """Tampilkan foto profil berbentuk lingkaran."""
+        self._current_photo = path
+        pixmap = QtGui.QPixmap(path)
+        if pixmap.isNull():
+            return
+        pixmap = pixmap.scaled(
+            100, 100,
+            QtCore.Qt.KeepAspectRatioByExpanding,
+            QtCore.Qt.SmoothTransformation
+        )
+        rounded = QtGui.QPixmap(100, 100)
+        rounded.fill(QtCore.Qt.transparent)
+        painter = QtGui.QPainter(rounded)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.setBrush(QtGui.QBrush(pixmap))
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.drawEllipse(0, 0, 100, 100)
+        painter.end()
+        self.avatarLabel.setPixmap(rounded)
+        self.avatarLabel.setText("")
+
+    def update_wishlist_count(self, jumlah: int):
+        """Update label total game di card Riwayat Wishlist."""
+        for lbl in self.cardWishlist.findChildren(QtWidgets.QLabel):
+            if lbl.text().startswith("Total:"):
+                lbl.setText(f"Total: {jumlah} Game")
+                break
+
+    # ── Slot internal ─────────────────────────────────────────────────
 
     def _on_save_clicked(self):
         new_username = self.usernameEdit.text().strip()
         if not new_username:
             return
         self.displayNameEdit.setText(new_username)
-        self.avatarLabel.setText(new_username[0].upper())
+        if not getattr(self, '_current_photo', ''):
+            self.avatarLabel.setText(new_username[0].upper())
+        self.save_requested.emit(new_username)   # ← kirim ke logic
 
-    def load_user(self, user: dict):
-        username = user.get("username", "")
-        self.displayNameEdit.setText(username)
-        self.usernameEdit.setText(username)
-        # Set huruf pertama sebagai avatar
-        self.avatarLabel.setText(username[0].upper() if username else "?")
+    def _on_photo_clicked(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Pilih Foto Profil", "",
+            "Image Files (*.png *.jpg *.jpeg)"
+        )
+        if not path:
+            return
+        dialog = CropDialog(path, parent=self)
+        dialog.exec_()
+        result = dialog.get_result()
+        if result:
+            self.avatarLabel.setPixmap(
+                result.scaled(
+                    100, 100,
+                    QtCore.Qt.KeepAspectRatioByExpanding,
+                    QtCore.Qt.SmoothTransformation
+                )
+            )
+            self.avatarLabel.setText("")
+            self._current_photo = path
+            self.photo_changed.emit(path)   # ← kirim ke logic
 
-    def update_wishlist_count(self, jumlah: int):
-        for lbl in self.cardWishlist.findChildren(QtWidgets.QLabel):
-            if lbl.text().startswith("Total:"):
-                lbl.setText(f"Total: {jumlah} Game")
-                break
+    # ── Constructor ───────────────────────────────────────────────────
 
     def __init__(self):
         super().__init__()
+        self._current_photo = ""
         self.setObjectName("ProfileWindow")
         self.resize(1100, 700)
         self.setWindowTitle("MAGER - Profil User")
@@ -194,17 +251,15 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.setCentralWidget(self.centralwidget)
 
-        # ── Root layout ──────────────────────────────────────────────────────
         self.mainVLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.mainVLayout.setSpacing(0)
         self.mainVLayout.setContentsMargins(0, 0, 0, 0)
 
-        # ── NAVBAR ───────────────────────────────────────────────────────────
-        # Active page di-set ke profile
+        # Navbar
         self.nav = Navbar(active_page="profile")
         self.mainVLayout.addWidget(self.nav)
 
-        # ── CONTENT AREA ─────────────────────────────────────────────────────
+        # Content
         self.contentWidget = QtWidgets.QWidget()
         contentVLayout = QtWidgets.QVBoxLayout(self.contentWidget)
         contentVLayout.setContentsMargins(24, 16, 24, 24)
@@ -214,14 +269,13 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.btnBack = QtWidgets.QPushButton("← Kembali")
         self.btnBack.setObjectName("btnBack")
         self.btnBack.setMaximumWidth(120)
-        contentVLayout.addWidget(self.btnBack)
         self.btnBack.clicked.connect(self.back_clicked.emit)
+        contentVLayout.addWidget(self.btnBack)
 
-        # Main content row
         mainContentLayout = QtWidgets.QHBoxLayout()
         mainContentLayout.setSpacing(16)
 
-        # ── LEFT PANEL ───────────────────────────────────────────────────────
+        # ── Left Panel ────────────────────────────────────────────────
         self.leftPanel = QtWidgets.QWidget()
         self.leftPanel.setObjectName("leftPanel")
         self.leftPanel.setMinimumWidth(260)
@@ -235,41 +289,76 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.panelTitle.setObjectName("panelTitle")
         leftPanelLayout.addWidget(self.panelTitle)
 
-        # Avatar (centered)
+        # Avatar + tombol kamera
         avatarLayout = QtWidgets.QHBoxLayout()
-        self.avatarLabel = QtWidgets.QLabel("D")
+        avatarLayout.addStretch()
+
+        avatarContainer = QtWidgets.QWidget()
+        avatarContainer.setFixedSize(110, 110)
+        avatarContainer.setStyleSheet("background: transparent;")
+
+        self.avatarLabel = QtWidgets.QLabel("D", avatarContainer)
         self.avatarLabel.setObjectName("avatarLabel")
         self.avatarLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.avatarLabel.setFixedSize(100, 100)
-        avatarLayout.addStretch()
-        avatarLayout.addWidget(self.avatarLabel)
+        self.avatarLabel.setGeometry(0, 0, 100, 100)
+        self.avatarLabel.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.avatarLabel.mousePressEvent = lambda _: self._on_photo_clicked()
+        self.avatarLabel.setStyleSheet("""
+            QLabel {
+                color: #FFFFFF;
+                font-size: 36px;
+                font-weight: bold;
+                font-family: 'Segoe UI';
+                background-color: #2A3647;
+                border-radius: 50px;
+            }
+        """)
+
+        self.cameraBtn = QtWidgets.QPushButton(avatarContainer)
+        self.cameraBtn.setGeometry(72, 72, 30, 30)
+        self.cameraBtn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.cameraBtn.setIcon(QtGui.QIcon(icon_path("mdi_camera-outline.png")))
+        self.cameraBtn.setIconSize(QtCore.QSize(16, 16))
+        self.cameraBtn.setStyleSheet("""
+            QPushButton {
+                background-color: #4ADE80;
+                border-radius: 15px;
+                border: 2px solid #0A1123;
+                padding: 0px;
+            }
+            QPushButton:hover { background-color: #16a34a; }
+        """)
+        self.cameraBtn.clicked.connect(self._on_photo_clicked)
+        self.cameraBtn.raise_()
+
+        avatarLayout.addWidget(avatarContainer)
         avatarLayout.addStretch()
         leftPanelLayout.addLayout(avatarLayout)
 
-        # Display Name
+        # Display Name (read only)
         self.fieldLabel = QtWidgets.QLabel("Display Name")
         self.fieldLabel.setObjectName("fieldLabel")
-        self.displayNameEdit = QtWidgets.QLineEdit("Dago Keren")
+        self.displayNameEdit = QtWidgets.QLineEdit()
         self.displayNameEdit.setObjectName("displayNameEdit")
+        self.displayNameEdit.setReadOnly(True)
         leftPanelLayout.addWidget(self.fieldLabel)
         leftPanelLayout.addWidget(self.displayNameEdit)
 
-        # Username
+        # Username (editable)
         self.fieldLabel_2 = QtWidgets.QLabel("Username")
         self.fieldLabel_2.setObjectName("fieldLabel_2")
         self.usernameEdit = QtWidgets.QLineEdit()
         self.usernameEdit.setObjectName("usernameEdit")
-        self.usernameEdit.setPlaceholderText("Dago")
         leftPanelLayout.addWidget(self.fieldLabel_2)
         leftPanelLayout.addWidget(self.usernameEdit)
 
-        # Save button
+        # Simpan
         self.btnSave = QtWidgets.QPushButton("Simpan Perubahan")
         self.btnSave.setObjectName("btnSave")
-        leftPanelLayout.addWidget(self.btnSave)
         self.btnSave.clicked.connect(self._on_save_clicked)
+        leftPanelLayout.addWidget(self.btnSave)
 
-        # Statistik Preferensi
+        # Statistik
         self.sectionLabel = QtWidgets.QLabel("Statistik Preferensi")
         self.sectionLabel.setObjectName("sectionLabel")
         leftPanelLayout.addWidget(self.sectionLabel)
@@ -285,7 +374,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
         leftPanelLayout.addStretch()
 
-        # Logout button with icon
+        # Logout
         self.btnLogout = QtWidgets.QPushButton("  Logout")
         self.btnLogout.setObjectName("btnLogout")
         self.btnLogout.setIcon(QtGui.QIcon(icon_path("material-symbols_logout-rounded.png")))
@@ -295,11 +384,10 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
         mainContentLayout.addWidget(self.leftPanel)
 
-        # ── RIGHT PANEL — 2×2 card grid ──────────────────────────────────────
+        # ── Right Panel — 2×2 card grid ──────────────────────────────
         cardsGridLayout = QtWidgets.QGridLayout()
         cardsGridLayout.setSpacing(16)
 
-        # Helper: build a card widget
         def make_card(obj_name, icon_png, title_text, title_color,
                       total_text, empty_text, extra_widget=None):
             card = QtWidgets.QWidget()
@@ -308,27 +396,23 @@ class ProfileWindow(QtWidgets.QMainWindow):
             vbox.setContentsMargins(20, 20, 20, 20)
             vbox.setSpacing(8)
 
-            # Title row: icon + label
             title_row = QtWidgets.QHBoxLayout()
             title_row.setSpacing(8)
-            icon_lbl = make_icon_label(icon_png, 20)
+            title_row.addWidget(make_icon_label(icon_png, 20))
             title_lbl = QtWidgets.QLabel(title_text)
             title_lbl.setStyleSheet(
                 f"color: {title_color}; font-size: 16px; font-weight: bold; font-family: 'Segoe UI';"
             )
-            title_row.addWidget(icon_lbl)
             title_row.addWidget(title_lbl)
             title_row.addStretch()
             vbox.addLayout(title_row)
 
-            # Total label
             total_lbl = QtWidgets.QLabel(total_text)
             total_lbl.setStyleSheet("color: #8B96A5; font-size: 12px; font-family: 'Segoe UI';")
             vbox.addWidget(total_lbl)
 
             vbox.addStretch()
 
-            # Empty label
             empty_lbl = QtWidgets.QLabel(empty_text)
             empty_lbl.setAlignment(QtCore.Qt.AlignCenter)
             empty_lbl.setStyleSheet("color: #515050; font-size: 12px; font-family: 'Segoe UI';")
@@ -341,29 +425,22 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
             return card
 
-        # Card: Riwayat Like (0,0)
         self.cardLike = make_card(
             "cardLike", "Vector.png", "Riwayat Like", "#FFFFFF",
             "Total: 0 Game", "Belum ada game yang di-like"
         )
-
-        # Card: Riwayat Dislike (0,1)
         self.cardDislike = make_card(
             "cardDislike", "Vector (2).png", "Riwayat Dislike", "#FFFFFF",
             "Total: 0 Game", "Belum ada game yang di-dislike"
         )
-
-        # Card: Riwayat Komentar (1,0)
         self.cardKomentar = make_card(
             "cardKomentar", "Vector (1).png", "Riwayat Komentar", "#FFFFFF",
             "Total: 0 Game", "Belum ada komentar"
         )
 
-        # Card: Riwayat Wishlist (1,1) — has extra button
         self.btnWishlist = QtWidgets.QPushButton("Lihat Wishlist")
         self.btnWishlist.setObjectName("btnWishlist")
-        # Hubungkan tombol ini dengan signal
-        self.btnWishlist.clicked.connect(self.wishlist_clicked.emit) 
+        self.btnWishlist.clicked.connect(self.wishlist_clicked.emit)
         self.btnWishlist.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
 
         self.cardWishlist = make_card(
@@ -381,7 +458,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.mainVLayout.addWidget(self.contentWidget)
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# ── Entry point ───────────────────────────────────────────────────────
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = ProfileWindow()
