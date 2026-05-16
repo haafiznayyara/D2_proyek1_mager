@@ -154,6 +154,12 @@ class Router(QStackedWidget):
         self.page_profile.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
         )
+        self.page_profile.wishlist_clicked.connect(
+            lambda: self.go_to(self.PAGE_WISHLIST)
+        )
+        self.page_profile.logout_clicked.connect(
+            self._on_logout
+        )
         
         #ROUTE POPULAR
         self.page_popular.nav.dashboard_clicked.connect(

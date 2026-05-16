@@ -166,10 +166,8 @@ class ProfileWindow(QtWidgets.QMainWindow):
     def _on_save_clicked(self):
         new_username = self.usernameEdit.text().strip()
         if not new_username:
-            return  # abaikan jika kosong
-        # Update Display Name
+            return
         self.displayNameEdit.setText(new_username)
-        # Update huruf avatar
         self.avatarLabel.setText(new_username[0].upper())
 
     def load_user(self, user: dict):
