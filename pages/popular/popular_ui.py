@@ -9,6 +9,7 @@ Run standalone:
     python popular_games_ui.py
 """
 
+import os
 import sys
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -29,22 +30,22 @@ BG        = "#0A1123"
 BG2       = "#1A1F36"
 CARD      = "#1A2332"
 CARD_HOV  = "#1A2332"
-ACCENT    = "#39d353"       # green
-ACCENT2   = "#2ea84a"
+ACCENT    = "#4ADE80"
+ACCENT2   = "#4ADE80"
 TEXT1     = "#e8eaf0"
 TEXT2     = "#8899aa"
-BORDER    = "#1e3a50"
+BORDER    = "#1A1F36"
 TAG_BG    = "#162840"
-DISCOUNT  = "#39d353"
+DISCOUNT  = "#4ADE80"
 PRICE_OLD = "#556677"
-SORT_BG   = "#1a3350"
+SORT_BG   = "#2A3050"
 
 # ── Layout constants ──────────────────────────────────────────────────────
 COLS        = 5
 GAP         = 14
 COVER_RATIO = 0.58   # cover_h / card_w
 INFO_H      = 183    # fixed info panel height per card (no footer)
-FOOTER_H    = 28     # height of the separate "Tertinggi" bar below card
+FOOTER_H    = 36     # height of the separate "Tertinggi" bar below card
 FOOTER_GAP  = 5      # gap between card bottom and footer bar
 
 # ── Games Grid ────────────────────────────────────────────────────────────
@@ -95,20 +96,19 @@ class GamesGrid(QWidget):
             footer.setFixedHeight(FOOTER_H)
             footer.setStyleSheet(f"""
                 background: {CARD};
-                border-radius: 0 0 14px 14px;
+                border-radius: 12px;
                 border: 1px solid {BORDER};
-                border-top: none;
             """)
             fl = QHBoxLayout(footer)
             fl.setContentsMargins(12, 0, 12, 0)
             fl.setSpacing(0)
             lbl_t = QLabel("Peak Players")
-            lbl_t.setFont(QFont("Segoe UI", 8))
+            lbl_t.setFont(QFont("Segoe UI", 9))
             lbl_t.setStyleSheet(f"color: {TEXT2}; background: transparent; border : none;")
             fl.addWidget(lbl_t)
             fl.addStretch()
             lbl_n = QLabel(f"{g['peak_player']:,}")
-            lbl_n.setFont(QFont("Segoe UI", 8, QFont.Bold))
+            lbl_n.setFont(QFont("Segoe UI", 9, QFont.Bold))
             lbl_n.setStyleSheet(f"color: {ACCENT}; background: transparent; border : none;")
             fl.addWidget(lbl_n)
             footer.show()
@@ -156,7 +156,7 @@ class PopularHeader(QFrame):
     def __init__(self):
         super().__init__()
 
-        self.setFixedHeight(76)
+        self.setFixedHeight(96)
         self.setObjectName("PopularHeader")
 
         self.setStyleSheet(f"""
@@ -172,7 +172,7 @@ class PopularHeader(QFrame):
         """)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setContentsMargins(20, 16, 20, 16)
         layout.setSpacing(8)
 
         left = QVBoxLayout()
@@ -198,7 +198,7 @@ class PopularHeader(QFrame):
         title_row.addWidget(icon, alignment=Qt.AlignVCenter)
 
         title = QLabel("Game Populer")
-        title.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        title.setFont(QFont("Segoe UI", 18, QFont.Bold))
         title.setStyleSheet(f"color: {TEXT1}; background: transparent; border: none;")
         title_row.addWidget(title, alignment=Qt.AlignVCenter)
 
@@ -206,27 +206,32 @@ class PopularHeader(QFrame):
         left.addLayout(title_row)
 
         subtitle = QLabel("Berdasarkan jumlah pemain tertinggi")
-        subtitle.setFont(QFont("Segoe UI", 8))
+        subtitle.setFont(QFont("Segoe UI", 10))
         subtitle.setStyleSheet(f"color: {TEXT2}; background: transparent; border: none;")
         left.addWidget(subtitle)
 
         layout.addLayout(left)
         layout.addStretch()
 
-        filter_icon = QIcon("assets/filter_outline.png")
-        self.sort_btn = QPushButton("Tertinggi - Terendah")
-        self.sort_btn.setIcon(filter_icon)
-        self.sort_btn.setIconSize(QSize(16, 16))
-        self.sort_btn.setFixedHeight(32)
-        self.sort_btn.setFont(QFont("Segoe UI", 8, QFont.Bold))
+        _sort_icon_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "assets", "filter_outline.png"
+        )
+        self.sort_btn = QPushButton("  Tertinggi - Terendah")
+        if os.path.exists(_sort_icon_path):
+            self.sort_btn.setIcon(QIcon(_sort_icon_path))
+        self.sort_btn.setIconSize(QSize(18, 18))
+        self.sort_btn.setFixedHeight(42)
+        self.sort_btn.setMinimumWidth(200)
+        self.sort_btn.setFont(QFont("Segoe UI", 10, QFont.Bold))
         self.sort_btn.setCursor(QCursor(Qt.PointingHandCursor))
         self.sort_btn.setStyleSheet(f"""
             QPushButton {{
                 background: {SORT_BG};
                 color: {TEXT1};
                 border: 1px solid {BORDER};
-                border-radius: 8px;
-                padding: 0 12px;
+                border-radius: 10px;
+                padding: 0 18px;
             }}
             QPushButton:hover {{
                 background: {CARD_HOV};
@@ -241,24 +246,20 @@ class PopularHeader(QFrame):
 class HeroBanner(QWidget):
     def __init__(self):
         super().__init__()
-        self.setFixedHeight(125)
+        self.setStyleSheet(f"background: {BG};")
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(24, 18, 24, 16)
-        lay.setSpacing(4)
+        lay.setContentsMargins(20, 16, 20, 8)
+        lay.setSpacing(3)
 
         title = QLabel("Temukan Game Terbaik dengan Harga Terbaik")
         title.setFont(QFont("Segoe UI", 20, QFont.Bold))
         title.setStyleSheet(f"color: {TEXT1};")
         lay.addWidget(title)
 
-        sub = QLabel("Cari game dengan harga terbaik di waktu yang tepat")
-        sub.setFont(QFont("Segoe UI", 10))
+        sub = QLabel("Cari game favoritmu dan beli dengan harga terjangkau")
+        sub.setFont(QFont("Segoe UI", 11))
         sub.setStyleSheet(f"color: {TEXT2};")
         lay.addWidget(sub)
-
-    def paintEvent(self, _event):
-        p = QPainter(self)
-        p.fillRect(self.rect(), QColor(BG))
 
 
 # ── Main Window ───────────────────────────────────────────────────────────

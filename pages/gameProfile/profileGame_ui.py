@@ -22,20 +22,20 @@ from pages.gameProfile.profileGame_logic import (
 )
 
 # ── Palette ──────────────────────────────────────────────────────────────────
-BG          = "#0d1117"
-BG_DARK     = "#161b27"
-BG_CARD     = "#1a2035"
-BG_ELEM     = "#1e2840"
-BG_INPUT    = "#242d45"
-BORDER      = "#2a3555"
-WHITE       = "#ffffff"
+BG          = "#0A1123"
+BG_DARK     = "#0A1123"
+BG_CARD     = "#1A2332"
+BG_ELEM     = "#1A2332"
+BG_INPUT    = "#1A2332"
+BORDER      = "#2A3647"
+WHITE       = "#FFFFFF"
 LIGHT       = "#c9d1e0"
 MUTED       = "#7b8db0"
 DIM         = "#4a5580"
-GREEN       = "#00c853"
+GREEN       = "#4ADE80"
+DISC_GREEN  = "#4ADE80"
 RED_BTN     = "#8b1a1a"
 RED_BTN_BDR = "#c0392b"
-DISC_GREEN  = "#1a7a3a"
 
 # Direktori poster lokal
 POSTER_DIR = "assets/posters"
