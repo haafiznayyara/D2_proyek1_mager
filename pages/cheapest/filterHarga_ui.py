@@ -6,12 +6,14 @@ Design reference: Screenshot images
 Code style reference: dashboard_ui.py & popular_ui.py
 """
 
+import os
+
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QScrollArea, QLineEdit, QSizePolicy, QFrame
 )
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont, QColor, QCursor, QPalette, QIcon
+from PyQt5.QtGui import QFont, QColor, QCursor, QPalette, QIcon, QPixmap, QIntValidator
 
 from widget.navbar import Navbar
 from widget.cardGame import PopularGameCard, COVER_RATIO, INFO_H
@@ -25,14 +27,14 @@ BG        = "#0A1123"
 BG2       = "#1A1F36"
 CARD      = "#1A2332"
 CARD_HOV  = "#1A2332"
-ACCENT    = "#39d353"
-ACCENT2   = "#2ea84a"
+ACCENT    = "#4ADE80"
+ACCENT2   = "#4ADE80"
 TEXT1     = "#e8eaf0"
 TEXT2     = "#8899aa"
-BORDER    = "#1e3a50"
+BORDER    = "#1A1F36"
 TAG_BG    = "#162840"
-INPUT_BG  = "#1e2a3e"
-BUTTON_PRESET = "#1a3350"
+INPUT_BG  = "#2A3050"
+BUTTON_PRESET = "#2A3050"
 
 # ── Layout constants ──────────────────────────────────────────────────────
 COLS = 5
@@ -49,7 +51,7 @@ class PriceRangeButton(QPushButton):
         self.max_price = max_price
         self.setFixedHeight(36)
         self.setCursor(QCursor(Qt.PointingHandCursor))
-        self.setFont(QFont("Segoe UI", 9, QFont.Bold))
+        self.setFont(QFont("Segoe UI", 9))
         self._set_normal_style()
     
     def _set_normal_style(self):
@@ -81,8 +83,10 @@ class PriceRangeButton(QPushButton):
     
     def set_active(self, active):
         if active:
+            self.setFont(QFont("Segoe UI", 9, QFont.Bold))
             self._set_active_style()
         else:
+            self.setFont(QFont("Segoe UI", 9))
             self._set_normal_style()
 
 
@@ -107,18 +111,21 @@ class FilterPanel(QFrame):
         self._active_preset = None
         
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(16)
+        layout.setContentsMargins(20, 14, 20, 14)
+        layout.setSpacing(10)
         
         # ── Header ────────────────────────────────────────────────────────
         header = QHBoxLayout()
         header.setSpacing(8)
         
-        icon_label = QLabel()
-        icon_label.setPixmap(
-            QIcon("assets/filter_outline.png").pixmap(20, 20)
+        _filter_icon_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "assets", "filter_harga_green.png"
         )
+        icon_label = QLabel()
+        icon_label.setPixmap(QPixmap(_filter_icon_path).scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         icon_label.setFixedSize(20, 20)
+        icon_label.setStyleSheet("background: transparent;")
         header.addWidget(icon_label)
         
         title = QLabel("Filter Berdasarkan Harga")
@@ -129,150 +136,103 @@ class FilterPanel(QFrame):
         
         layout.addLayout(header)
         
-        # ── Input Row: Min - Max ──────────────────────────────────────────
-        input_row = QHBoxLayout()
-        input_row.setSpacing(12)
-        
-        # Min price
-        min_container = QVBoxLayout()
-        min_container.setSpacing(6)
-        min_label = QLabel("Harga Minimum (Rp)")
-        min_label.setFont(QFont("Segoe UI", 9))
-        min_label.setStyleSheet(f"color: {TEXT2}; background: transparent;")
-        min_container.addWidget(min_label)
-        
+        label_row = QHBoxLayout()
+        label_row.setSpacing(8)
+        min_lbl = QLabel("Harga Minimum (Rp)")
+        min_lbl.setFont(QFont("Segoe UI", 9))
+        min_lbl.setStyleSheet(f"color: {TEXT2}; background: transparent;")
+        label_row.addWidget(min_lbl, stretch=2)
+        label_row.addSpacing(16)  # untuk dash
+        max_lbl = QLabel("Harga Maximum (Rp)")
+        max_lbl.setFont(QFont("Segoe UI", 9))
+        max_lbl.setStyleSheet(f"color: {TEXT2}; background: transparent;")
+        label_row.addWidget(max_lbl, stretch=2)
+        label_row.addStretch(9)  # sisa untuk preset + tombol
+        layout.addLayout(label_row)
+
+        main_row = QHBoxLayout()
+        main_row.setSpacing(8)
+
+        # Min input
         self.min_input = QLineEdit()
+        self.min_input.setValidator(QIntValidator(0, 99999999))
         self.min_input.setPlaceholderText("0")
-        self.min_input.setFont(QFont("Segoe UI", 10))
-        self.min_input.setFixedHeight(40)
+        self.min_input.setFont(QFont("Segoe UI", 8))
+        self.min_input.setFixedHeight(36)
         self.min_input.setStyleSheet(f"""
             QLineEdit {{
-                background: {INPUT_BG};
-                color: {TEXT1};
-                border: 1px solid {BORDER};
-                border-radius: 8px;
+                background: {INPUT_BG}; color: {TEXT1};
+                border: 1px solid {BORDER}; border-radius: 8px;
                 padding: 0 12px;
             }}
-            QLineEdit:focus {{
-                border-color: {ACCENT};
-            }}
+            QLineEdit:focus {{ border-color: {ACCENT}; }}
         """)
-        min_container.addWidget(self.min_input)
-        input_row.addLayout(min_container)
-        
+        main_row.addWidget(self.min_input, stretch=2)
+
         # Separator
         sep = QLabel("–")
-        sep.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        sep.setFont(QFont("Segoe UI", 12, QFont.Bold))
         sep.setStyleSheet(f"color: {TEXT2}; background: transparent;")
         sep.setAlignment(Qt.AlignCenter)
-        sep.setFixedWidth(20)
-        input_row.addWidget(sep, alignment=Qt.AlignBottom)
-        
-        # Max price
-        max_container = QVBoxLayout()
-        max_container.setSpacing(6)
-        max_label = QLabel("Harga Maximum (Rp)")
-        max_label.setFont(QFont("Segoe UI", 9))
-        max_label.setStyleSheet(f"color: {TEXT2}; background: transparent;")
-        max_container.addWidget(max_label)
-        
+        sep.setFixedWidth(16)
+        main_row.addWidget(sep)
+
+        # Max input
         self.max_input = QLineEdit()
+        self.max_input.setValidator(QIntValidator(0, 99999999))
         self.max_input.setPlaceholderText("Tidak terbatas")
-        self.max_input.setFont(QFont("Segoe UI", 10))
-        self.max_input.setFixedHeight(40)
+        self.max_input.setFont(QFont("Segoe UI", 8))
+        self.max_input.setFixedHeight(36)
         self.max_input.setStyleSheet(f"""
             QLineEdit {{
-                background: {INPUT_BG};
-                color: {TEXT1};
-                border: 1px solid {BORDER};
-                border-radius: 8px;
+                background: {INPUT_BG}; color: {TEXT1};
+                border: 1px solid {BORDER}; border-radius: 8px;
                 padding: 0 12px;
             }}
-            QLineEdit:focus {{
-                border-color: {ACCENT};
-            }}
+            QLineEdit:focus {{ border-color: {ACCENT}; }}
         """)
-        max_container.addWidget(self.max_input)
-        input_row.addLayout(max_container)
-        
-        layout.addLayout(input_row)
-        
-        # ── Preset Buttons ────────────────────────────────────────────────
-        preset_row = QHBoxLayout()
-        preset_row.setSpacing(10)
-        
+        main_row.addWidget(self.max_input, stretch=2)
+
+        # Preset buttons
         self.preset_buttons = []
-        
-        # < 50.000
-        btn1 = PriceRangeButton("< 50.000", 0, 49999)
-        btn1.clicked.connect(lambda: self._on_preset_clicked(btn1))
-        preset_row.addWidget(btn1)
-        self.preset_buttons.append(btn1)
-        
-        # 50.000 - 200.000
-        btn2 = PriceRangeButton("50.000 - 200.000", 50000, 200000)
-        btn2.clicked.connect(lambda: self._on_preset_clicked(btn2))
-        preset_row.addWidget(btn2)
-        self.preset_buttons.append(btn2)
-        
-        # > 200.000
-        btn3 = PriceRangeButton("> 200.000", 200001, None)
-        btn3.clicked.connect(lambda: self._on_preset_clicked(btn3))
-        preset_row.addWidget(btn3)
-        self.preset_buttons.append(btn3)
-        
-        layout.addLayout(preset_row)
-        
-        # ── Action Buttons ────────────────────────────────────────────────
-        action_row = QHBoxLayout()
-        action_row.setSpacing(10)
-        
+        for label, mn, mx in [("< 50.000", 0, 49999), ("50.000 - 200.000", 50000, 200000), ("> 200.000", 200001, None)]:
+            btn = PriceRangeButton(label, mn, mx)
+            btn.clicked.connect(lambda _, b=btn: self._on_preset_clicked(b))
+            btn.setFixedHeight(36)
+            main_row.addWidget(btn, stretch=2)
+            self.preset_buttons.append(btn)
+
+        # Terapkan Filter
         self.apply_btn = QPushButton("Terapkan Filter")
-        self.apply_btn.setFixedHeight(40)
+        self.apply_btn.setFixedHeight(36)
         self.apply_btn.setFont(QFont("Segoe UI", 10, QFont.Bold))
         self.apply_btn.setCursor(QCursor(Qt.PointingHandCursor))
         self.apply_btn.setStyleSheet(f"""
             QPushButton {{
-                background: {ACCENT};
-                color: #000;
-                border: none;
-                border-radius: 8px;
-                padding: 0 20px;
+                background: {ACCENT}; color: #000;
+                border: none; border-radius: 8px; padding: 0 16px;
             }}
-            QPushButton:hover {{
-                background: {ACCENT2};
-            }}
+            QPushButton:hover {{ background: {ACCENT2}; }}
         """)
         self.apply_btn.clicked.connect(self._on_apply_clicked)
-        action_row.addWidget(self.apply_btn)
-        
+        main_row.addWidget(self.apply_btn, stretch=2)
+
+        # Reset
         self.reset_btn = QPushButton("Reset")
-        self.reset_btn.setFixedHeight(40)
+        self.reset_btn.setFixedHeight(36)
         self.reset_btn.setFont(QFont("Segoe UI", 10))
         self.reset_btn.setCursor(QCursor(Qt.PointingHandCursor))
         self.reset_btn.setStyleSheet(f"""
             QPushButton {{
-                background: {BUTTON_PRESET};
-                color: {TEXT1};
-                border: 1px solid {BORDER};
-                border-radius: 8px;
-                padding: 0 20px;
+                background: {BUTTON_PRESET}; color: {TEXT1};
+                border: 1px solid {BORDER}; border-radius: 8px; padding: 0 16px;
             }}
-            QPushButton:hover {{
-                background: {CARD_HOV};
-                border-color: {ACCENT2};
-            }}
+            QPushButton:hover {{ background: {CARD_HOV}; border-color: {ACCENT2}; }}
         """)
         self.reset_btn.clicked.connect(self._on_reset_clicked)
-        action_row.addWidget(self.reset_btn)
-        
-        layout.addLayout(action_row)
-        
-        # ── Result Label ──────────────────────────────────────────────────
-        self.result_label = QLabel("")
-        self.result_label.setFont(QFont("Segoe UI", 9))
-        self.result_label.setStyleSheet(f"color: {TEXT2}; background: transparent;")
-        layout.addWidget(self.result_label)
+        main_row.addWidget(self.reset_btn, stretch=1)
+
+        layout.addLayout(main_row)
     
     def _on_preset_clicked(self, btn):
         """Handler ketika preset button diklik."""
@@ -312,13 +272,7 @@ class FilterPanel(QFrame):
             b.set_active(False)
         self._active_preset = None
         
-        self.result_label.setText("")
         self.filter_reset.emit()
-    
-    def set_result_text(self, text):
-        """Set text hasil filter."""
-        self.result_label.setText(text)
-
 
 # ── Games Grid ────────────────────────────────────────────────────────────
 class GamesGrid(QWidget):
@@ -408,20 +362,18 @@ class HeroBanner(QWidget):
     
     def __init__(self):
         super().__init__()
-        self.setFixedHeight(105)
         self.setStyleSheet(f"background: {BG};")
-        
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 18, 24, 16)
-        layout.setSpacing(4)
-        
+        layout.setContentsMargins(20, 16, 20, 8)
+        layout.setSpacing(3)
+
         title = QLabel("Temukan Game Terbaik dengan Harga Terbaik")
         title.setFont(QFont("Segoe UI", 20, QFont.Bold))
         title.setStyleSheet(f"color: {TEXT1};")
         layout.addWidget(title)
-        
-        subtitle = QLabel("Cari game dengan harga terbaik di waktu yang tepat")
-        subtitle.setFont(QFont("Segoe UI", 10))
+
+        subtitle = QLabel("Cari game favoritmu dan beli dengan harga terjangkau")
+        subtitle.setFont(QFont("Segoe UI", 11))
         subtitle.setStyleSheet(f"color: {TEXT2};")
         layout.addWidget(subtitle)
 
@@ -517,7 +469,7 @@ class FilterHargaWindow(QWidget):
         else:
             range_text = f"Rp{min_price:,} - Rp{max_price:,}".replace(",", ".")
         
-        self.filter_panel.set_result_text(
+        self.grid.count_lbl.setText(
             f"Menampilkan {len(self._filtered_games)} game dengan harga {range_text}"
         )
     

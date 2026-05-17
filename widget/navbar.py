@@ -50,7 +50,7 @@ class SearchBox(QWidget):
         # Input
         self._edit = QLineEdit()
         self._edit.setFrame(False)
-        self._edit.setFont(QFont("Segoe UI", 11))
+        self._edit.setFont(QFont("Segoe UI", 9))
         self._edit.setStyleSheet(
             f"background:transparent; border:none; color:{_WHITE};"
             f"selection-background-color:{_GREEN}; selection-color:{_BLACK};"
@@ -69,7 +69,7 @@ class SearchBox(QWidget):
 
         # Placeholder overlay
         self._ph = QLabel("Search games...", self)
-        self._ph.setFont(QFont("Segoe UI", 11))
+        self._ph.setFont(QFont("Segoe UI", 9))
         self._ph.setStyleSheet(f"color:{_MUTED}; background:transparent; border:none;")
         self._ph.setAttribute(Qt.WA_TransparentForMouseEvents)
         self._ph.raise_()
@@ -168,7 +168,7 @@ class Navbar(QWidget):
                 QPushButton {{
                     background: transparent; border: none;
                     color: {color}; font-family: 'Segoe UI';
-                    font-size: 13px; padding: 0 16px;
+                    font-size: 15px; padding: 0 16px;
                     {'font-weight:bold;' if is_active else ''}
                 }}
                 QPushButton:hover {{ color:{_WHITE}; }}

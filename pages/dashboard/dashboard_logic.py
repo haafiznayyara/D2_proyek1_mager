@@ -6,25 +6,39 @@ from database.connection import connection_database
 
 # ── Palette ───────────────────────────────────────────────────────────────
 BG       = "#0A1123"
-CARD     = "#161b22"
-CARD_HOV = "#1c2330"
-ACCENT   = "#00e676"
-ACCENT2  = "#00bcd4"
-TEXT1    = "#e6edf3"
-TEXT2    = "#8b949e"
-TEXT3    = "#58a6ff"
-BORDER   = "#21262d"
-TAG_BG   = "#21262d"
+CARD     = "#1A2332"
+CARD_HOV = "#1A2332"
+ACCENT   = "#4ADE80"
+ACCENT2  = "#4ADE80"
+TEXT1    = "#FFFFFF"
+TEXT2    = "#8B96A5"
+BORDER   = "#2A3647"
+TAG_BG   = "#2A3647"
 
 COLS       = 5
 GAP        = 12
 INFO_H     = 183
 COVER_RATIO = 0.58
 
-CATEGORIES = [
-    "Semua", "Action", "Action RPG", "RPG", "Simulation",
-    "Platformer", "Roguelite", "Open World", "Survival Horror",
-]
+def get_categories_from_db() -> list:
+    try:
+        conn = connection_database()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT g.nama_genre, COUNT(dg.id_game) as jumlah
+            FROM genre g
+            LEFT JOIN detail_genre dg ON g.id_genre = dg.id_genre
+            GROUP BY g.id_genre, g.nama_genre
+            ORDER BY jumlah DESC, g.nama_genre
+        """)
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        genres = [row.get("nama_genre") for row in rows if row.get("nama_genre")]
+        return ["Semua"] + genres
+    except Exception as e:
+        print("ERROR DB (categories):", e)
+        return ["Semua"]
 
 
 # def get_games_from_db():

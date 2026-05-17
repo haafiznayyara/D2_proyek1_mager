@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (
     QLabel, QPushButton, QScrollArea, QFrame, QLineEdit,
     QSizePolicy
 )
-from PyQt5.QtCore import Qt, QRect, QRectF, pyqtSignal
+from PyQt5.QtCore import Qt, QRect, QRectF, QPropertyAnimation, QEasingCurve, pyqtSignal
 from PyQt5.QtGui import (
     QFont, QColor, QPainter, QPixmap, QLinearGradient,
     QBrush, QPen, QPalette, QCursor, QRadialGradient
@@ -11,8 +11,8 @@ from PyQt5.QtGui import (
 
 from pages.dashboard.dashboard_logic import (
     BG, CARD, CARD_HOV, ACCENT, ACCENT2, TEXT1, TEXT2, BORDER, TAG_BG,
-    COLS, GAP, INFO_H, COVER_RATIO, CATEGORIES,
-    fmt_price, rating_color, filter_games, ImageFetcher
+    COLS, GAP, INFO_H, COVER_RATIO,
+    fmt_price, rating_color, filter_games, ImageFetcher, get_categories_from_db
 )
 from widget.navbar import Navbar
 from widget.cardGame import PopularGameCard, COVER_RATIO as _COVER_RATIO, INFO_H as _INFO_H
@@ -102,7 +102,7 @@ class CategoryBar(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setFixedHeight(52)
+        self.setFixedHeight(62)
         self.setStyleSheet(f"background: {BG};")
         outer = QHBoxLayout(self)
         outer.setContentsMargins(20, 8, 20, 8)
@@ -116,7 +116,7 @@ class CategoryBar(QWidget):
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll.setStyleSheet("background: transparent; border: none;")
-        self.scroll.setFixedHeight(36)
+        self.scroll.setFixedHeight(48)
 
         inner = QWidget()
         inner.setStyleSheet("background: transparent;")
@@ -126,10 +126,10 @@ class CategoryBar(QWidget):
 
         self.cat_btns = {}
         self.active = "Semua"
-        for cat in CATEGORIES:
+        for cat in get_categories_from_db():
             btn = QPushButton(cat)
             btn.setCursor(QCursor(Qt.PointingHandCursor))
-            btn.setFixedHeight(28)
+            btn.setFixedHeight(40)
             btn.clicked.connect(lambda _, c=cat: self._select(c))
             self.cat_btns[cat] = btn
             row.addWidget(btn)
@@ -141,26 +141,31 @@ class CategoryBar(QWidget):
         self.right_btn = self._arrow("›")
         outer.addWidget(self.right_btn)
 
-        self.left_btn.clicked.connect(lambda: self._scroll(-120))
-        self.right_btn.clicked.connect(lambda: self._scroll(120))
+        self.left_btn.clicked.connect(lambda: self._scroll(-500))
+        self.right_btn.clicked.connect(lambda: self._scroll(500))
         self._refresh()
 
     def _arrow(self, ch):
         b = QPushButton(ch)
-        b.setFixedSize(28, 28)
+        b.setFixedSize(36, 36)
         b.setCursor(QCursor(Qt.PointingHandCursor))
         b.setStyleSheet(f"""
             QPushButton {{
-                background: {CARD}; border: 1px solid {BORDER};
-                border-radius: 14px; color: {TEXT2}; font-size: 14px;
+                background: {TAG_BG}; border: 1px solid {BORDER};
+                border-radius: 10px; color: {TEXT1}; font-size: 20px;
             }}
-            QPushButton:hover {{ background: {CARD_HOV}; color: {TEXT1}; }}
+            QPushButton:hover {{ background: {CARD_HOV}; color: {TEXT1}; border-color: {ACCENT} }}
         """)
         return b
 
     def _scroll(self, dx):
         sb = self.scroll.horizontalScrollBar()
-        sb.setValue(sb.value() + dx)
+        self._anim = QPropertyAnimation(sb, b"value")
+        self._anim.setDuration(300)
+        self._anim.setStartValue(sb.value())
+        self._anim.setEndValue(sb.value() + dx)
+        self._anim.setEasingCurve(QEasingCurve.OutCubic)
+        self._anim.start()
 
     def _select(self, cat):
         self.active = cat
@@ -172,22 +177,27 @@ class CategoryBar(QWidget):
             if cat == self.active:
                 btn.setStyleSheet(f"""
                     QPushButton {{
-                        background: {ACCENT}; color: #000;
-                        border: none; border-radius: 14px;
-                        font-size: 12px; font-weight: bold;
-                        padding: 0 14px;
+                        background: {ACCENT}; color: #000000;
+                        border: none; border-radius: 10px;
+                        font-size: 13px; font-weight: bold;
+                        padding: 0 20px;
                     }}
                 """)
             else:
                 btn.setStyleSheet(f"""
                     QPushButton {{
-                        background: {TAG_BG}; color: {TEXT2};
-                        border: 1px solid {BORDER}; border-radius: 14px;
-                        font-size: 12px; padding: 0 14px;
+                        background: {TAG_BG}; color: {TEXT1};
+                        border: 1px solid {BORDER}; border-radius: 10px;
+                        font-size: 13px; 
+                        padding: 0 20px;
                     }}
                     QPushButton:hover {{
-                        background: {CARD_HOV}; color: {TEXT1};
-                        border-color: {ACCENT2};
+                        background: {ACCENT}; color: #000000;
+                        border-color: {ACCENT};
+                    }}
+                    QPushButton:checked {{
+                        background: {ACCENT}; color: #000000;
+                        border-color: {ACCENT};
                     }}
                 """)
 
@@ -221,7 +231,7 @@ class MainWindow(QWidget):
         t.setFont(QFont("Segoe UI", 20, QFont.Bold))
         t.setStyleSheet(f"color: {TEXT1};")
         hl.addWidget(t)
-        s = QLabel("Cari game favoritmu dan beli dengan harga terjangkau.")
+        s = QLabel("Cari game favoritmu dan beli dengan harga terjangkau")
         s.setFont(QFont("Segoe UI", 11))
         s.setStyleSheet(f"color: {TEXT2};")
         hl.addWidget(s)
