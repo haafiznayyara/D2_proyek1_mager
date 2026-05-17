@@ -1,450 +1,466 @@
+# -*- coding: utf-8 -*-
 """
-MAGER - Halaman Profil Pengguna
+pages/userProfile/profile_ui.py
+Tampilan halaman Profile User — hanya UI, tanpa logic/DB.
 """
 
-from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QScrollArea, QFrame, QSizePolicy, QLineEdit, QGridLayout
-)
-from PyQt5.QtCore import Qt, QRect, QRectF, pyqtSignal
-from PyQt5.QtGui import (
-    QFont, QColor, QPainter, QPen, QBrush,
-    QLinearGradient, QCursor, QRadialGradient, QPixmap
-)
+import os
+import sys
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 from widget.navbar import Navbar
+from pages.userProfile.crop_dialog import CropDialog
 
-# Palette
-BG      = "#0d1117"
-BG_DARK = "#161b27"
-BG_CARD = "#1a2035"
-BG_ELEM = "#1e2840"
-BORDER  = "#2a3555"
-WHITE   = "#ffffff"
-LIGHT   = "#c9d1e0"
-MUTED   = "#7b8db0"
-GREEN   = "#00c853"
-ACCENT  = "#58a6ff"
-GOLD    = "#ffc107"
-RED     = "#e05252"
+STYLESHEET = """
+QMainWindow {
+    background-color: #0A1123;
+}
+QWidget#centralwidget {
+    background-color: #0A1123;
+}
+
+/* ===== BACK BUTTON ===== */
+QPushButton#btnBack {
+    color: #8B96A5;
+    font-size: 13px;
+    font-family: 'Segoe UI';
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 4px 0px;
+}
+QPushButton#btnBack:hover {
+    color: #FFFFFF;
+}
+
+/* ===== LEFT PANEL ===== */
+QWidget#leftPanel {
+    background-color: #1A2332;
+    border-radius: 12px;
+}
+QLabel#panelTitle {
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Segoe UI';
+}
+QLabel#fieldLabel, QLabel#fieldLabel_2 {
+    color: #8B96A5;
+    font-size: 11px;
+    font-family: 'Segoe UI';
+}
+QLineEdit#displayNameEdit {
+    background-color: #1A1F36;
+    border: 1px solid #2A3050;
+    border-radius: 6px;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-family: 'Segoe UI';
+    padding: 6px 10px;
+}
+QLineEdit#usernameEdit {
+    background-color: transparent;
+    border: 1px solid #2A3050;
+    border-radius: 6px;
+    color: #8B96A5;
+    font-size: 13px;
+    font-family: 'Segoe UI';
+    padding: 6px 10px;
+}
+QPushButton#btnSave {
+    background-color: #4ADE80;
+    color: #0F1621;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: 'Segoe UI';
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+}
+QPushButton#btnSave:hover {
+    background-color: #16a34a;
+}
+QLabel#sectionLabel {
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: 'Segoe UI';
+}
+QLabel#emptyLabel {
+    color: #515050;
+    font-size: 12px;
+    font-family: 'Segoe UI';
+}
+QPushButton#btnLogout {
+    background-color: #5c1a1a;
+    color: #e05555;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: 'Segoe UI';
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+}
+QPushButton#btnLogout:hover {
+    background-color: #701f1f;
+}
+
+/* ===== RIGHT CARDS ===== */
+QWidget#cardLike, QWidget#cardDislike, QWidget#cardKomentar, QWidget#cardWishlist {
+    background-color: #1A2332;
+    border-radius: 12px;
+}
+QLabel#cardTotal {
+    color: #8B96A5;
+    font-size: 12px;
+    font-family: 'Segoe UI';
+}
+QLabel#cardEmpty, QLabel#cardLikeEmpty, QLabel#cardDislikeEmpty,
+QLabel#cardKomentarEmpty {
+    color: #515050;
+    font-size: 12px;
+    font-family: 'Segoe UI';
+}
+QPushButton#btnWishlist {
+    background-color: #4ADE80;
+    color: #0F1621;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: 'Segoe UI';
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+}
+QPushButton#btnWishlist:hover {
+    background-color: #16a34a;
+}
+"""
 
 
-# ── Avatar Widget ─────────────────────────────────────────────────────────────
-class AvatarWidget(QWidget):
-    def __init__(self, initials="MG", color="#58a6ff", size=90, parent=None):
-        super().__init__(parent)
-        self.initials = initials
-        self.color    = color
-        self.setFixedSize(size, size)
-
-    def paintEvent(self, _):
-        p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
-        r = self.width() // 2
-
-        grad = QRadialGradient(r, r, r)
-        grad.setColorAt(0, QColor(self.color).lighter(140))
-        grad.setColorAt(1, QColor(self.color).darker(160))
-        p.setBrush(QBrush(grad))
-        p.setPen(Qt.NoPen)
-        p.drawEllipse(0, 0, self.width(), self.height())
-
-        p.setPen(QColor(WHITE))
-        p.setFont(QFont("Segoe UI", r // 2, QFont.Bold))
-        p.drawText(QRect(0, 0, self.width(), self.height()), Qt.AlignCenter, self.initials)
+def icon_path(filename):
+    """Resolve path ikon dari folder assets."""
+    base = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base, "..", "..", "assets", filename)
 
 
-# ── Stat Card ─────────────────────────────────────────────────────────────────
-def stat_card(icon, label, value, color=ACCENT):
-    f = QFrame()
-    f.setStyleSheet(f"""
-        QFrame {{
-            background: {BG_CARD};
-            border: 1px solid {BORDER};
-            border-radius: 10px;
-        }}
-    """)
-    v = QVBoxLayout(f)
-    v.setContentsMargins(16, 14, 16, 14)
-    v.setSpacing(4)
-
-    ico = QLabel(icon)
-    ico.setFont(QFont("Segoe UI", 22))
-    ico.setStyleSheet("background:transparent; border:none;")
-    v.addWidget(ico)
-
-    val = QLabel(str(value))
-    val.setFont(QFont("Segoe UI", 18, QFont.Bold))
-    val.setStyleSheet(f"color:{color};background:transparent; border:none;")
-    v.addWidget(val)
-
-    lbl = QLabel(label)
-    lbl.setFont(QFont("Segoe UI", 10))
-    lbl.setStyleSheet(f"color:{MUTED};background:transparent; border:none;")
-    v.addWidget(lbl)
-
-    return f
+def make_icon_label(png_file, size=20):
+    """Buat QLabel yang menampilkan ikon PNG dengan ukuran tetap."""
+    lbl = QtWidgets.QLabel()
+    lbl.setFixedSize(size, size)
+    lbl.setScaledContents(True)
+    lbl.setPixmap(QtGui.QPixmap(icon_path(png_file)))
+    return lbl
 
 
-# ── Activity Row ──────────────────────────────────────────────────────────────
-def activity_row(title, genre, time_ago, ac="#58a6ff"):
-    row = QWidget()
-    row.setStyleSheet(f"background:{BG_ELEM};border-radius:8px;")
-    h = QHBoxLayout(row)
-    h.setContentsMargins(14, 10, 14, 10)
-    h.setSpacing(12)
+class ProfileWindow(QtWidgets.QMainWindow):
 
-    dot = QLabel()
-    dot.setFixedSize(10, 10)
-    dot.setStyleSheet(f"background:{ac};border-radius:5px;")
-    h.addWidget(dot, alignment=Qt.AlignVCenter)
+    # ── Signals ───────────────────────────────────────────────────────
+    wishlist_clicked = QtCore.pyqtSignal()
+    back_clicked     = QtCore.pyqtSignal()
+    logout_clicked   = QtCore.pyqtSignal()
+    photo_changed    = QtCore.pyqtSignal(str)   # membawa path foto asli
+    save_requested   = QtCore.pyqtSignal(str)   # membawa username baru
 
-    info = QVBoxLayout(); info.setSpacing(2)
-    t = QLabel(title)
-    t.setFont(QFont("Segoe UI", 11, QFont.Bold))
-    t.setStyleSheet(f"color:{WHITE};background:transparent; border:none;")
-    g = QLabel(genre)
-    g.setFont(QFont("Segoe UI", 9))
-    g.setStyleSheet(f"color:{MUTED};background:transparent; border:none;")
-    info.addWidget(t); info.addWidget(g)
-    h.addLayout(info, stretch=1)
+    # ── Metode publik (dipanggil dari logic/router) ───────────────────
 
-    tm = QLabel(time_ago)
-    tm.setFont(QFont("Segoe UI", 9))
-    tm.setStyleSheet(f"color:{MUTED};background:transparent;border:none;")
-    h.addWidget(tm)
-    return row
+    def load_user(self, user: dict):
+        """Isi form dengan data user dari DB."""
+        username = user.get("username", "")
+        self.displayNameEdit.setText(username)
+        self.usernameEdit.setText(username)
+        self._current_photo = user.get("foto_profil") or ""
+        if self._current_photo and os.path.exists(self._current_photo):
+            self.update_photo(self._current_photo)
+        else:
+            self.avatarLabel.setPixmap(QtGui.QPixmap())
+            self.avatarLabel.setText(username[0].upper() if username else "?")
 
+    def update_photo(self, path: str):
+        """Tampilkan foto profil berbentuk lingkaran."""
+        self._current_photo = path
+        pixmap = QtGui.QPixmap(path)
+        if pixmap.isNull():
+            return
+        pixmap = pixmap.scaled(
+            100, 100,
+            QtCore.Qt.KeepAspectRatioByExpanding,
+            QtCore.Qt.SmoothTransformation
+        )
+        rounded = QtGui.QPixmap(100, 100)
+        rounded.fill(QtCore.Qt.transparent)
+        painter = QtGui.QPainter(rounded)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.setBrush(QtGui.QBrush(pixmap))
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.drawEllipse(0, 0, 100, 100)
+        painter.end()
+        self.avatarLabel.setPixmap(rounded)
+        self.avatarLabel.setText("")
 
-class ProfileWindow(QWidget):
-    back_clicked     = pyqtSignal()
-    wishlist_clicked = pyqtSignal()
+    def update_wishlist_count(self, jumlah: int):
+        """Update label total game di card Riwayat Wishlist."""
+        for lbl in self.cardWishlist.findChildren(QtWidgets.QLabel):
+            if lbl.text().startswith("Total:"):
+                lbl.setText(f"Total: {jumlah} Game")
+                break
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._build()
+    # ── Slot internal ─────────────────────────────────────────────────
 
-    def _build(self):
-        self.setStyleSheet(f"background:{BG};")
-        root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
+    def _on_save_clicked(self):
+        new_username = self.usernameEdit.text().strip()
+        if not new_username:
+            return
+        self.displayNameEdit.setText(new_username)
+        if not getattr(self, '_current_photo', ''):
+            self.avatarLabel.setText(new_username[0].upper())
+        self.save_requested.emit(new_username)   # ← kirim ke logic
 
+    def _on_photo_clicked(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Pilih Foto Profil", "",
+            "Image Files (*.png *.jpg *.jpeg)"
+        )
+        if not path:
+            return
+        dialog = CropDialog(path, parent=self)
+        dialog.exec_()
+        result = dialog.get_result()
+        if result:
+            self.avatarLabel.setPixmap(
+                result.scaled(
+                    100, 100,
+                    QtCore.Qt.KeepAspectRatioByExpanding,
+                    QtCore.Qt.SmoothTransformation
+                )
+            )
+            self.avatarLabel.setText("")
+            self._current_photo = path
+            self.photo_changed.emit(path)   # ← kirim ke logic
+
+    # ── Constructor ───────────────────────────────────────────────────
+
+    def __init__(self):
+        super().__init__()
+        self._current_photo = ""
+        self.setObjectName("ProfileWindow")
+        self.resize(1100, 700)
+        self.setWindowTitle("MAGER - Profil User")
+        self.setStyleSheet(STYLESHEET)
+
+        self.centralwidget = QtWidgets.QWidget(self)
+        self.centralwidget.setObjectName("centralwidget")
+        self.setCentralWidget(self.centralwidget)
+
+        self.mainVLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.mainVLayout.setSpacing(0)
+        self.mainVLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Navbar
         self.nav = Navbar(active_page="profile")
-        self.nav.wishlist_clicked.connect(self.wishlist_clicked)
-        # self.nav.profile_clicked.connect(...)  # atau biarkan jika tidak diperlukan
-        root.addWidget(self.nav)
+        self.mainVLayout.addWidget(self.nav)
 
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setStyleSheet(f"""
-            QScrollArea {{ background:{BG}; border:none; }}
-            QScrollBar:vertical {{ background:{BG_CARD}; width:6px; border-radius:3px; }}
-            QScrollBar::handle:vertical {{ background:{BORDER}; border-radius:3px; min-height:20px; }}
-            QScrollBar::add-line, QScrollBar::sub-line {{ height:0; }}
-        """)
-
-        content = QWidget()
-        content.setStyleSheet(f"background:{BG};border:none;")
-        cl = QVBoxLayout(content)
-        cl.setContentsMargins(28, 16, 28, 28)
-        cl.setSpacing(20)
+        # Content
+        self.contentWidget = QtWidgets.QWidget()
+        contentVLayout = QtWidgets.QVBoxLayout(self.contentWidget)
+        contentVLayout.setContentsMargins(24, 16, 24, 24)
+        contentVLayout.setSpacing(16)
 
         # Back button
-        back_row = QHBoxLayout()
-        btn_back = QPushButton("← Kembali")
-        btn_back.setCursor(QCursor(Qt.PointingHandCursor))
-        btn_back.setStyleSheet(
-            f"QPushButton{{background:transparent;border:none;color:{MUTED};"
-            f"font-size:13px;}} QPushButton:hover{{color:{WHITE};}}"
+        self.btnBack = QtWidgets.QPushButton("← Kembali")
+        self.btnBack.setObjectName("btnBack")
+        self.btnBack.setMaximumWidth(120)
+        self.btnBack.clicked.connect(self.back_clicked.emit)
+        contentVLayout.addWidget(self.btnBack)
+
+        mainContentLayout = QtWidgets.QHBoxLayout()
+        mainContentLayout.setSpacing(16)
+
+        # ── Left Panel ────────────────────────────────────────────────
+        self.leftPanel = QtWidgets.QWidget()
+        self.leftPanel.setObjectName("leftPanel")
+        self.leftPanel.setMinimumWidth(260)
+        self.leftPanel.setMaximumWidth(280)
+
+        leftPanelLayout = QtWidgets.QVBoxLayout(self.leftPanel)
+        leftPanelLayout.setContentsMargins(20, 20, 20, 20)
+        leftPanelLayout.setSpacing(12)
+
+        self.panelTitle = QtWidgets.QLabel("Profil Saya")
+        self.panelTitle.setObjectName("panelTitle")
+        leftPanelLayout.addWidget(self.panelTitle)
+
+        # Avatar + tombol kamera
+        avatarLayout = QtWidgets.QHBoxLayout()
+        avatarLayout.addStretch()
+
+        avatarContainer = QtWidgets.QWidget()
+        avatarContainer.setFixedSize(110, 110)
+        avatarContainer.setStyleSheet("background: transparent;")
+
+        self.avatarLabel = QtWidgets.QLabel("D", avatarContainer)
+        self.avatarLabel.setObjectName("avatarLabel")
+        self.avatarLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.avatarLabel.setGeometry(0, 0, 100, 100)
+        self.avatarLabel.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.avatarLabel.mousePressEvent = lambda _: self._on_photo_clicked()
+        self.avatarLabel.setStyleSheet("""
+            QLabel {
+                color: #FFFFFF;
+                font-size: 36px;
+                font-weight: bold;
+                font-family: 'Segoe UI';
+                background-color: #2A3647;
+                border-radius: 50px;
+            }
+        """)
+
+        self.cameraBtn = QtWidgets.QPushButton(avatarContainer)
+        self.cameraBtn.setGeometry(72, 72, 30, 30)
+        self.cameraBtn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.cameraBtn.setIcon(QtGui.QIcon(icon_path("mdi_camera-outline.png")))
+        self.cameraBtn.setIconSize(QtCore.QSize(16, 16))
+        self.cameraBtn.setStyleSheet("""
+            QPushButton {
+                background-color: #4ADE80;
+                border-radius: 15px;
+                border: 2px solid #0A1123;
+                padding: 0px;
+            }
+            QPushButton:hover { background-color: #16a34a; }
+        """)
+        self.cameraBtn.clicked.connect(self._on_photo_clicked)
+        self.cameraBtn.raise_()
+
+        avatarLayout.addWidget(avatarContainer)
+        avatarLayout.addStretch()
+        leftPanelLayout.addLayout(avatarLayout)
+
+        # Display Name (read only)
+        self.fieldLabel = QtWidgets.QLabel("Display Name")
+        self.fieldLabel.setObjectName("fieldLabel")
+        self.displayNameEdit = QtWidgets.QLineEdit()
+        self.displayNameEdit.setObjectName("displayNameEdit")
+        self.displayNameEdit.setReadOnly(True)
+        leftPanelLayout.addWidget(self.fieldLabel)
+        leftPanelLayout.addWidget(self.displayNameEdit)
+
+        # Username (editable)
+        self.fieldLabel_2 = QtWidgets.QLabel("Username")
+        self.fieldLabel_2.setObjectName("fieldLabel_2")
+        self.usernameEdit = QtWidgets.QLineEdit()
+        self.usernameEdit.setObjectName("usernameEdit")
+        leftPanelLayout.addWidget(self.fieldLabel_2)
+        leftPanelLayout.addWidget(self.usernameEdit)
+
+        # Simpan
+        self.btnSave = QtWidgets.QPushButton("Simpan Perubahan")
+        self.btnSave.setObjectName("btnSave")
+        self.btnSave.clicked.connect(self._on_save_clicked)
+        leftPanelLayout.addWidget(self.btnSave)
+
+        # Statistik
+        self.sectionLabel = QtWidgets.QLabel("Statistik Preferensi")
+        self.sectionLabel.setObjectName("sectionLabel")
+        leftPanelLayout.addWidget(self.sectionLabel)
+
+        leftPanelLayout.addSpacerItem(
+            QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         )
-        btn_back.clicked.connect(self.back_clicked)
-        back_row.addWidget(btn_back)
-        back_row.addStretch()
-        cl.addLayout(back_row)
 
-        # Profile header card
-        cl.addWidget(self._profile_header())
+        self.emptyLabel = QtWidgets.QLabel("Belum ada data preferensi game")
+        self.emptyLabel.setObjectName("emptyLabel")
+        self.emptyLabel.setAlignment(QtCore.Qt.AlignCenter)
+        leftPanelLayout.addWidget(self.emptyLabel)
 
-        # Stats grid
-        cl.addWidget(self._stats_section())
+        leftPanelLayout.addStretch()
 
-        # Aktivitas & badge
-        two_col = QHBoxLayout(); two_col.setSpacing(16)
-        two_col.addWidget(self._activity_section(), stretch=3)
-        two_col.addWidget(self._badges_section(), stretch=2)
-        cl.addLayout(two_col)
+        # Logout
+        self.btnLogout = QtWidgets.QPushButton("  Logout")
+        self.btnLogout.setObjectName("btnLogout")
+        self.btnLogout.setIcon(QtGui.QIcon(icon_path("material-symbols_logout-rounded.png")))
+        self.btnLogout.setIconSize(QtCore.QSize(18, 18))
+        self.btnLogout.clicked.connect(self.logout_clicked.emit)
+        leftPanelLayout.addWidget(self.btnLogout)
 
-        # Pengaturan akun
-        cl.addWidget(self._settings_section())
+        mainContentLayout.addWidget(self.leftPanel)
 
-        scroll.setWidget(content)
-        root.addWidget(scroll)
+        # ── Right Panel — 2×2 card grid ──────────────────────────────
+        cardsGridLayout = QtWidgets.QGridLayout()
+        cardsGridLayout.setSpacing(16)
 
-    # ── Navbar ────────────────────────────────────────────────────────────
-    def _navbar(self):
-        bar = QWidget()
-        bar.setFixedHeight(52)
-        bar.setStyleSheet(f"background:{BG_DARK};border-bottom:1px solid {BORDER};")
-        h = QHBoxLayout(bar)
-        h.setContentsMargins(20, 0, 20, 0)
-        h.setSpacing(0)
+        def make_card(obj_name, icon_png, title_text, title_color,
+                      total_text, empty_text, extra_widget=None):
+            card = QtWidgets.QWidget()
+            card.setObjectName(obj_name)
+            vbox = QtWidgets.QVBoxLayout(card)
+            vbox.setContentsMargins(20, 20, 20, 20)
+            vbox.setSpacing(8)
 
-        logo = QLabel("MAGER")
-        logo.setStyleSheet(f"color:{WHITE};font-size:20px;font-weight:900;letter-spacing:1px;")
-        h.addWidget(logo)
-        h.addSpacing(24)
-
-        for txt in ["Popular Games", "Cheapest Games"]:
-            btn = QPushButton(txt)
-            btn.setCursor(QCursor(Qt.PointingHandCursor))
-            btn.setStyleSheet(
-                f"QPushButton{{background:transparent;border:none;color:{MUTED};"
-                f"font-size:13px;padding:8px 14px;}} QPushButton:hover{{color:{WHITE};}}"
+            title_row = QtWidgets.QHBoxLayout()
+            title_row.setSpacing(8)
+            title_row.addWidget(make_icon_label(icon_png, 20))
+            title_lbl = QtWidgets.QLabel(title_text)
+            title_lbl.setStyleSheet(
+                f"color: {title_color}; font-size: 16px; font-weight: bold; font-family: 'Segoe UI';"
             )
-            h.addWidget(btn)
+            title_row.addWidget(title_lbl)
+            title_row.addStretch()
+            vbox.addLayout(title_row)
 
-        h.addStretch()
+            total_lbl = QtWidgets.QLabel(total_text)
+            total_lbl.setStyleSheet("color: #8B96A5; font-size: 12px; font-family: 'Segoe UI';")
+            vbox.addWidget(total_lbl)
 
-        search = QLineEdit()
-        search.setPlaceholderText("Search games...")
-        search.setFixedSize(200, 32)
-        search.setStyleSheet(
-            f"QLineEdit{{background:{BG_ELEM};border:1px solid {BORDER};"
-            f"border-radius:16px;padding:0 14px;color:{WHITE};font-size:12px;}}"
-            f"QLineEdit:focus{{border:1px solid {GREEN};}}"
+            vbox.addStretch()
+
+            empty_lbl = QtWidgets.QLabel(empty_text)
+            empty_lbl.setAlignment(QtCore.Qt.AlignCenter)
+            empty_lbl.setStyleSheet("color: #515050; font-size: 12px; font-family: 'Segoe UI';")
+            vbox.addWidget(empty_lbl)
+
+            vbox.addStretch()
+
+            if extra_widget:
+                vbox.addWidget(extra_widget)
+
+            return card
+
+        self.cardLike = make_card(
+            "cardLike", "Vector.png", "Riwayat Like", "#FFFFFF",
+            "Total: 0 Game", "Belum ada game yang di-like"
         )
-        h.addWidget(search)
-        h.addSpacing(10)
-
-        heart = QPushButton("♡")
-        heart.setFixedSize(34, 34)
-        heart.setStyleSheet(
-            f"QPushButton{{background:{BG_ELEM};border:1px solid {BORDER};"
-            f"border-radius:17px;color:{MUTED};font-size:15px;}}"
-            f"QPushButton:hover{{color:#f06292;border-color:#f06292;}}"
+        self.cardDislike = make_card(
+            "cardDislike", "Vector (2).png", "Riwayat Dislike", "#FFFFFF",
+            "Total: 0 Game", "Belum ada game yang di-dislike"
         )
-        heart.clicked.connect(self.wishlist_clicked)
-        h.addWidget(heart)
-        h.addSpacing(8)
-
-        user = QPushButton("👤")
-        user.setFixedSize(34, 34)
-        user.setStyleSheet(
-            f"QPushButton{{background:{BG_ELEM};border:1px solid {ACCENT};"
-            f"border-radius:17px;color:{ACCENT};font-size:14px;}}"
+        self.cardKomentar = make_card(
+            "cardKomentar", "Vector (1).png", "Riwayat Komentar", "#FFFFFF",
+            "Total: 0 Game", "Belum ada komentar"
         )
-        h.addWidget(user)
-        return bar
 
-    # ── Profile Header ────────────────────────────────────────────────────
-    def _profile_header(self):
-        f = QFrame()
-        f.setStyleSheet(f"""
-            QFrame {{
-                background: qlineargradient(x1:0,y1:0,x2:1,y2:1,
-                    stop:0 #1a2035, stop:1 #0d1117);
-                border: 1px solid {BORDER};
-                border-radius: 12px;
-            }}
-        """)
-        h = QHBoxLayout(f)
-        h.setContentsMargins(24, 20, 24, 20)
-        h.setSpacing(20)
+        self.btnWishlist = QtWidgets.QPushButton("Lihat Wishlist")
+        self.btnWishlist.setObjectName("btnWishlist")
+        self.btnWishlist.clicked.connect(self.wishlist_clicked.emit)
+        self.btnWishlist.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
 
-        avatar = AvatarWidget("AG", ACCENT, 80)
-        h.addWidget(avatar)
-
-        info = QVBoxLayout(); info.setSpacing(4)
-        name = QLabel("Ahmad Gamer")
-        name.setFont(QFont("Segoe UI", 18, QFont.Bold))
-        name.setStyleSheet(f"color:{WHITE};background:transparent;border:none;")
-        info.addWidget(name)
-
-        username = QLabel("@ahmadgamer · Bergabung Jan 2023")
-        username.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent; border:none;")
-        info.addWidget(username)
-
-        badge_row = QHBoxLayout(); badge_row.setSpacing(6)
-        for txt, col in [("🎮 Gamer Sejati", ACCENT), ("⭐ Top Reviewer", GOLD)]:
-            b = QLabel(txt)
-            b.setStyleSheet(
-                f"background:{col}22;color:{col};font-size:10px;"
-                "font-weight:bold;padding:3px 10px;border-radius:10px;"
-                f"border:1px solid {col}55;"
-            )
-            badge_row.addWidget(b)
-        badge_row.addStretch()
-        info.addLayout(badge_row)
-        h.addLayout(info, stretch=1)
-
-        btn_edit = QPushButton("✏ Edit Profil")
-        btn_edit.setFixedSize(120, 36)
-        btn_edit.setCursor(QCursor(Qt.PointingHandCursor))
-        btn_edit.setStyleSheet(
-            f"QPushButton{{background:transparent;border:1px solid {ACCENT};"
-            f"border-radius:8px;color:{ACCENT};font-size:12px;font-weight:bold;}}"
-            f"QPushButton:hover{{background:{ACCENT};color:#000;}}"
+        self.cardWishlist = make_card(
+            "cardWishlist", "Vector (3).png", "Riwayat Wishlist", "#FFFFFF",
+            "Total: 0 Game", "", extra_widget=self.btnWishlist
         )
-        h.addWidget(btn_edit, alignment=Qt.AlignVCenter)
-        return f
 
-    # ── Stats ─────────────────────────────────────────────────────────────
-    def _stats_section(self):
-        container = QWidget(); container.setStyleSheet("background:transparent; border:none;")
-        grid = QGridLayout(container)
-        grid.setContentsMargins(0, 0, 0, 0)
-        grid.setSpacing(12)
+        cardsGridLayout.addWidget(self.cardLike,     0, 0)
+        cardsGridLayout.addWidget(self.cardDislike,  0, 1)
+        cardsGridLayout.addWidget(self.cardKomentar, 1, 0)
+        cardsGridLayout.addWidget(self.cardWishlist, 1, 1)
 
-        cards = [
-            ("🎮", "Game Dimiliki",    "47",       ACCENT),
-            ("♡",  "Wishlist",         "12",        "#f06292"),
-            ("⭐",  "Review Ditulis",   "28",        GOLD),
-            ("💰",  "Total Belanja",    "Rp 3,2 Jt", GREEN),
-        ]
-        for i, (icon, label, value, color) in enumerate(cards):
-            grid.addWidget(stat_card(icon, label, value, color), 0, i)
-        return container
+        mainContentLayout.addLayout(cardsGridLayout)
+        contentVLayout.addLayout(mainContentLayout)
+        self.mainVLayout.addWidget(self.contentWidget)
 
-    # ── Aktivitas ─────────────────────────────────────────────────────────
-    def _activity_section(self):
-        f = QFrame()
-        f.setStyleSheet(f"""
-            QFrame {{
-                background:{BG_CARD};
-                border:1px solid {BORDER};
-                border-radius:10px;
-            }}
-        """)
-        v = QVBoxLayout(f)
-        v.setContentsMargins(18, 16, 18, 16)
-        v.setSpacing(10)
 
-        title = QLabel("📋  Aktivitas Terakhir")
-        title.setFont(QFont("Segoe UI", 13, QFont.Bold))
-        title.setStyleSheet(f"color:{WHITE};background:transparent; border:none;")
-        v.addWidget(title)
-
-        activities = [
-            ("Cyberpunk 2077",  "RPG",          "2 jam lalu",    "#ffd700"),
-            ("Elden Ring",      "Action RPG",   "1 hari lalu",   "#c0a060"),
-            ("Hades",           "Roguelite",    "3 hari lalu",   "#e05252"),
-            ("Hollow Knight",   "Metroidvania", "1 minggu lalu", "#7c6fa0"),
-            ("Celeste",         "Platformer",   "2 minggu lalu", "#4fc3f7"),
-        ]
-        for args in activities:
-            v.addWidget(activity_row(*args))
-        return f
-
-    # ── Badge ─────────────────────────────────────────────────────────────
-    def _badges_section(self):
-        f = QFrame()
-        f.setStyleSheet(f"""
-            QFrame {{
-                background:{BG_CARD};
-                border:1px solid {BORDER};
-                border-radius:10px;
-            }}
-        """)
-        v = QVBoxLayout(f)
-        v.setContentsMargins(18, 16, 18, 16)
-        v.setSpacing(10)
-
-        title = QLabel("🏅  Pencapaian")
-        title.setFont(QFont("Segoe UI", 13, QFont.Bold))
-        title.setStyleSheet(f"color:{WHITE};background:transparent; border:none;")
-        v.addWidget(title)
-
-        badges = [
-            ("🎮", "Gamer Sejati",    "Miliki 40+ game",      ACCENT),
-            ("⭐",  "Top Reviewer",   "Tulis 25+ review",     GOLD),
-            ("💎",  "Diamond Member", "Belanja > Rp 2 Juta",  "#b9f2ff"),
-            ("🔥",  "Hot Streak",     "Login 30 hari beruntun", RED),
-            ("🏆",  "Completionist",  "100% 5 game",          GREEN),
-        ]
-
-        for icon, name, desc, color in badges:
-            row = QWidget()
-            row.setStyleSheet(f"background:{BG_ELEM};border-radius:7px;")
-            rh = QHBoxLayout(row)
-            rh.setContentsMargins(12, 8, 12, 8)
-            rh.setSpacing(10)
-
-            ico = QLabel(icon)
-            ico.setFont(QFont("Segoe UI", 18))
-            ico.setStyleSheet("background:transparent; border:none;")
-            rh.addWidget(ico)
-
-            text = QVBoxLayout(); text.setSpacing(1)
-            n = QLabel(name)
-            n.setFont(QFont("Segoe UI", 10, QFont.Bold))
-            n.setStyleSheet(f"color:{color};background:transparent; border:none;")
-            d = QLabel(desc)
-            d.setFont(QFont("Segoe UI", 8))
-            d.setStyleSheet(f"color:{MUTED};background:transparent; border:none;")
-            text.addWidget(n); text.addWidget(d)
-            rh.addLayout(text, stretch=1)
-
-            v.addWidget(row)
-
-        v.addStretch()
-        return f
-
-    # ── Pengaturan Akun ───────────────────────────────────────────────────
-    def _settings_section(self):
-        f = QFrame()
-        f.setStyleSheet(f"""
-            QFrame {{
-                background:{BG_CARD};
-                border:1px solid {BORDER};
-                border-radius:10px;
-            }}
-        """)
-        v = QVBoxLayout(f)
-        v.setContentsMargins(18, 16, 18, 16)
-        v.setSpacing(12)
-
-        title = QLabel("⚙  Pengaturan Akun")
-        title.setFont(QFont("Segoe UI", 13, QFont.Bold))
-        title.setStyleSheet(f"color:{WHITE};background:transparent; border:none;")
-        v.addWidget(title)
-
-        grid = QGridLayout(); grid.setSpacing(10)
-
-        def field(label, placeholder, row, col):
-            box = QVBoxLayout()
-            lbl = QLabel(label)
-            lbl.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent;")
-            inp = QLineEdit()
-            inp.setPlaceholderText(placeholder)
-            inp.setFixedHeight(36)
-            inp.setStyleSheet(
-                f"QLineEdit{{background:{BG_ELEM};border:1px solid {BORDER};"
-                f"border-radius:6px;padding:0 12px;color:{WHITE};font-size:12px;}}"
-                f"QLineEdit:focus{{border:1px solid {ACCENT};}}"
-            )
-            box.addWidget(lbl); box.addWidget(inp)
-            w = QWidget(); w.setStyleSheet("background:transparent; border:none;")
-            QVBoxLayout(w).addLayout(box)
-            # simpler: just add to grid
-            container = QFrame()
-            container.setStyleSheet("background:transparent;border:none;")
-            cl = QVBoxLayout(container); cl.setContentsMargins(0,0,0,0); cl.setSpacing(4)
-            cl.addWidget(lbl); cl.addWidget(inp)
-            grid.addWidget(container, row, col)
-
-        field("Nama Lengkap", "Ahmad Gamer", 0, 0)
-        field("Username",     "@ahmadgamer", 0, 1)
-        field("Email",        "ahmad@email.com", 1, 0)
-        field("Kata Sandi",   "••••••••", 1, 1)
-        v.addLayout(grid)
-
-        btn_save = QPushButton("💾  Simpan Perubahan")
-        btn_save.setFixedHeight(40)
-        btn_save.setCursor(QCursor(Qt.PointingHandCursor))
-        btn_save.setStyleSheet(
-            f"QPushButton{{background:{GREEN};border:none;border-radius:8px;"
-            f"color:#0d1117;font-size:13px;font-weight:bold;}}"
-            f"QPushButton:hover{{background:#00a844;}}"
-        )
-        v.addWidget(btn_save, alignment=Qt.AlignLeft)
-        return f
+# ── Entry point ───────────────────────────────────────────────────────
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    window = ProfileWindow()
+    window.show()
+    sys.exit(app.exec_())

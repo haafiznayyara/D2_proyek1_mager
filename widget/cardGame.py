@@ -8,21 +8,21 @@ from PyQt5.QtWidgets import (
     QFrame, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QSizePolicy
 )
-from PyQt5.QtCore import Qt, QRectF, pyqtSignal
+from PyQt5.QtCore import Qt, QRectF, QSize, pyqtSignal
 from PyQt5.QtGui import (
-    QFont, QColor, QPainter, QPixmap, QLinearGradient,
-    QBrush, QPen, QCursor, QRadialGradient, QFontMetrics
+    QFont, QColor, QPainter, QPainterPath, QPixmap, QLinearGradient,
+    QBrush, QPen, QCursor, QRadialGradient, QFontMetrics, QIcon
 )
 
 # ── Palette ───────────────────────────────────────────────────────────────
 CARD      = "#1A2332"
 CARD_HOV  = "#1A2332"
-ACCENT    = "#39d353"
-ACCENT2   = "#2ea84a"
+ACCENT    = "#4ADE80"
+ACCENT2   = "#4ADE80"
 TEXT1     = "#e8eaf0"
 TEXT2     = "#8899aa"
-BORDER    = "#1e3a50"
-TAG_BG    = "#162840"
+TAG_BG    = "#2A3647"
+BORDER    = "#2A3647"
 
 COVER_RATIO = 0.58
 INFO_H      = 183
@@ -118,10 +118,28 @@ class TagPill(QLabel):
         """)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
 
+class _BorderOverlay(QWidget):
+    def __init__(self, card):
+        super().__init__(card)
+        self._card = card
+        self.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self.setStyleSheet("background: transparent;")
+
+    def paintEvent(self, _event):
+        if not self._card._hovered:
+            return
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        rect = QRectF(1.5, 1.5, self.width() - 3, self.height() - 3)
+        p.setBrush(Qt.NoBrush)
+        p.setPen(QPen(QColor(ACCENT), 3))
+        p.drawRoundedRect(rect, 11, 11)
+        p.end()
 
 # ── Game Card (shared, reusable) ──────────────────────────────────────────
 class PopularGameCard(QFrame):
     clicked = pyqtSignal(dict)
+    wishlist_clicked = pyqtSignal(dict)
 
     def __init__(self, game: dict, parent=None):
         super().__init__(parent)
@@ -129,22 +147,17 @@ class PopularGameCard(QFrame):
         self._cw     = 0
         self._poster = None  # QPixmap mentah, di-crop saat set_width
 
-        self.setStyleSheet(f"""
-            QFrame {{
-                background: {CARD};
-                border-radius: 12px;
-                border: 1px solid {BORDER};
-            }}
-            QFrame:hover {{
-                border-color: {ACCENT2};
-                background: {CARD_HOV};
-            }}
-        """)
+        self.setStyleSheet("background: transparent;")
+        self._hovered = False
         self.setCursor(QCursor(Qt.PointingHandCursor))
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
+
+        # ── Border overlay (untuk hover stroke di atas foto) ──────────────────
+        self._border_overlay = _BorderOverlay(self)
+        self._border_overlay.raise_()
 
         # ── Cover ─────────────────────────────────────────────────────────
         self._cover_container = QWidget()
@@ -154,28 +167,34 @@ class PopularGameCard(QFrame):
 
         self.cover_lbl = QLabel()
         self.cover_lbl.setAlignment(Qt.AlignCenter)
-        self.cover_lbl.setStyleSheet(
-            "border-radius: 12px 12px 0 0; background: transparent;"
-        )
+        self.cover_lbl.setStyleSheet("background: transparent;")
         cover_stack.addWidget(self.cover_lbl)
         root.addWidget(self._cover_container)
 
         # ── Wishlist button (floating) ────────────────────────────────────
-        self._wish_btn = QPushButton("♡")
+        _wish_outline_path = os.path.join(BASE_DIR, "assets", "wishlist_outline.png")
+        _wish_filled_path  = os.path.join(BASE_DIR, "assets", "wishlist_filled.png")
+        self._wish_icon_outline = QIcon(_wish_outline_path) if os.path.exists(_wish_outline_path) else None
+        self._wish_icon_filled  = QIcon(_wish_filled_path)  if os.path.exists(_wish_filled_path)  else None
+        self._wishlisted = False
+
+        self._wish_btn = QPushButton()
         self._wish_btn.setParent(self)
-        self._wish_btn.setFixedSize(28, 28)
-        self._wish_btn.setFont(QFont("Segoe UI", 12))
+        self._wish_btn.setFixedSize(38, 38)
         self._wish_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        if self._wish_icon_outline:
+            self._wish_btn.setIcon(self._wish_icon_outline)
+            self._wish_btn.setIconSize(QSize(20, 20))
         self._wish_btn.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(13,27,42,0.75);
-                border: 1px solid {BORDER};
-                border-radius: 14px;
-                color: {TEXT2};
+                background: rgba(0,0,0,0.5);
+                border: none;
+                border-radius: 19px;
             }}
-            QPushButton:hover {{ color: #e74c3c; border-color: #e74c3c; }}
+            QPushButton:hover {{ background: rgba(74,222,128,0.5); }}
         """)
-
+        self._wish_btn.clicked.connect(self._on_wish_clicked)
+        
         # ── Info panel ────────────────────────────────────────────────────
         info = QWidget()
         info.setFixedHeight(INFO_H)
@@ -232,7 +251,6 @@ class PopularGameCard(QFrame):
 
     def _load_poster_raw(self) -> QPixmap | None:
         filename = self.game.get("img", "")
-        
         # Handle jika nilai adalah None, string "None", atau string kosong
         if not filename or str(filename).strip().lower() in ("none", "null", ""):
             return None
@@ -250,8 +268,37 @@ class PopularGameCard(QFrame):
             self.clicked.emit(self.game)
         super().mousePressEvent(event)
 
+    def enterEvent(self, e):
+        self._hovered = True
+        self.update()
+        self._border_overlay.update()
+        super().enterEvent(e)
+
+    def leaveEvent(self, e):
+        self._hovered = False
+        self.update()
+        self._border_overlay.update()
+        super().leaveEvent(e)
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        # Background card
+        rect = QRectF(1, 1, self.width() - 2, self.height() - 2)
+        p.setBrush(QBrush(QColor(CARD)))
+        p.setPen(Qt.NoPen)
+        p.drawRoundedRect(rect, 12, 12)
+        p.end()
+
+    def _on_wish_clicked(self):
+        self._wishlisted = not self._wishlisted
+        icon = self._wish_icon_filled if self._wishlisted else self._wish_icon_outline
+        if icon:
+            self._wish_btn.setIcon(icon)
+        self.wishlist_clicked.emit(self.game)
+
     def set_width(self, w: int):
-        if w == self._cw:
+        if w == self._cw:  # ← kembalikan ini
             return
         self._cw = w
         ch = int(w * COVER_RATIO)
@@ -268,12 +315,31 @@ class PopularGameCard(QFrame):
             )
             x = (scaled.width()  - w) // 2
             y = (scaled.height() - ch) // 2
-            self.cover_lbl.setPixmap(scaled.copy(x, y, w, ch))
+            cropped = scaled.copy(x, y, w, ch)
         else:
-            self.cover_lbl.setPixmap(make_placeholder(self.game, w, ch))
+            cropped = make_placeholder(self.game, w, ch)
 
-        self._wish_btn.move(w - 36, 6)
+        rounded = QPixmap(w, ch)
+        rounded.fill(Qt.transparent)
+        painter = QPainter(rounded)
+        painter.setRenderHint(QPainter.Antialiasing)
+        path = QPainterPath()
+        path.moveTo(12, 0)
+        path.lineTo(w - 12, 0)
+        path.arcTo(QRectF(w - 24, 0, 24, 24), 90, -90)
+        path.lineTo(w, ch)
+        path.lineTo(0, ch)
+        path.arcTo(QRectF(0, 0, 24, 24), 180, -90)
+        path.closeSubpath()
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, cropped)
+        painter.end()
+        self.cover_lbl.setPixmap(rounded)
+
+        self._wish_btn.move(w - 44, 4)
         self._wish_btn.raise_()
+        self._border_overlay.setFixedSize(w, ch + INFO_H)
+        self._border_overlay.raise_()
 
         fm = QFontMetrics(self.title_lbl.font())
         self.title_lbl.setText(

@@ -112,6 +112,11 @@ class _IconField(QWidget):
     def clear(self):    self.field.clear(); self.set_error(False)
     def setFocus(self): self.field.setFocus()
 
+    # ── expose returnPressed dari inner QLineEdit ──────────────────────────
+    @property
+    def returnPressed(self):
+        return self.field.returnPressed
+
 
 class SuccessRegisterPage(QWidget):
     """Halaman penuh success register — menggantikan popup."""
@@ -249,6 +254,10 @@ class LoginWindow(QWidget):
         _field_block(cl, "Username", self.inp_user, spacing_before=16)
         _field_block(cl, "Password", self.inp_pass, spacing_before=10)
 
+        # ── Enter untuk login ──────────────────────────────────────────────
+        self.inp_user.returnPressed.connect(self._do_login)
+        self.inp_pass.returnPressed.connect(self._do_login)
+
         # Error box
         cl.addSpacing(8)
         self._err_frame = QFrame()
@@ -381,12 +390,17 @@ class RegisterWindow(QWidget):
         cl.addWidget(sub)
 
         # Fields
-        self.inp_user    = _IconField("Masukkan username",   _asset("avatar_outline.png"))
-        self.inp_pass    = _IconField("Masukkan password",   _asset("lock_outline.png"), QLineEdit.Password)
-        self.inp_confirm = _IconField("Konfirmasi password", _asset("lock_outline.png"), QLineEdit.Password)
+        self.inp_user    = _IconField("Masukkan username",   _asset(avatar_icon))
+        self.inp_pass    = _IconField("Masukkan password",   _asset(lock_icon), QLineEdit.Password)
+        self.inp_confirm = _IconField("Konfirmasi password", _asset(lock_icon), QLineEdit.Password)
         _field_block(cl, "Username",            self.inp_user,    spacing_before=16)
         _field_block(cl, "Password",            self.inp_pass,    spacing_before=10)
         _field_block(cl, "Konfirmasi Password", self.inp_confirm, spacing_before=10)
+
+        # ── Enter untuk register ───────────────────────────────────────────
+        self.inp_user.returnPressed.connect(self._do_register)
+        self.inp_pass.returnPressed.connect(self._do_register)
+        self.inp_confirm.returnPressed.connect(self._do_register)
 
         # Error box
         cl.addSpacing(8)

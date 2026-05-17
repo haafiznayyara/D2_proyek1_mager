@@ -3,6 +3,8 @@ MAGER - Game Detail Page  (profileGame_ui.py)
 Terintegrasi dengan profileGame_logic.py
 """
 
+import os
+from  widget.navbar import Navbar
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QLineEdit, QScrollArea, QFrame,
@@ -20,21 +22,35 @@ from pages.gameProfile.profileGame_logic import (
 )
 
 # ── Palette ──────────────────────────────────────────────────────────────────
-BG          = "#0d1117"
-BG_DARK     = "#161b27"
-BG_CARD     = "#1a2035"
-BG_ELEM     = "#1e2840"
-BG_INPUT    = "#242d45"
-BORDER      = "#2a3555"
-WHITE       = "#ffffff"
+BG          = "#0A1123"
+BG_DARK     = "#0A1123"
+BG_CARD     = "#1A2332"
+BG_ELEM     = "#1A2332"
+BG_INPUT    = "#1A2332"
+BORDER      = "#2A3647"
+WHITE       = "#FFFFFF"
 LIGHT       = "#c9d1e0"
 MUTED       = "#7b8db0"
 DIM         = "#4a5580"
-GREEN       = "#00c853"
+GREEN       = "#4ADE80"
+DISC_GREEN  = "#4ADE80"
 RED_BTN     = "#8b1a1a"
 RED_BTN_BDR = "#c0392b"
-DISC_GREEN  = "#1a7a3a"
 
+# Direktori poster lokal
+POSTER_DIR = "assets/posters"
+
+# Perbaiki fungsi _asset() di bagian atas file:
+def _asset(name):
+    base = os.path.dirname(os.path.abspath(__file__))
+    # Naik ke root project dari lokasi file ini
+    root = base
+    while not os.path.exists(os.path.join(root, "assets")):
+        parent = os.path.dirname(root)
+        if parent == root:  # sudah di root filesystem
+            break
+        root = parent
+    return os.path.join(root, "assets", name)
 
 # ── Clickable Icon ────────────────────────────────────────────────────────────
 class ClickableIcon(QLabel):
@@ -100,22 +116,17 @@ class PriceChart(QWidget):
         super().__init__(parent)
         self.setMinimumHeight(140)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        # Data default (dummy) — diganti via set_data() jika DB punya riwayat
         self._pts: list[QPointF] = []
         self._max_price: float   = 1.0
         self._x_labels: list[str] = []
+        self._raw: list[dict]    = []
 
     def set_data(self, history: list[dict]):
-        """
-        history: [{"date": "2024-12", "price": 299000}, ...]
-        Dipanggil dari GameDetailWindow.load_price_history()
-        """
         if not history:
             return
         self._max_price = max(h["price"] for h in history) or 1.0
         self._raw       = history
 
-        # Label sumbu X: ambil setiap ~4 titik supaya tidak penuh
         step = max(1, len(history) // 8)
         self._x_labels = [
             (history[i]["date"] if i < len(history) else "")
@@ -133,13 +144,11 @@ class PriceChart(QWidget):
 
         p.fillRect(0, 0, W, H, QColor(BG_CARD))
 
-        # Grid horizontal
         p.setPen(QPen(QColor(BORDER), 1))
         for i in range(5):
             y = pad_t + draw_h - int(i / 4 * draw_h)
             p.drawLine(pad_l, y, W - pad_r, y)
 
-        # Label Y
         p.setPen(QPen(QColor(MUTED)))
         p.setFont(QFont("Arial", 7))
         for i in range(5):
@@ -149,9 +158,8 @@ class PriceChart(QWidget):
             p.drawText(QRect(0, y - 8, pad_l - 4, 16),
                        Qt.AlignRight | Qt.AlignVCenter, lbl)
 
-        raw = getattr(self, "_raw", [])
+        raw = self._raw
         if not raw:
-            # Tidak ada data — tampilkan teks
             p.setPen(QPen(QColor(MUTED)))
             p.drawText(QRect(0, 0, W, H), Qt.AlignCenter, "Belum ada riwayat harga")
             return
@@ -163,7 +171,6 @@ class PriceChart(QWidget):
             y = pad_t + draw_h - int(h["price"] / self._max_price * draw_h)
             pts.append(QPointF(x, y))
 
-        # Label X
         x_labels = self._x_labels
         step      = max(1, n // len(x_labels)) if x_labels else 1
         for idx, lbl in enumerate(x_labels):
@@ -174,7 +181,6 @@ class PriceChart(QWidget):
             p.setPen(QPen(QColor(MUTED)))
             p.drawText(QRect(x - 30, H - pad_b + 4, 60, 20), Qt.AlignCenter, lbl)
 
-        # Area fill
         fill = QPainterPath()
         fill.moveTo(pts[0])
         for pt in pts[1:]:
@@ -188,7 +194,6 @@ class PriceChart(QWidget):
         grad.setColorAt(1, QColor(0, 200, 83, 0))
         p.fillPath(fill, QBrush(grad))
 
-        # Garis
         line = QPainterPath()
         line.moveTo(pts[0])
         for pt in pts[1:]:
@@ -211,53 +216,92 @@ class GameDetailWindow(QWidget):
         self._loader = GameDetailLoader(self)
         self._loader.game_ready.connect(self._on_game_ready)
         self._loader.history_ready.connect(self.load_price_history)
+        self._loader.genre_ready.connect(self.load_genres)
         self._loader.error.connect(lambda msg: print("[Detail]", msg))
+        self._loader.genre_ready.connect(self.load_genres)
         self._build()
 
     # ── Public API ────────────────────────────────────────────────────────
     def open_game(self, game_id: int):
-        """
-        Dipanggil Router ketika card diklik.
-        Fetch data dari DB secara async, lalu refresh UI.
-        """
         self._loader.load(game_id)
 
     def load_game(self, game: dict):
         self._game = game
-        self._raw_cover = None  # reset cover lama
+        self._raw_cover = None
         self._refresh_ui()
-
-        # ← tambahkan ini: fetch gambar dari URL
-        url = game.get("img", "")
-        print(f"[DEBUG] URL gambar: '{url}'")
-        if url:
-            self._fetcher = ImageFetcher(url, self)
-            self._fetcher.done.connect(self._on_cover_data)
-            self._fetcher.fetch_async()
+        self._load_cover(game)
+        genres = game.get("genres") or game.get("tags") or (
+            [game["genre"]] if game.get("genre") else []
+        )
+        self.load_genres(genres)
 
     def load_price_history(self, history: list):
-        """Dipanggil otomatis oleh loader setelah game_ready."""
         self.price_chart.set_data(history)
+
+    def load_genres(self, genres: list):
+        """Hapus pill lama lalu buat pill baru untuk setiap genre."""
+        # Hapus semua widget di tags_layout
+        while self.tags_layout.count():
+            item = self.tags_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        if not genres:
+            placeholder = QLabel("—")
+            placeholder.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent;")
+            self.tags_layout.addWidget(placeholder)
+        else:
+            for genre in genres:
+                pill = QLabel(genre)
+                pill.setStyleSheet(
+                    f"background:{BG_ELEM}; color:{MUTED}; font-size:10px;"
+                    f"padding:3px 9px; border-radius:3px; border:1px solid {BORDER};"
+                )
+                self.tags_layout.addWidget(pill)
+
+        self.tags_layout.addStretch()
+
+    # ── Cover loading: lokal dulu, fallback URL ───────────────────────────
+    def _load_cover(self, game: dict):
+        """
+        Muat poster dari assets/posters/ menggunakan nama file
+        yang diambil dari url_gambar (basename + ekstensi sudah ada di URL).
+        Contoh: url "https://.../abc.jpg" → cari "assets/posters/abc.jpg"
+        Jika file lokal tidak ada, fallback fetch URL.
+        """
+        url = game.get("img", "")
+        if not url:
+            return
+
+        # Ambil nama file dari URL (termasuk ekstensinya)
+        filename = os.path.basename(url.split("?")[0])  # buang query string
+        local_path = os.path.join(POSTER_DIR, filename)
+
+        if os.path.isfile(local_path):
+            px = QPixmap(local_path)
+            if not px.isNull():
+                self._raw_cover = px
+                self._apply_cover()
+                print(f"[Cover] Dimuat dari lokal: {local_path}")
+                return
+
+        # Fallback: fetch dari URL
+        print(f"[Cover] File lokal '{local_path}' tidak ada, fetch URL.")
+        self._fetcher = ImageFetcher(url, self)
+        self._fetcher.done.connect(self._on_cover_data)
+        self._fetcher.fetch_async()
 
     # ── Internal: terima data dari loader ────────────────────────────────
     def _on_game_ready(self, game):
         if game is None:
             return
         self.load_game(game)
-        # Fetch cover image
-        url = game.get("img", "")
-        if url:
-            self._fetcher = ImageFetcher(url, self)
-            self._fetcher.done.connect(self._on_cover_data)
-            self._fetcher.fetch_async()
 
     def _on_cover_data(self, data: bytes):
-        print(f"[DEBUG] Data gambar diterima: {len(data)} bytes")
         if not data:
             return
         px = QPixmap()
         px.loadFromData(data)
-        print(f"[DEBUG] QPixmap valid: {not px.isNull()}")
         if px.isNull():
             return
         self._raw_cover = px
@@ -268,13 +312,22 @@ class GameDetailWindow(QWidget):
             return
         w = self.lbl_cover.width()
         h = self.lbl_cover.height()
+        if w <= 0 or h <= 0:
+            return
         scaled = self._raw_cover.scaled(
             w, h, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation
         )
         x = (scaled.width()  - w) // 2
         y = (scaled.height() - h) // 2
         self.lbl_cover.setPixmap(scaled.copy(x, y, w, h))
+        self.lbl_cover.setStyleSheet("border-radius:10px;")
         self.lbl_cover.setText("")
+
+    def resizeEvent(self, event):
+        """Re-apply cover saat window di-resize agar tidak gepeng/terpotong."""
+        super().resizeEvent(event)
+        if self._raw_cover:
+            self._apply_cover()
 
     def _refresh_ui(self):
         g = self._game
@@ -283,50 +336,47 @@ class GameDetailWindow(QWidget):
 
         self.lbl_title.setText(g.get("title", ""))
 
-        # Cover placeholder sementara gambar di-fetch
+        # Cover placeholder
         ac = g.get("ac", "#333")
         self.lbl_cover.setStyleSheet(
-            f"background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            f"background: qlineargradient(x1:0,y1:0,x2:1,y2:1,"
             f"stop:0 #1a0a00, stop:0.5 {ac}, stop:1 #0d1117);"
-            f"color:{MUTED};font-size:14px;border-radius:8px;"
+            f"color:{MUTED};font-size:13px;border-radius:10px;"
         )
         self.lbl_cover.setText(f"[ {g.get('title', 'Cover')} ]")
-        self._raw_cover = None  # reset cover lama
+        self._raw_cover = None
 
+        # Meta fields — word-wrap sudah aktif di build, cukup set teks
         self.lbl_dev.setText(g.get("dev", "-"))
         self.lbl_pub.setText(g.get("pub", "-"))
         self.lbl_release.setText(g.get("release_date", "-"))
         self.lbl_total_reviews.setText(fmt_number(g.get("total_reviews", 0)))
-        self.lbl_genre_tag.setText(g.get("genre", ""))
         self.lbl_desc.setText(g.get("description", "-"))
 
-        # Statistik player
         self.lbl_current_player.setText(fmt_number(g.get("current_player", 0)))
         self.lbl_peak_player.setText(fmt_number(g.get("peak_player", 0)))
 
-        # Harga
         price = g.get("price", 0)
         if price == 0:
             self.lbl_price.setText("Gratis")
-            self.lbl_old_price.setText("")
-            self.lbl_disc.setText("")
+            self.lbl_old_price.hide()
+            self.lbl_disc.hide()
         else:
             self.lbl_price.setText(fmt_price(price))
             self.lbl_old_price.setText(fmt_price(int(price * 2)))
+            self.lbl_old_price.show()
             self.lbl_disc.setText("-50%")
+            self.lbl_disc.show()
 
-        # Platform available
         self.lbl_platform_price.setText(
             fmt_price(price) if price > 0 else "Gratis"
         )
 
-        # Rating circle
         rating = g.get("rating", 0)
         self.ring.value = rating
         self.ring.label = rating_label(rating)
         self.ring.update()
 
-        # Review counts
         self.lbl_review_count.setText(
             f"{fmt_number(g.get('total_reviews', 0))} ulasan pengguna"
         )
@@ -340,17 +390,21 @@ class GameDetailWindow(QWidget):
         vbox.setContentsMargins(0, 0, 0, 0)
         vbox.setSpacing(0)
 
-        vbox.addWidget(self._navbar())
+        # BENAR - pakai SharedNavBar:
+        self.nav = Navbar(active_page="")
+        self.nav.wishlist_clicked.connect(self.nav_wishlist_clicked)
+        self.nav.profile_clicked.connect(self.nav_profile_clicked)
+        vbox.addWidget(self.nav)
 
         # Back bar
         back_bar = QWidget()
         back_bar.setStyleSheet(f"background:{BG};")
         bb = QHBoxLayout(back_bar)
-        bb.setContentsMargins(20, 8, 20, 4)
+        bb.setContentsMargins(24, 10, 24, 6)
         btn_back = QPushButton("← Kembali")
         btn_back.setStyleSheet(
             f"QPushButton{{background:transparent;border:none;color:{MUTED};"
-            f"font-size:13px;}} QPushButton:hover{{color:{WHITE};}}"
+            f"font-size:13px;padding:4px 0;}} QPushButton:hover{{color:{WHITE};}}"
         )
         btn_back.setCursor(Qt.PointingHandCursor)
         btn_back.clicked.connect(self.back_clicked)
@@ -368,8 +422,8 @@ class GameDetailWindow(QWidget):
         content = QWidget()
         content.setStyleSheet(f"background:{BG};")
         cl = QHBoxLayout(content)
-        cl.setContentsMargins(20, 8, 20, 24)
-        cl.setSpacing(16)
+        cl.setContentsMargins(24, 10, 24, 32)
+        cl.setSpacing(20)
         cl.setAlignment(Qt.AlignTop)
 
         left = QWidget()
@@ -377,7 +431,7 @@ class GameDetailWindow(QWidget):
         left.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         ll = QVBoxLayout(left)
         ll.setContentsMargins(0, 0, 0, 0)
-        ll.setSpacing(14)
+        ll.setSpacing(16)
         ll.addWidget(self._cover_image())
         ll.addWidget(self._game_info())
         ll.addWidget(self._description())
@@ -385,7 +439,7 @@ class GameDetailWindow(QWidget):
         ll.addStretch()
 
         right = self._sidebar()
-        right.setFixedWidth(290)
+        right.setFixedWidth(295)
 
         cl.addWidget(left)
         cl.addWidget(right, alignment=Qt.AlignTop)
@@ -401,131 +455,98 @@ QScrollBar:vertical {{
     background: {BG_DARK}; width: 6px; border-radius: 3px;
 }}
 QScrollBar::handle:vertical {{
-    background: {BG_ELEM}; border-radius: 3px; min-height: 20px;
+    background: {DIM}; border-radius: 3px; min-height: 24px;
 }}
 QScrollBar::add-line, QScrollBar::sub-line {{ width:0; height:0; }}
 QFrame#card {{
     background: {BG_CARD};
     border: 1px solid {BORDER};
-    border-radius: 8px;
+    border-radius: 10px;
 }}
 """
-
-    def _navbar(self):
-        bar = QWidget()
-        bar.setFixedHeight(52)
-        bar.setStyleSheet(f"background:{BG_DARK};border-bottom:1px solid {BORDER};")
-        h = QHBoxLayout(bar)
-        h.setContentsMargins(20, 0, 20, 0)
-        h.setSpacing(0)
-
-        logo = QLabel("MAGER")
-        logo.setStyleSheet(
-            f"color:{WHITE};font-size:20px;font-weight:900;letter-spacing:1px;"
-        )
-        h.addWidget(logo)
-        h.addSpacing(24)
-
-        for txt in ["Popular Games", "Cheapest Games"]:
-            btn = QPushButton(txt)
-            btn.setCursor(Qt.PointingHandCursor)
-            btn.setStyleSheet(
-                f"QPushButton{{background:transparent;border:none;color:{MUTED};"
-                f"font-size:13px;padding:8px 14px;}}"
-                f"QPushButton:hover{{color:{WHITE};}}"
-            )
-            h.addWidget(btn)
-
-        h.addStretch()
-
-        search = QLineEdit()
-        search.setPlaceholderText("Search games...")
-        search.setFixedSize(220, 32)
-        search.setStyleSheet(
-            f"QLineEdit{{background:{BG_ELEM};border:1px solid {BORDER};"
-            f"border-radius:16px;padding:0 16px;color:{WHITE};font-size:13px;}}"
-            f"QLineEdit:focus{{border:1px solid {GREEN};}}"
-        )
-        h.addWidget(search)
-        h.addSpacing(10)
-
-        heart = QPushButton("♡")
-        heart.setFixedSize(34, 34)
-        heart.setStyleSheet(
-            f"QPushButton{{background:{BG_ELEM};border:1px solid {BORDER};"
-            f"border-radius:17px;color:{MUTED};font-size:15px;}}"
-            f"QPushButton:hover{{color:#f06292;border-color:#f06292;}}"
-        )
-        heart.clicked.connect(self.nav_wishlist_clicked)
-        h.addWidget(heart)
-        h.addSpacing(8)
-
-        user = QPushButton("👤")
-        user.setFixedSize(34, 34)
-        user.setStyleSheet(
-            f"QPushButton{{background:{BG_ELEM};border:1px solid {BORDER};"
-            f"border-radius:17px;color:{MUTED};font-size:14px;}}"
-            f"QPushButton:hover{{color:{WHITE};}}"
-        )
-        user.clicked.connect(self.nav_profile_clicked)
-        h.addWidget(user)
-        return bar
-
     def _cover_image(self):
         self.lbl_cover = QLabel("[ Memuat cover... ]")
-        self.lbl_cover.setFixedHeight(200)
+        self.lbl_cover.setFixedHeight(220)
         self.lbl_cover.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.lbl_cover.setAlignment(Qt.AlignCenter)
+        self.lbl_cover.setScaledContents(False)
         self.lbl_cover.setStyleSheet(
-            f"background:{BG_CARD};color:{MUTED};font-size:14px;border-radius:8px;"
+            f"background:{BG_CARD};color:{MUTED};font-size:13px;border-radius:10px;"
         )
         return self.lbl_cover
 
     def _game_info(self):
         w = QFrame(); w.setObjectName("card")
         v = QVBoxLayout(w)
-        v.setContentsMargins(16, 14, 16, 14)
-        v.setSpacing(8)
+        v.setContentsMargins(18, 16, 18, 16)
+        v.setSpacing(10)
 
         self.lbl_title = QLabel("—")
+        self.lbl_title.setWordWrap(True)
         self.lbl_title.setStyleSheet(
             f"color:{WHITE};font-size:22px;font-weight:bold;background:transparent;"
         )
         v.addWidget(self.lbl_title)
 
-        tags_row = QHBoxLayout(); tags_row.setSpacing(6)
-        self.lbl_genre_tag = QLabel("")
-        self.lbl_genre_tag.setStyleSheet(
-            f"background:{BG_ELEM};color:{MUTED};font-size:10px;"
-            f"padding:3px 9px;border-radius:3px;"
-        )
-        tags_row.addWidget(self.lbl_genre_tag)
-        tags_row.addStretch()
-        v.addLayout(tags_row)
+        # ── Genre pills — HANYA tags_container, hapus lbl_genre_tag lama ─────
+        self.tags_container = QWidget()
+        self.tags_container.setStyleSheet("background:transparent;")
+        self.tags_layout = QHBoxLayout(self.tags_container)
+        self.tags_layout.setContentsMargins(0, 0, 0, 0)
+        self.tags_layout.setSpacing(6)
+        self.tags_layout.addStretch()
+        v.addWidget(self.tags_container)
+
+        # ── HAPUS seluruh blok lbl_genre_tag lama ────────────────────────────
+        # tags_row = QHBoxLayout() ...  ← HAPUS
+        # self.lbl_genre_tag = QLabel() ... ← HAPUS
+
+        div = QFrame()
+        div.setFrameShape(QFrame.HLine)
+        div.setStyleSheet(f"color:{BORDER};background:{BORDER};max-height:1px;")
+        v.addWidget(div)
 
         meta = QGridLayout()
-        meta.setSpacing(8)
-        meta.setContentsMargins(0, 4, 0, 0)
+        meta.setSpacing(10)
+        meta.setContentsMargins(0, 2, 0, 0)
+        meta.setColumnStretch(0, 1)
+        meta.setColumnStretch(1, 1)
 
-        def meta_block(icon, label):
+        def meta_block(icon_path: str, label: str):
             bw = QWidget(); bw.setStyleSheet("background:transparent;")
-            bv = QVBoxLayout(bw); bv.setContentsMargins(0, 0, 0, 0); bv.setSpacing(2)
-            top = QHBoxLayout(); top.setSpacing(5)
-            top.addWidget(QLabel(icon))
+            bv = QVBoxLayout(bw); bv.setContentsMargins(0, 0, 0, 0); bv.setSpacing(3)
+            top = QHBoxLayout(); top.setSpacing(6)
+
+            ico_lbl = QLabel()
+            ico_lbl.setStyleSheet("background:transparent;")
+            px = QPixmap(icon_path)
+            if not px.isNull():
+                ico_lbl.setPixmap(
+                    px.scaled(14, 14, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                )
+            else:
+                ico_lbl.setText(icon_path)
+                ico_lbl.setStyleSheet("background:transparent; font-size:12px;")
+
+            top.addWidget(ico_lbl)
             lbl_w = QLabel(label)
             lbl_w.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent;")
-            top.addWidget(lbl_w); top.addStretch()
+            top.addWidget(lbl_w)
+            top.addStretch()
+
             val = QLabel("—")
+            val.setWordWrap(True)
             val.setStyleSheet(
-                f"color:{LIGHT};font-size:13px;font-weight:500;background:transparent;"
+                f"color:{LIGHT};font-size:12px;font-weight:500;background:transparent;"
             )
-            bv.addLayout(top); bv.addWidget(val)
+            bv.addLayout(top)
+            bv.addWidget(val)
             return bw, val
 
-        b1, self.lbl_dev          = meta_block("👤", "Developer")
-        b2, self.lbl_release      = meta_block("📅", "Tanggal Rilis")
-        b3, self.lbl_pub          = meta_block("🏢", "Publisher")
-        b4, self.lbl_total_reviews= meta_block("⭐", "Total Reviews")
+        b1, self.lbl_dev           = meta_block(_asset("developer-publisher.png"), "Developer")
+        b2, self.lbl_release       = meta_block(_asset("calendar.png"),            "Tanggal Rilis")
+        b3, self.lbl_pub           = meta_block(_asset("developer-publisher.png"), "Publisher")
+        b4, self.lbl_total_reviews = meta_block(_asset("reviews.png"),             "Total Reviews")
 
         meta.addWidget(b1, 0, 0); meta.addWidget(b2, 0, 1)
         meta.addWidget(b3, 1, 0); meta.addWidget(b4, 1, 1)
@@ -534,33 +555,49 @@ QFrame#card {{
 
     def _description(self):
         w = QFrame(); w.setObjectName("card")
-        v = QVBoxLayout(w); v.setContentsMargins(16, 14, 16, 14); v.setSpacing(8)
+        v = QVBoxLayout(w); v.setContentsMargins(18, 16, 18, 16); v.setSpacing(10)
         title = QLabel("~ Deskripsi")
         title.setStyleSheet(
             f"color:{WHITE};font-size:14px;font-weight:bold;background:transparent;"
         )
         v.addWidget(title)
+
+        div = QFrame()
+        div.setFrameShape(QFrame.HLine)
+        div.setStyleSheet(f"color:{BORDER};background:{BORDER};max-height:1px;")
+        v.addWidget(div)
+
         self.lbl_desc = QLabel("—")
         self.lbl_desc.setWordWrap(True)
-        self.lbl_desc.setStyleSheet(f"color:{LIGHT};font-size:12px;background:transparent;")
+        self.lbl_desc.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self.lbl_desc.setStyleSheet(
+            f"color:{LIGHT};font-size:12px;line-height:160%;background:transparent;"
+        )
+        self.lbl_desc.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         v.addWidget(self.lbl_desc)
         return w
 
     def _price_history(self):
         w = QFrame(); w.setObjectName("card")
-        v = QVBoxLayout(w); v.setContentsMargins(16, 14, 16, 14); v.setSpacing(10)
+        v = QVBoxLayout(w); v.setContentsMargins(18, 16, 18, 16); v.setSpacing(10)
         title = QLabel("~ Riwayat Harga")
         title.setStyleSheet(
             f"color:{WHITE};font-size:14px;font-weight:bold;background:transparent;"
         )
         v.addWidget(title)
+
+        div = QFrame()
+        div.setFrameShape(QFrame.HLine)
+        div.setStyleSheet(f"color:{BORDER};background:{BORDER};max-height:1px;")
+        v.addWidget(div)
+
         self.price_chart = PriceChart()
         v.addWidget(self.price_chart)
         return w
 
     def _sidebar(self):
         w = QWidget(); w.setStyleSheet(f"background:{BG};")
-        v = QVBoxLayout(w); v.setContentsMargins(0, 0, 0, 0); v.setSpacing(12)
+        v = QVBoxLayout(w); v.setContentsMargins(0, 0, 0, 0); v.setSpacing(14)
         v.addWidget(self._sidebar_rating())
         v.addWidget(self._sidebar_price())
         v.addWidget(self._sidebar_stats())
@@ -574,21 +611,28 @@ QFrame#card {{
 
     def _sidebar_rating(self):
         f = self._card_frame()
-        v = QVBoxLayout(f); v.setContentsMargins(16, 16, 16, 16); v.setSpacing(8)
+        v = QVBoxLayout(f); v.setContentsMargins(16, 18, 16, 18); v.setSpacing(10)
         v.setAlignment(Qt.AlignHCenter)
 
         self.ring = RatingCircle(0, "—")
         v.addWidget(self.ring, alignment=Qt.AlignHCenter)
 
         self.lbl_review_count = QLabel("— ulasan pengguna")
+        self.lbl_review_count.setWordWrap(True)
         self.lbl_review_count.setStyleSheet(
             f"color:{MUTED};font-size:11px;background:transparent;"
         )
         self.lbl_review_count.setAlignment(Qt.AlignCenter)
         v.addWidget(self.lbl_review_count)
 
+        # Divider
+        div = QFrame()
+        div.setFrameShape(QFrame.HLine)
+        div.setStyleSheet(f"color:{BORDER};background:{BORDER};max-height:1px;")
+        v.addWidget(div)
+
         thumbs = QHBoxLayout()
-        thumbs.setSpacing(20)
+        thumbs.setSpacing(24)
         thumbs.setAlignment(Qt.AlignHCenter)
 
         def thumb_block(img_n, img_a, count_attr):
@@ -602,9 +646,9 @@ QFrame#card {{
             )
             setattr(self, count_attr, num)
 
-            def on_click(active):
-                cur = int(num.text())
-                num.setText(str(cur + 1 if active else max(0, cur - 1)))
+            def on_click(active, _num=num):
+                cur = int(_num.text())
+                _num.setText(str(cur + 1 if active else max(0, cur - 1)))
             ico.clicked.connect(on_click)
             bh.addWidget(ico); bh.addWidget(num)
             return bw
@@ -620,7 +664,7 @@ QFrame#card {{
 
     def _sidebar_price(self):
         f = self._card_frame()
-        v = QVBoxLayout(f); v.setContentsMargins(16, 14, 16, 14); v.setSpacing(6)
+        v = QVBoxLayout(f); v.setContentsMargins(16, 16, 16, 16); v.setSpacing(6)
 
         lbl = QLabel("Harga Normal")
         lbl.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent;")
@@ -651,6 +695,8 @@ QFrame#card {{
         price_row.addStretch()
         v.addLayout(price_row)
 
+        v.addSpacing(4)
+
         btn = QPushButton("♥  Hapus dari Wishlist")
         btn.setFixedHeight(40)
         btn.setCursor(Qt.PointingHandCursor)
@@ -664,7 +710,7 @@ QFrame#card {{
 
     def _sidebar_stats(self):
         f = self._card_frame()
-        v = QVBoxLayout(f); v.setContentsMargins(16, 14, 16, 14); v.setSpacing(8)
+        v = QVBoxLayout(f); v.setContentsMargins(16, 16, 16, 16); v.setSpacing(10)
 
         header = QHBoxLayout()
         lbl = QLabel("Statistik Player")
@@ -672,16 +718,18 @@ QFrame#card {{
             f"color:{WHITE};font-size:13px;font-weight:bold;background:transparent;"
         )
         period = QLabel("Dua Minggu Terakhir")
-        period.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent;")
+        period.setStyleSheet(f"color:{MUTED};font-size:10px;background:transparent;")
         header.addWidget(lbl); header.addStretch(); header.addWidget(period)
         v.addLayout(header)
 
         def stat_row(label, attr, vc=LIGHT):
             row = QWidget()
-            row.setStyleSheet(f"background:{BG_ELEM};border-radius:5px;")
-            rh = QHBoxLayout(row); rh.setContentsMargins(12, 8, 12, 8)
+            row.setStyleSheet(
+                f"background:{BG_ELEM};border-radius:6px;"
+            )
+            rh = QHBoxLayout(row); rh.setContentsMargins(12, 9, 12, 9)
             l = QLabel(label)
-            l.setStyleSheet(f"color:{LIGHT};font-size:12px;background:transparent;")
+            l.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent;")
             r = QLabel("—")
             r.setStyleSheet(
                 f"color:{vc};font-size:12px;font-weight:bold;background:transparent;"
@@ -690,13 +738,13 @@ QFrame#card {{
             rh.addWidget(l); rh.addStretch(); rh.addWidget(r)
             return row
 
-        v.addWidget(stat_row("Saat ini",  "lbl_current_player"))
-        v.addWidget(stat_row("Tertinggi", "lbl_peak_player", GREEN))
+        v.addWidget(stat_row("Pemain Saat Ini", "lbl_current_player"))
+        v.addWidget(stat_row("Puncak Tertinggi", "lbl_peak_player", GREEN))
         return f
 
     def _sidebar_available(self):
         f = self._card_frame()
-        v = QVBoxLayout(f); v.setContentsMargins(16, 14, 16, 14); v.setSpacing(8)
+        v = QVBoxLayout(f); v.setContentsMargins(16, 16, 16, 16); v.setSpacing(10)
         lbl = QLabel("Tersedia di")
         lbl.setStyleSheet(
             f"color:{WHITE};font-size:13px;font-weight:bold;background:transparent;"
@@ -704,9 +752,9 @@ QFrame#card {{
         v.addWidget(lbl)
 
         row = QWidget()
-        row.setStyleSheet(f"background:{BG_ELEM};border-radius:5px;")
-        rh = QHBoxLayout(row); rh.setContentsMargins(12, 8, 12, 8)
-        p = QLabel("Steam")
+        row.setStyleSheet(f"background:{BG_ELEM};border-radius:6px;")
+        rh = QHBoxLayout(row); rh.setContentsMargins(12, 9, 12, 9)
+        p = QLabel("🎮  Steam")
         p.setStyleSheet(f"color:{LIGHT};font-size:12px;background:transparent;")
         self.lbl_platform_price = QLabel("—")
         self.lbl_platform_price.setStyleSheet(
@@ -718,27 +766,27 @@ QFrame#card {{
 
     def _sidebar_comment(self):
         f = self._card_frame()
-        v = QVBoxLayout(f); v.setContentsMargins(16, 14, 16, 14); v.setSpacing(8)
+        v = QVBoxLayout(f); v.setContentsMargins(16, 16, 16, 16); v.setSpacing(10)
         lbl = QLabel("Komentar")
         lbl.setStyleSheet(
             f"color:{WHITE};font-size:13px;font-weight:bold;background:transparent;"
         )
         v.addWidget(lbl)
 
-        row = QHBoxLayout(); row.setSpacing(6)
+        row = QHBoxLayout(); row.setSpacing(8)
         inp = QLineEdit()
         inp.setPlaceholderText("Tulis komentar Anda...")
         inp.setFixedHeight(36)
         inp.setStyleSheet(
             f"QLineEdit{{background:{BG_INPUT};border:1px solid {BORDER};"
-            f"border-radius:5px;padding:0 10px;color:{WHITE};font-size:12px;}}"
+            f"border-radius:6px;padding:0 10px;color:{WHITE};font-size:12px;}}"
             f"QLineEdit:focus{{border:1px solid {GREEN};}}"
         )
         send = QPushButton("Kirim")
-        send.setFixedSize(80, 36)
+        send.setFixedSize(72, 36)
         send.setCursor(Qt.PointingHandCursor)
         send.setStyleSheet(
-            f"QPushButton{{background:{GREEN};border:none;border-radius:5px;"
+            f"QPushButton{{background:{GREEN};border:none;border-radius:6px;"
             f"color:#0d1117;font-size:12px;font-weight:bold;}}"
             f"QPushButton:hover{{background:#00a844;}}"
         )
