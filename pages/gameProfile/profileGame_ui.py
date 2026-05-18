@@ -19,6 +19,7 @@ from PyQt5.QtGui import (
 from pages.gameProfile.profileGame_logic import (
     GameDetailLoader, ImageFetcher, ReviewSubmitter,
     fmt_price, fmt_number, rating_label,
+    check_wishlist, toggle_wishlist,
 )
 
 # ── Palette ──────────────────────────────────────────────────────────────────
@@ -298,6 +299,7 @@ class GameDetailWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._game: dict            = {}
+        self._user_id: int = None 
         self._raw_cover: QPixmap | None = None
         self._current_user_id: int  = 1   # ganti sesuai user yang login
 
@@ -321,8 +323,10 @@ class GameDetailWindow(QWidget):
         """Set ID user yang sedang login (untuk submit review)."""
         self._current_user_id = user_id
 
-    def load_game(self, game: dict):
+    def load_game(self, game: dict, user_id: int = None):
         self._game = game
+        if user_id is not None:
+            self._user_id = user_id
         self._raw_cover = None
         self._refresh_ui()
         self._load_cover(game)
@@ -330,6 +334,11 @@ class GameDetailWindow(QWidget):
             [game["genre"]] if game.get("genre") else []
         )
         self.load_genres(genres)
+        
+            # Cek status wishlist
+        if self._user_id and game.get("id"):
+            is_in = check_wishlist(str(game["id"]), self._user_id)
+            self._update_wishlist_btn(is_in)
 
     def load_price_history(self, history: list):
         self.price_chart.set_data(history)
@@ -954,15 +963,12 @@ QTextEdit:focus {{ border: 1px solid {GREEN}; }}
         v.addLayout(price_row)
         v.addSpacing(4)
 
-        btn = QPushButton("♥  Hapus dari Wishlist")
-        btn.setFixedHeight(40)
-        btn.setCursor(Qt.PointingHandCursor)
-        btn.setStyleSheet(
-            f"QPushButton{{background:{RED_BTN};border:1px solid {RED_BTN_BDR};"
-            f"border-radius:6px;color:{WHITE};font-size:13px;font-weight:500;}}"
-            f"QPushButton:hover{{background:#a02020;}}"
-        )
-        v.addWidget(btn)
+        self.btn_wishlist = QPushButton("♡  Tambah ke Wishlist")
+        self.btn_wishlist.setFixedHeight(40)
+        self.btn_wishlist.setCursor(Qt.PointingHandCursor)
+        self.btn_wishlist.clicked.connect(self._on_wishlist_clicked)
+        v.addWidget(self.btn_wishlist)
+        self._update_wishlist_btn(False)
         return f
 
     def _sidebar_stats(self):
@@ -1016,3 +1022,29 @@ QTextEdit:focus {{ border: 1px solid {GREEN}; }}
         rh.addWidget(p); rh.addStretch(); rh.addWidget(self.lbl_platform_price)
         v.addWidget(row)
         return f
+    
+    # ── Wishlist handling ───────────────────────────────────────────────────
+    def _update_wishlist_btn(self, is_in_wishlist: bool):
+        if is_in_wishlist:
+            self.btn_wishlist.setText("♥  Hapus dari Wishlist")
+            self.btn_wishlist.setStyleSheet(
+                f"QPushButton{{background:{RED_BTN};border:1px solid {RED_BTN_BDR};"
+                f"border-radius:6px;color:{WHITE};font-size:13px;font-weight:500;}}"
+                f"QPushButton:hover{{background:#a02020;}}"
+            )
+        else:
+            self.btn_wishlist.setText("♡  Tambah ke Wishlist")
+            self.btn_wishlist.setStyleSheet(
+                f"QPushButton{{background:{DISC_GREEN};border:1px solid {GREEN};"
+                f"border-radius:6px;color:{GREEN};font-size:13px;font-weight:500;}}"
+                f"QPushButton:hover{{background:#1a5c30;}}"
+            )
+
+    def _on_wishlist_clicked(self):
+        if not self._user_id or not self._game.get("id"):
+            return
+        current_text = self.btn_wishlist.text()
+        is_in = "Hapus" in current_text
+        success = toggle_wishlist(str(self._game["id"]), self._user_id, add=not is_in)
+        if success:
+            self._update_wishlist_btn(not is_in)
