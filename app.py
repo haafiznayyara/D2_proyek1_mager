@@ -257,6 +257,7 @@ class Router(QStackedWidget):
     def _open_detail(self, game: dict):
         """Buka halaman detail dengan data game yang diklik."""
         self.page_detail.load_game(game)
+        self.page_detail.open_game(game["id"])
         self.go_to(self.PAGE_DETAIL)
 
 
