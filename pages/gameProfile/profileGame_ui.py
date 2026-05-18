@@ -299,7 +299,7 @@ class GameDetailWindow(QWidget):
         super().__init__(parent)
         self._game: dict            = {}
         self._raw_cover: QPixmap | None = None
-        self._current_user_id: int  = 1   # ganti sesuai user yang login
+        self._current_user_id: int  = 1
 
         self._loader = GameDetailLoader(self)
         self._loader.game_ready.connect(self._on_game_ready)
