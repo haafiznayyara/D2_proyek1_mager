@@ -110,7 +110,7 @@ class RatingCircle(QWidget):
 class PriceChart(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setMinimumHeight(140)
+        self.setMinimumHeight(280)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._pts: list[QPointF] = []
         self._max_price: float   = 1.0
@@ -120,6 +120,8 @@ class PriceChart(QWidget):
     def set_data(self, history: list[dict]):
         if not history:
             return
+            
+        # 1. Cari harga tertinggi untuk batas atas grafik (Sumbu Y)
         self._max_price = max(h["price"] for h in history) or 1.0
         self._raw       = history
         step = max(1, len(history) // 8)
@@ -165,15 +167,20 @@ class PriceChart(QWidget):
             y = pad_t + draw_h - int(h["price"] / self._max_price * draw_h)
             pts.append(QPointF(x, y))
 
-        x_labels = self._x_labels
-        step      = max(1, n // len(x_labels)) if x_labels else 1
-        for idx, lbl in enumerate(x_labels):
-            xi = idx * step
-            if xi >= len(pts):
-                break
-            x = int(pts[xi].x())
-            p.setPen(QPen(QColor(MUTED)))
-            p.drawText(QRect(x - 30, H - pad_b + 4, 60, 20), Qt.AlignCenter, lbl)
+        step = max(1, n // 15) # Maksimal tampilkan berapa label agar tidak dempet
+        p.setPen(QPen(QColor(MUTED)))
+        
+        for i in range(0, n, step):
+            x = int(pts[i].x())
+            
+            # Ambil data tanggal langsung dari raw data
+            # Gunakan key "tanggal" atau "date" sesuai yang ada di databasemu
+            raw_date = raw[i].get("tanggal") or raw[i].get("date", "")
+            lbl = str(raw_date)[:10]
+            
+            # Lebar kotak diperbesar dari 60 jadi 90 (x - 45, width 90)
+            # Ini mencegah teks YYYY-MM-DD terpotong jadi 024-...
+            p.drawText(QRect(x - 45, H - pad_b + 4, 90, 20), Qt.AlignCenter, lbl)
 
         fill = QPainterPath()
         fill.moveTo(pts[0])
@@ -724,6 +731,9 @@ QTextEdit:focus {{ border: 1px solid {GREEN}; }}
         self.price_chart = PriceChart()
         v.addWidget(self.price_chart)
         return w
+    
+    def load_price_history(self, history: list[dict]):
+        self.price_chart.set_data(history)
 
     def _review_input_section(self):
         """Form untuk menulis review dengan 3 aspek: Gameplay, Cerita, Grafik."""
