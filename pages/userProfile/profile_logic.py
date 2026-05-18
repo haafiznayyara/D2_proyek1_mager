@@ -55,19 +55,18 @@ def fetch_user(id_user: int) -> dict:
         conn.close()
 
 
-def update_username(id_user: int, new_username: str) -> bool:
-    """Update username user di DB."""
+def update_display_name(id_user: int, display_name: str) -> bool:
     conn = get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "UPDATE users SET username = %s WHERE id_user = %s",
-                (new_username, id_user)
+                "UPDATE users SET display_name = %s WHERE id_user = %s",
+                (display_name, id_user)
             )
         conn.commit()
         return True
     except Exception as e:
-        print(f"[ERROR] Gagal update username: {e}")
+        print(f"[ERROR] Gagal update display_name: {e}")
         conn.rollback()
         return False
     finally:
@@ -139,7 +138,7 @@ class ProfileLogic(QObject):
         self.id_user = id_user
 
         # Sambungkan sinyal dari UI ke logic
-        self.ui.save_requested.connect(self.on_save_username)
+        self.ui.save_requested.connect(self.on_save_display_name)
         self.ui.photo_changed.connect(self.on_photo_changed)
 
         # Load data user terbaru dari DB
@@ -151,22 +150,20 @@ class ProfileLogic(QObject):
         if user:
             self.ui.load_user(user)
 
-    def on_save_username(self, new_username: str):
-        """Dipanggil saat tombol Simpan ditekan."""
-        if not new_username:
+    def on_save_display_name(self, new_display: str):
+        if not new_display:
             return
-
-        success = update_username(self.id_user, new_username)
+        success = update_display_name(self.id_user, new_display)
         if success:
-            self.username_updated.emit(new_username)
+            self.username_updated.emit(new_display)
             QMessageBox.information(
                 self.ui, "Berhasil",
-                f"Username berhasil diubah menjadi <b>{new_username}</b>!"
+                f"Display Name berhasil diubah menjadi <b>{new_display}</b>!"
             )
         else:
             QMessageBox.critical(
                 self.ui, "Gagal",
-                "Terjadi kesalahan saat menyimpan username.\nSilakan coba lagi."
+                "Terjadi kesalahan saat menyimpan.\nSilakan coba lagi."
             )
 
     def on_photo_changed(self, src_path: str):

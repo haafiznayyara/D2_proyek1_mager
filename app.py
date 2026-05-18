@@ -104,7 +104,7 @@ class Router(QStackedWidget):
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
         self.page_dashboard.nav.wishlist_clicked.connect(
-            lambda: self.go_to(self.PAGE_WISHLIST)
+            self._go_to_wishlist
         )
         self.page_dashboard.nav.profile_clicked.connect(
             lambda: self.go_to(self.PAGE_PROFILE)
@@ -123,7 +123,7 @@ class Router(QStackedWidget):
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
         self.page_detail.nav_wishlist_clicked.connect(
-            lambda: self.go_to(self.PAGE_WISHLIST)
+            self._go_to_wishlist
         )
         self.page_detail.nav_profile_clicked.connect(
             lambda: self.go_to(self.PAGE_PROFILE)
@@ -137,7 +137,7 @@ class Router(QStackedWidget):
             lambda: self.go_to(self.PAGE_FILTER_HARGA)
         )
         self.page_wishlist.nav.wishlist_clicked.connect(
-            lambda: self.go_to(self.PAGE_WISHLIST)
+            self._go_to_wishlist
         )
         self.page_wishlist.nav.profile_clicked.connect(
             lambda: self.go_to(self.PAGE_PROFILE)
@@ -154,7 +154,7 @@ class Router(QStackedWidget):
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
         self.page_profile.nav.wishlist_clicked.connect(
-            lambda: self.go_to(self.PAGE_WISHLIST)
+            self._go_to_wishlist
         )
         self.page_profile.nav.dashboard_clicked.connect(
             lambda: self.go_to(self.PAGE_DASHBOARD)
@@ -163,7 +163,7 @@ class Router(QStackedWidget):
             lambda: self.go_to(self.PAGE_POPULAR)
         )
         self.page_profile.wishlist_clicked.connect(
-            lambda: self.go_to(self.PAGE_WISHLIST)
+            self._go_to_wishlist
         )
         self.page_profile.logout_clicked.connect(
             self._on_logout
@@ -174,7 +174,7 @@ class Router(QStackedWidget):
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
         self.page_popular.nav.wishlist_clicked.connect(
-            lambda: self.go_to(self.PAGE_WISHLIST)
+            self._go_to_wishlist
         )
         self.page_popular.nav.profile_clicked.connect(
             lambda: self.go_to(self.PAGE_PROFILE)
@@ -191,7 +191,7 @@ class Router(QStackedWidget):
             lambda: self.go_to(self.PAGE_POPULAR)
         )
         self.page_filter_harga.nav.wishlist_clicked.connect(
-            lambda: self.go_to(self.PAGE_WISHLIST)
+            self._go_to_wishlist
         )
         self.page_filter_harga.nav.profile_clicked.connect(
             lambda: self.go_to(self.PAGE_PROFILE)
@@ -214,6 +214,12 @@ class Router(QStackedWidget):
         if self.currentIndex() != index:
             self.setCurrentIndex(index)
             
+    def _go_to_wishlist(self):
+        if self.wishlist_logic is not None:
+            self.wishlist_logic.load_wishlist()
+        self.go_to(self.PAGE_WISHLIST)       
+    
+    
     def _on_login(self, user: dict):
         print(f"[DEBUG] Login berhasil: {user}")
         self.current_user = user
@@ -262,10 +268,8 @@ class Router(QStackedWidget):
         self.go_to(self.PAGE_LOGIN)
 
     def _open_detail(self, game: dict):
-        if self.current_user:
-            self.page_detail.set_user_id(self.current_user["id_user"])
-
-        self.page_detail.load_game(game)
+        """Buka halaman detail dengan data game yang diklik."""
+        self.page_detail.load_game(game, self.current_user["id_user"])
         self.page_detail.open_game(game["id"])
         game_id = game.get("id")
         if game_id:

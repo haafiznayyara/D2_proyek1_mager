@@ -396,3 +396,47 @@ def rating_label(rating: int) -> str:
     if rating >= 70: return "Good"
     if rating >= 50: return "Mixed"
     return "Negative"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cek Wishlist
+# ─────────────────────────────────────────────────────────────────────────────
+def check_wishlist(game_id: str, user_id: int) -> bool:
+    """Cek apakah game ada di wishlist user."""
+    sql = "SELECT 1 FROM wishlist WHERE id_game = %s AND id_user = %s LIMIT 1"
+    try:
+        conn = _conn_read()
+        with conn.cursor() as cur:
+            cur.execute(sql, (game_id, user_id))
+            result = cur.fetchone()
+        conn.close()
+        print(f"[check_wishlist] game_id={game_id}, user_id={user_id}, result={result}")  # ← tambah
+        return result is not None
+    except Exception as e:
+        print(f"[check_wishlist] Error: {e}")
+        return False
+
+
+def toggle_wishlist(game_id: str, user_id: int, add: bool) -> bool:
+    """Tambah atau hapus game dari wishlist. Return True jika berhasil."""
+    print(f"[toggle_wishlist] game_id={game_id}, user_id={user_id}, add={add}")  # ← tambah ini
+    try:
+        conn = _conn_write()
+        with conn.cursor() as cur:
+            if add:
+                cur.execute(
+                    "INSERT INTO wishlist (id_game, id_user, tanggal_ditambahkan) VALUES (%s, %s, NOW())",
+                    (game_id, user_id)
+                )
+            else:
+                cur.execute(
+                    "DELETE FROM wishlist WHERE id_game = %s AND id_user = %s",
+                    (game_id, user_id)
+                )
+        conn.commit()
+        conn.close()
+        print(f"[toggle_wishlist] berhasil")  # ← tambah ini
+        return True
+    except Exception as e:
+        print(f"[toggle_wishlist] Error: {e}")
+        return False
