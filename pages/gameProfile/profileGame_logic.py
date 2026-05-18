@@ -2,73 +2,68 @@ from __future__ import annotations
 import pymysql
 import os
 
-import threading
-from typing import Callable, Optional
+from typing import Optional
 
-import mysql.connector
-from mysql.connector import Error as MySQLError
+import pymysql
+import pymysql.cursors
 
 from PyQt5.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Konfigurasi koneksi  →  sesuaikan dengan environment kamu
-# ─────────────────────────────────────────────────────────────────────────────
-DB_CONFIG: dict = {
-    "host": "localhost",
-    "user": "root",
-    "password": "",
-    "database": "mager_db",
-    "charset": "utf8mb4",
-    "autocommit": True,
-}
-DB_PORTS = [3306, 3307]
+from database.connection import connection_database
 
-TABLE_GAME = "games"
+# Nama tabel — samakan dengan dashboard
+TABLE_GAMES = "game"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Helper: koneksi
+# Helper koneksi
 # ─────────────────────────────────────────────────────────────────────────────
-def get_connection():
-    """Coba koneksi ke beberapa port MySQL menggunakan PyMySQL."""
-    for port in DB_PORTS:
+def _conn_read():
+    """Koneksi read — pakai helper bersama (DictCursor, autocommit=True)."""
+    return connection_database()
+
+
+def _conn_write():
+    """
+    Koneksi write — autocommit=False agar bisa commit/rollback manual.
+    Tetap pakai DictCursor supaya row.get() bekerja di semua query.
+    """
+    ports = [3306, 3307]
+    for port in ports:
         try:
             conn = pymysql.connect(
-                **DB_CONFIG,
-                port=port
+                host="localhost",
+                port=port,
+                user="root",
+                password="",
+                database="mager_db",
+                cursorclass=pymysql.cursors.DictCursor,
+                autocommit=False,
             )
-            print(f"[DB GameDetail] Connected to MySQL port {port}")
+            print(f"[write_conn] Connected port {port}")
             return conn
-        except Exception as e: 
-            print(f"[DB GameDetail] Failed port {port} -> {e}")
-
-    raise Exception("Tidak bisa terhubung ke MySQL di port 3306 maupun 3307")
+        except pymysql.MySQLError:
+            print(f"[write_conn] Failed port {port}")
+    raise pymysql.MySQLError(
+        "Tidak bisa terhubung ke MySQL di port 3306 maupun 3307"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helper: mapping row DB → dict UI
 # ─────────────────────────────────────────────────────────────────────────────
 def _row_to_game(row: dict) -> dict:
-    """
-    Mapping kolom MySQL → dict yang dipakai GameDetailWindow & GameCard.
-
-    Kolom DB  : id_game, nama_game, genre, harga_sekarang, developer,
-                publisher, current_player, peak_player,
-                good_review, bad_review, url_gambar,
-                tanggal_rilis, deskripsi
-    """
     good  = int(row.get("good_review") or 0)
     bad   = int(row.get("bad_review")  or 0)
     total = good + bad
-
     rating = round(good / total * 100) if total > 0 else 0
 
     ACCENT_PALETTE = [
         "#3d85c8", "#c84b3d", "#3dc87a", "#c8b43d",
         "#8b3dc8", "#3dc8c8", "#c8783d",
     ]
-    id_val = str(row.get("id_game") or "0")
-    ac = ACCENT_PALETTE[abs(hash(id_val)) % len(ACCENT_PALETTE)]
+    # Pakai hash() supaya aman untuk UUID string maupun int
+    ac = ACCENT_PALETTE[abs(hash(str(row.get("id_game") or ""))) % len(ACCENT_PALETTE)]
 
     return {
         "id":             row.get("id_game"),
@@ -90,26 +85,23 @@ def _row_to_game(row: dict) -> dict:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Fungsi sinkron
+# Fungsi sinkron — dipanggil dari thread pool, BUKAN main thread
 # ─────────────────────────────────────────────────────────────────────────────
-def fetch_game_by_id(game_id: int) -> Optional[dict]:
-    """Ambil satu game dari DB berdasarkan id_game."""
-    sql = "SELECT * FROM game WHERE id_game = %s LIMIT 1"
+def fetch_game_by_id(game_id) -> Optional[dict]:
+    sql = f"SELECT * FROM `{TABLE_GAMES}` WHERE id_game = %s LIMIT 1"
     try:
-        conn = get_connection()
-        # dictionary=True agar row bisa diakses dengan nama kolom
-        cur = conn.cursor(pymysql.cursors.DictCursor)
-        cur.execute(sql, (game_id,))
-        row = cur.fetchone()
-        cur.close()
+        conn = _conn_read()
+        with conn.cursor() as cur:
+            cur.execute(sql, (game_id,))
+            row = cur.fetchone()
         conn.close()
         return _row_to_game(row) if row else None
-    except MySQLError as exc:
-        print(f"[profileGame_logic] DB error: {exc}")
+    except Exception as exc:
+        print(f"[fetch_game_by_id] Error: {exc}")
         return None
 
 
-def fetch_price_history(game_id: int) -> list[dict]:
+def fetch_price_history(game_id) -> list[dict]:
     sql = """
         SELECT tanggal, harga_reguler, harga_diskon
         FROM history_price
@@ -117,28 +109,26 @@ def fetch_price_history(game_id: int) -> list[dict]:
         ORDER BY tanggal ASC
     """
     try:
-        conn = get_connection()
-        cur = conn.cursor(pymysql.cursors.DictCursor)
-        cur.execute(sql, (game_id,))
-        rows = cur.fetchall()
-        cur.close()
+        conn = _conn_read()
+        with conn.cursor() as cur:
+            cur.execute(sql, (game_id,))
+            rows = cur.fetchall()
         conn.close()
         return [
             {
-                "date":     str(r["tanggal"])[:10],   # ambil YYYY-MM-DD saja
+                "date":     str(r["tanggal"])[:10],
                 "price":    float(r["harga_diskon"] or r["harga_reguler"] or 0),
                 "regular":  float(r["harga_reguler"] or 0),
                 "discount": float(r["harga_diskon"]  or 0),
             }
             for r in rows
         ]
-    except MySQLError as e:
-        print(f"[profileGame_logic] Price history error: {e}")
+    except Exception as e:
+        print(f"[fetch_price_history] Error: {e}")
         return []
 
 
-def fetch_genres(game_id: int) -> list[str]:
-    """Ambil semua genre untuk sebuah game dari tabel detail_genre JOIN genre."""
+def fetch_genres(game_id) -> list[str]:
     sql = """
         SELECT g.nama_genre
         FROM detail_genre dg
@@ -147,80 +137,209 @@ def fetch_genres(game_id: int) -> list[str]:
         ORDER BY g.nama_genre ASC
     """
     try:
-        conn = get_connection()
-        cur = conn.cursor()          # tuple cursor sudah cukup, cuma satu kolom
-        cur.execute(sql, (game_id,))
-        rows = cur.fetchall()
-        cur.close()
+        conn = _conn_read()
+        with conn.cursor() as cur:
+            cur.execute(sql, (game_id,))
+            rows = cur.fetchall()
         conn.close()
-        return [r[0] for r in rows]
-    except MySQLError as exc:
-        print(f"[profileGame_logic] Genre error: {exc}")
+        return [r["nama_genre"] for r in rows if r.get("nama_genre")]
+    except Exception as exc:
+        print(f"[fetch_genres] Error: {exc}")
         return []
 
 
+def fetch_reviews(game_id) -> list[dict]:
+    """Ambil semua review, JOIN users untuk username."""
+    sql = """
+        SELECT
+            r.id_review,
+            u.username,
+            r.review_gameplay,
+            r.review_cerita,
+            r.review_grafik
+        FROM review r
+        JOIN users u ON r.id_user = u.id_user
+        WHERE r.id_game = %s
+        ORDER BY r.id_review DESC
+    """
+    try:
+        conn = _conn_read()
+        with conn.cursor() as cur:
+            cur.execute(sql, (game_id,))
+            rows = cur.fetchall()
+        conn.close()
+        print(f"[fetch_reviews] game_id={game_id}, dapat {len(rows)} baris")
+        result = [
+            {
+                "id":       row["id_review"],
+                "username": row.get("username") or "Anonim",
+                "gameplay": row.get("review_gameplay") or "",
+                "cerita":   row.get("review_cerita")   or "",
+                "grafik":   row.get("review_grafik")   or "",
+            }
+            for row in rows
+        ]
+        return result
+    except Exception as exc:
+        print(f"[fetch_reviews] Error: {exc}")
+        return []
+
+
+def submit_review(game_id, user_id: int,
+                  gameplay: str, cerita: str, grafik: str) -> bool:
+    """INSERT atau UPDATE review dengan explicit commit."""
+    conn = None
+    try:
+        conn = _conn_write()
+        with conn.cursor() as cur:
+            # Cek review existing dari user ini untuk game ini
+            cur.execute(
+                "SELECT id_review FROM review "
+                "WHERE id_game = %s AND id_user = %s LIMIT 1",
+                (game_id, user_id),
+            )
+            existing = cur.fetchone()  # DictCursor → dict atau None
+
+            if existing:
+                cur.execute(
+                    """UPDATE review
+                       SET review_gameplay = %s,
+                           review_cerita   = %s,
+                           review_grafik   = %s
+                       WHERE id_review = %s""",
+                    (gameplay or None, cerita or None, grafik or None,
+                     existing["id_review"]),
+                )
+                print(f"[submit_review] UPDATE id={existing['id_review']} "
+                      f"rows={cur.rowcount}")
+            else:
+                cur.execute(
+                    """INSERT INTO review
+                           (id_game, id_user,
+                            review_gameplay, review_cerita, review_grafik)
+                       VALUES (%s, %s, %s, %s, %s)""",
+                    (game_id, user_id,
+                     gameplay or None, cerita or None, grafik or None),
+                )
+                print(f"[submit_review] INSERT lastrowid={cur.lastrowid}")
+
+        conn.commit()
+        conn.close()
+        return True
+
+    except Exception as exc:
+        print(f"[submit_review] Error: {exc}")
+        if conn:
+            try:
+                conn.rollback()
+                conn.close()
+            except Exception:
+                pass
+        return False
+
+
 # ─────────────────────────────────────────────────────────────────────────────
-# Worker sinyal
+# Sinyal worker — selalu dibuat di main thread
 # ─────────────────────────────────────────────────────────────────────────────
 class _GameDetailSignals(QObject):
-    """Sinyal yang dikirim dari thread pool ke main thread."""
-    game_ready    = pyqtSignal(object)   # dict | None
-    history_ready = pyqtSignal(list)     # list[dict]
-    genre_ready   = pyqtSignal(list)     # list[str]  ← TAMBAH
+    game_ready    = pyqtSignal(object)
+    history_ready = pyqtSignal(list)
+    genre_ready   = pyqtSignal(list)
+    reviews_ready = pyqtSignal(list)
     error         = pyqtSignal(str)
 
 
 class _FetchGameWorker(QRunnable):
-    """Runnable: fetch game + price history + genre di thread terpisah."""
-
-    def __init__(self, game_id: int, signals: _GameDetailSignals):
+    def __init__(self, game_id, signals: _GameDetailSignals):
         super().__init__()
         self.game_id = game_id
         self.signals = signals
         self.setAutoDelete(True)
 
     def run(self):
-        # 1. Data utama game
+        print(f"[FetchWorker] mulai fetch game_id={self.game_id}")
         game = fetch_game_by_id(self.game_id)
         if game is None:
             self.signals.error.emit(f"Game id={self.game_id} tidak ditemukan.")
             self.signals.game_ready.emit(None)
             return
+
         self.signals.game_ready.emit(game)
+        self.signals.history_ready.emit(fetch_price_history(self.game_id))
+        self.signals.genre_ready.emit(fetch_genres(self.game_id))
 
-        # 2. Riwayat harga
-        history = fetch_price_history(self.game_id)
-        self.signals.history_ready.emit(history)
+        print(f"[FetchWorker] mulai fetch reviews game_id={self.game_id}")
+        reviews = fetch_reviews(self.game_id)
+        print(f"[FetchWorker] emit reviews_ready, jumlah={len(reviews)}")
+        self.signals.reviews_ready.emit(reviews)
 
-        # 3. Genre
-        genres = fetch_genres(self.game_id)
-        self.signals.genre_ready.emit(genres)
+
+class _SubmitReviewSignals(QObject):
+    done = pyqtSignal(bool)
+
+
+class _SubmitReviewWorker(QRunnable):
+    def __init__(self, game_id: int, user_id: int,
+                 gameplay: str, cerita: str, grafik: str,
+                 signals: _SubmitReviewSignals):
+        super().__init__()
+        self.game_id  = game_id
+        self.user_id  = user_id
+        self.gameplay = gameplay
+        self.cerita   = cerita
+        self.grafik   = grafik
+        self.signals  = signals
+        self.setAutoDelete(True)
+
+    def run(self):
+        ok = submit_review(
+            self.game_id, self.user_id,
+            self.gameplay, self.cerita, self.grafik,
+        )
+        self.signals.done.emit(ok)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GameDetailLoader
+# Public API
 # ─────────────────────────────────────────────────────────────────────────────
 class GameDetailLoader(QObject):
-    game_ready    = pyqtSignal(object)   # dict | None
-    history_ready = pyqtSignal(list)     # list[dict]
-    genre_ready   = pyqtSignal(list)     # list[str]
+    game_ready    = pyqtSignal(object)
+    history_ready = pyqtSignal(list)
+    genre_ready   = pyqtSignal(list)
+    reviews_ready = pyqtSignal(list)
     error         = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._signals = _GameDetailSignals()
-
-        # Forward sinyal internal → sinyal publik
         self._signals.game_ready.connect(self.game_ready)
         self._signals.history_ready.connect(self.history_ready)
         self._signals.genre_ready.connect(self.genre_ready)
+        self._signals.reviews_ready.connect(self.reviews_ready)
         self._signals.error.connect(self.error)
 
-    def load(self, game_id: int):
-        """Mulai fetch async. Hasilnya dikirim lewat sinyal."""
-        # Menggunakan self.worker agar tidak dihapus otomatis oleh Garbage Collector Python
-        self.worker = _FetchGameWorker(game_id, self._signals)
-        QThreadPool.globalInstance().start(self.worker)
+    def load(self, game_id):
+        worker = _FetchGameWorker(game_id, self._signals)
+        QThreadPool.globalInstance().start(worker)
+
+
+class ReviewSubmitter(QObject):
+    done  = pyqtSignal(bool)
+    error = pyqtSignal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._signals = _SubmitReviewSignals()
+        self._signals.done.connect(self.done)
+
+    def submit(self, game_id, user_id: int,
+               gameplay: str, cerita: str, grafik: str):
+        worker = _SubmitReviewWorker(
+            game_id, user_id, gameplay, cerita, grafik, self._signals,
+        )
+        QThreadPool.globalInstance().start(worker)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # ImageFetcher
 # ─────────────────────────────────────────────────────────────────────────────
@@ -239,13 +358,12 @@ class _ImageRunnable(QRunnable):
         try:
             import urllib.request
             req = urllib.request.Request(
-                self.url,
-                headers={"User-Agent": "Mozilla/5.0"}
+                self.url, headers={"User-Agent": "Mozilla/5.0"}
             )
             with urllib.request.urlopen(req, timeout=10) as resp:
                 self.signals.done.emit(resp.read())
         except Exception as e:
-            print(f"[DEBUG] Fetch error: {e}")
+            print(f"[ImageFetcher] Error: {e}")
             self.signals.done.emit(b"")
 
 
@@ -264,7 +382,7 @@ class ImageFetcher(QObject):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Helpers format
+# Format helpers
 # ─────────────────────────────────────────────────────────────────────────────
 def fmt_price(price: float) -> str:
     if price == 0:
@@ -277,10 +395,7 @@ def fmt_number(n: int) -> str:
 
 
 def rating_label(rating: int) -> str:
-    if rating >= 90:
-        return "Excellent"
-    if rating >= 70:
-        return "Good"
-    if rating >= 50:
-        return "Mixed"
+    if rating >= 90: return "Excellent"
+    if rating >= 70: return "Good"
+    if rating >= 50: return "Mixed"
     return "Negative"
