@@ -164,16 +164,16 @@ class ProfileWindow(QtWidgets.QMainWindow):
     # ── Metode publik (dipanggil dari logic/router) ───────────────────
 
     def load_user(self, user: dict):
-        """Isi form dengan data user dari DB."""
-        username = user.get("username", "")
-        self.displayNameEdit.setText(username)
+        username     = user.get("username", "")
+        display_name = user.get("display_name") or username  # fallback ke username
+        self.displayNameEdit.setText(display_name)
         self.usernameEdit.setText(username)
         self._current_photo = user.get("foto_profil") or ""
         if self._current_photo and os.path.exists(self._current_photo):
             self.update_photo(self._current_photo)
         else:
             self.avatarLabel.setPixmap(QtGui.QPixmap())
-            self.avatarLabel.setText(username[0].upper() if username else "?")
+            self.avatarLabel.setText(display_name[0].upper() if display_name else "?")
 
     def update_photo(self, path: str):
         """Tampilkan foto profil berbentuk lingkaran."""
@@ -207,13 +207,12 @@ class ProfileWindow(QtWidgets.QMainWindow):
     # ── Slot internal ─────────────────────────────────────────────────
 
     def _on_save_clicked(self):
-        new_username = self.usernameEdit.text().strip()
-        if not new_username:
+        new_display = self.displayNameEdit.text().strip()
+        if not new_display:
             return
-        self.displayNameEdit.setText(new_username)
         if not getattr(self, '_current_photo', ''):
-            self.avatarLabel.setText(new_username[0].upper())
-        self.save_requested.emit(new_username)   # ← kirim ke logic
+            self.avatarLabel.setText(new_display[0].upper())
+        self.save_requested.emit(new_display)   
 
     def _on_photo_clicked(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -262,7 +261,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
         # Content
         self.contentWidget = QtWidgets.QWidget()
         contentVLayout = QtWidgets.QVBoxLayout(self.contentWidget)
-        contentVLayout.setContentsMargins(24, 16, 24, 24)
+        contentVLayout.setContentsMargins(24, 8, 24, 24)
         contentVLayout.setSpacing(16)
 
         # Back button
@@ -274,12 +273,19 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
         mainContentLayout = QtWidgets.QHBoxLayout()
         mainContentLayout.setSpacing(16)
+        mainContentLayout.setAlignment(QtCore.Qt.AlignTop)
+        mainContentLayout.setContentsMargins(0, 0, 0, 0)
 
         # ── Left Panel ────────────────────────────────────────────────
         self.leftPanel = QtWidgets.QWidget()
         self.leftPanel.setObjectName("leftPanel")
-        self.leftPanel.setMinimumWidth(260)
-        self.leftPanel.setMaximumWidth(280)
+        self.leftPanel.setMinimumWidth(420)
+        self.leftPanel.setMinimumWidth(600)
+        self.leftPanel.setMinimumHeight(480)
+        self.leftPanel.setSizePolicy(
+            QtWidgets.QSizePolicy.Fixed,
+            QtWidgets.QSizePolicy.Expanding
+        )
 
         leftPanelLayout = QtWidgets.QVBoxLayout(self.leftPanel)
         leftPanelLayout.setContentsMargins(20, 20, 20, 20)
@@ -335,20 +341,21 @@ class ProfileWindow(QtWidgets.QMainWindow):
         avatarLayout.addStretch()
         leftPanelLayout.addLayout(avatarLayout)
 
-        # Display Name (read only)
+        # Display Name (editable)
         self.fieldLabel = QtWidgets.QLabel("Display Name")
         self.fieldLabel.setObjectName("fieldLabel")
         self.displayNameEdit = QtWidgets.QLineEdit()
         self.displayNameEdit.setObjectName("displayNameEdit")
-        self.displayNameEdit.setReadOnly(True)
+        self.displayNameEdit.setReadOnly(False)
         leftPanelLayout.addWidget(self.fieldLabel)
         leftPanelLayout.addWidget(self.displayNameEdit)
 
-        # Username (editable)
+        # Username (read only)
         self.fieldLabel_2 = QtWidgets.QLabel("Username")
         self.fieldLabel_2.setObjectName("fieldLabel_2")
         self.usernameEdit = QtWidgets.QLineEdit()
         self.usernameEdit.setObjectName("usernameEdit")
+        self.usernameEdit.setReadOnly(True)
         leftPanelLayout.addWidget(self.fieldLabel_2)
         leftPanelLayout.addWidget(self.usernameEdit)
 
@@ -363,9 +370,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.sectionLabel.setObjectName("sectionLabel")
         leftPanelLayout.addWidget(self.sectionLabel)
 
-        leftPanelLayout.addSpacerItem(
-            QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        )
+        leftPanelLayout.addStretch()
 
         self.emptyLabel = QtWidgets.QLabel("Belum ada data preferensi game")
         self.emptyLabel.setObjectName("emptyLabel")
@@ -382,16 +387,18 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.btnLogout.clicked.connect(self.logout_clicked.emit)
         leftPanelLayout.addWidget(self.btnLogout)
 
-        mainContentLayout.addWidget(self.leftPanel)
+        mainContentLayout.addWidget(self.leftPanel, 1)
 
         # ── Right Panel — 2×2 card grid ──────────────────────────────
         cardsGridLayout = QtWidgets.QGridLayout()
-        cardsGridLayout.setSpacing(16)
+        cardsGridLayout.setSpacing(12)
+        cardsGridLayout.setVerticalSpacing(12)
 
         def make_card(obj_name, icon_png, title_text, title_color,
                       total_text, empty_text, extra_widget=None):
             card = QtWidgets.QWidget()
             card.setObjectName(obj_name)
+            card.setMinimumHeight(250)
             vbox = QtWidgets.QVBoxLayout(card)
             vbox.setContentsMargins(20, 20, 20, 20)
             vbox.setSpacing(8)
@@ -440,6 +447,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
         self.btnWishlist = QtWidgets.QPushButton("Lihat Wishlist")
         self.btnWishlist.setObjectName("btnWishlist")
+        self.btnWishlist.setFixedHeight(36)
         self.btnWishlist.clicked.connect(self.wishlist_clicked.emit)
         self.btnWishlist.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
 
@@ -453,7 +461,15 @@ class ProfileWindow(QtWidgets.QMainWindow):
         cardsGridLayout.addWidget(self.cardKomentar, 1, 0)
         cardsGridLayout.addWidget(self.cardWishlist, 1, 1)
 
-        mainContentLayout.addLayout(cardsGridLayout)
+        # Bungkus cardsGridLayout dengan widget agar bisa dibatasi
+        cardsWidget = QtWidgets.QWidget()
+        cardsWidget.setLayout(cardsGridLayout)
+        cardsWidget.setContentsMargins(0, 0, 0, 0)
+        cardsGridLayout.setContentsMargins(0, 0, 0, 0)
+        cardsGridLayout.setColumnStretch(0, 1)
+        cardsGridLayout.setColumnStretch(1, 1)
+        mainContentLayout.addWidget(cardsWidget, 3, QtCore.Qt.AlignTop)
+
         contentVLayout.addLayout(mainContentLayout)
         self.mainVLayout.addWidget(self.contentWidget)
 
