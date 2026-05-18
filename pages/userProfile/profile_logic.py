@@ -12,22 +12,32 @@ from PyQt5.QtWidgets import QMessageBox
 
 # ── Konfigurasi DB ────────────────────────────────────────────────────
 DB_CONFIG = {
-    "host":     "localhost",
-    "port":     3306,
-    "user":     "root",
-    "password": "",
+    "host": "localhost",
+    "user": "root",
+    "password": "",           
     "database": "mager_db",
-    "charset":  "utf8mb4",
+    "autocommit": True,
 }
+DB_PORTS = [3306, 3307]
+
+def get_connection():
+    """Coba koneksi ke beberapa port MySQL menggunakan PyMySQL."""
+    for port in DB_PORTS:
+        try:
+            conn = pymysql.connect(
+                **DB_CONFIG,
+                port=port
+            )
+            print(f"[DB Profile] Connected to MySQL port {port}")
+            return conn
+        except Exception as e: 
+            print(f"[DB Profile] Failed port {port} -> {e}")
+
+    raise Exception("Tidak bisa terhubung ke MySQL di port 3306 maupun 3307")
 
 # Folder penyimpanan foto profil
 BASE_DIR         = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PROFILE_PHOTO_DIR = os.path.join(BASE_DIR, "assets", "profile_photos")
-
-
-def get_connection():
-    return pymysql.connect(**DB_CONFIG)
-
 
 # ── Fungsi DB ─────────────────────────────────────────────────────────
 
