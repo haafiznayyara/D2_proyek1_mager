@@ -257,7 +257,6 @@ class _FetchGameWorker(QRunnable):
         self.setAutoDelete(True)
 
     def run(self):
-        print(f"[FetchWorker] mulai fetch game_id={self.game_id}")
         game = fetch_game_by_id(self.game_id)
         if game is None:
             self.signals.error.emit(f"Game id={self.game_id} tidak ditemukan.")
@@ -268,9 +267,7 @@ class _FetchGameWorker(QRunnable):
         self.signals.history_ready.emit(fetch_price_history(self.game_id))
         self.signals.genre_ready.emit(fetch_genres(self.game_id))
 
-        print(f"[FetchWorker] mulai fetch reviews game_id={self.game_id}")
         reviews = fetch_reviews(self.game_id)
-        print(f"[FetchWorker] emit reviews_ready, jumlah={len(reviews)}")
         self.signals.reviews_ready.emit(reviews)
 
 
