@@ -1,4 +1,6 @@
 from __future__ import annotations
+import pymysql
+import os
 
 import threading
 from typing import Callable, Optional
@@ -21,31 +23,26 @@ DB_CONFIG: dict = {
 }
 DB_PORTS = [3306, 3307]
 
-TABLE_GAMES = "games"
+TABLE_GAME = "games"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helper: koneksi
 # ─────────────────────────────────────────────────────────────────────────────
-def _get_connection():
-    """Coba koneksi ke beberapa port MySQL."""
-    
+def get_connection():
+    """Coba koneksi ke beberapa port MySQL menggunakan PyMySQL."""
     for port in DB_PORTS:
         try:
-            conn = mysql.connector.connect(
+            conn = pymysql.connect(
                 **DB_CONFIG,
                 port=port
             )
-
-            print(f"[DB] Connected to MySQL port {port}")
+            print(f"[DB GameDetail] Connected to MySQL port {port}")
             return conn
+        except Exception as e: 
+            print(f"[DB GameDetail] Failed port {port} -> {e}")
 
-        except MySQLError:
-            print(f"[DB] Failed port {port}")
-
-    raise MySQLError(
-        "Tidak bisa terhubung ke MySQL di port 3306 maupun 3307"
-    )
+    raise Exception("Tidak bisa terhubung ke MySQL di port 3306 maupun 3307")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -70,7 +67,8 @@ def _row_to_game(row: dict) -> dict:
         "#3d85c8", "#c84b3d", "#3dc87a", "#c8b43d",
         "#8b3dc8", "#3dc8c8", "#c8783d",
     ]
-    ac = ACCENT_PALETTE[int(row.get("id_game") or 0) % len(ACCENT_PALETTE)]
+    id_val = str(row.get("id_game") or "0")
+    ac = ACCENT_PALETTE[abs(hash(id_val)) % len(ACCENT_PALETTE)]
 
     return {
         "id":             row.get("id_game"),
@@ -96,11 +94,11 @@ def _row_to_game(row: dict) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 def fetch_game_by_id(game_id: int) -> Optional[dict]:
     """Ambil satu game dari DB berdasarkan id_game."""
-    sql = f"SELECT * FROM `{TABLE_GAMES}` WHERE id_game = %s LIMIT 1"
+    sql = "SELECT * FROM game WHERE id_game = %s LIMIT 1"
     try:
-        conn = _get_connection()
+        conn = get_connection()
         # dictionary=True agar row bisa diakses dengan nama kolom
-        cur = conn.cursor(dictionary=True)
+        cur = conn.cursor(pymysql.cursors.DictCursor)
         cur.execute(sql, (game_id,))
         row = cur.fetchone()
         cur.close()
@@ -119,8 +117,8 @@ def fetch_price_history(game_id: int) -> list[dict]:
         ORDER BY tanggal ASC
     """
     try:
-        conn = _get_connection()
-        cur = conn.cursor(dictionary=True)
+        conn = get_connection()
+        cur = conn.cursor(pymysql.cursors.DictCursor)
         cur.execute(sql, (game_id,))
         rows = cur.fetchall()
         cur.close()
@@ -149,7 +147,7 @@ def fetch_genres(game_id: int) -> list[str]:
         ORDER BY g.nama_genre ASC
     """
     try:
-        conn = _get_connection()
+        conn = get_connection()
         cur = conn.cursor()          # tuple cursor sudah cukup, cuma satu kolom
         cur.execute(sql, (game_id,))
         rows = cur.fetchall()
@@ -203,17 +201,6 @@ class _FetchGameWorker(QRunnable):
 # GameDetailLoader
 # ─────────────────────────────────────────────────────────────────────────────
 class GameDetailLoader(QObject):
-    """
-    Cara pakai:
-
-        loader = GameDetailLoader()
-        loader.game_ready.connect(detail_window.load_game)
-        loader.history_ready.connect(detail_window.load_price_history)
-        loader.genre_ready.connect(detail_window.load_genres)
-        loader.error.connect(lambda msg: print("Error:", msg))
-        loader.load(game_id)
-    """
-
     game_ready    = pyqtSignal(object)   # dict | None
     history_ready = pyqtSignal(list)     # list[dict]
     genre_ready   = pyqtSignal(list)     # list[str]
@@ -231,10 +218,9 @@ class GameDetailLoader(QObject):
 
     def load(self, game_id: int):
         """Mulai fetch async. Hasilnya dikirim lewat sinyal."""
-        worker = _FetchGameWorker(game_id, self._signals)
-        QThreadPool.globalInstance().start(worker)
-
-
+        # Menggunakan self.worker agar tidak dihapus otomatis oleh Garbage Collector Python
+        self.worker = _FetchGameWorker(game_id, self._signals)
+        QThreadPool.globalInstance().start(self.worker)
 # ─────────────────────────────────────────────────────────────────────────────
 # ImageFetcher
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1,21 +1,22 @@
 import sys
-from pages.wishlist.wishlist_logic import WishlistLogic, fetch_wishlist
 from PyQt5.QtWidgets import QApplication, QStackedWidget
 from PyQt5.QtGui import QColor, QPalette
 
+# --- Import Logic ---
 from pages.dashboard.dashboard_logic import get_games_from_db, BG, CARD, ACCENT, TEXT1
+from pages.wishlist.wishlist_logic import WishlistLogic, fetch_wishlist
+from pages.cheapest.filterHarga_logic import get_games_by_price, filter_games_by_price, search_games, parse_price_input
+from pages.userProfile.profile_logic import ProfileLogic
+from pages.gameProfile.profileGame_logic import GameDetailLoader 
+
+# --- Import UI ---
 from pages.dashboard.dashboard_ui import MainWindow
 from pages.popular.popular_ui import PopularGamesWindow
 from pages.gameProfile.profileGame_ui import GameDetailWindow
 from pages.wishlist.wishlist_ui import WishlistWindow
-from pages.wishlist.wishlist_logic import WishlistLogic
 from pages.userProfile.profile_ui import ProfileWindow
 from pages.auth.auth_ui import LoginWindow, RegisterWindow, SuccessRegisterPage
-from pages.cheapest.filterHarga_logic import (
-        get_games_by_price, filter_games_by_price, search_games, parse_price_input)
-from pages.cheapest.filterHarga_ui import FilterHargaWindow 
-from pages.userProfile.profile_logic import ProfileLogic
-
+from pages.cheapest.filterHarga_ui import FilterHargaWindow
 
 def build_dark_palette():
     dark = QPalette()
@@ -82,6 +83,12 @@ class Router(QStackedWidget):
         self.page_popular = PopularGamesWindow()
         self.page_filter_harga = FilterHargaWindow()
         
+        self.game_loader = GameDetailLoader()
+        self.game_loader.game_ready.connect(self.page_detail.load_game)
+        self.game_loader.history_ready.connect(self.page_detail.load_price_history)
+        self.game_loader.genre_ready.connect(self.page_detail.load_genres)
+        self.game_loader.error.connect(lambda msg: print(f"[Router Error] {msg}"))
+
         self.addWidget(self.page_dashboard)      # index 0
         self.addWidget(self.page_detail)         # index 1
         self.addWidget(self.page_wishlist)       # index 2
@@ -256,9 +263,12 @@ class Router(QStackedWidget):
 
     def _open_detail(self, game: dict):
         """Buka halaman detail dengan data game yang diklik."""
-        self.page_detail.load_game(game)
+        game_id = game.get("id")
+        if game_id:
+            # Ini akan otomatis memanggil load_game, load_price_history, dan load_genres
+            self.game_loader.load(game_id) 
+            
         self.go_to(self.PAGE_DETAIL)
-
 
 def main():
     app = QApplication(sys.argv)
