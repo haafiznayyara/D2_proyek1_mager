@@ -99,10 +99,10 @@ def update_foto_profil(id_user: int, src_path: str) -> str | None:
         with conn.cursor() as cur:
             cur.execute(
                 "UPDATE users SET foto_profil = %s WHERE id_user = %s",
-                (dst_path, id_user)
+                (filename, id_user)
             )
         conn.commit()
-        return dst_path
+        return filename
     except Exception as e:
         print(f"[ERROR] Gagal update foto_profil di DB: {e}")
         conn.rollback()
@@ -130,6 +130,11 @@ class ProfileLogic(QObject):
 
     def __init__(self, ui, id_user: int, parent=None):
         super().__init__(parent)
+        self.photo_saved.connect(
+            lambda filename: self.ui.update_photo(
+                os.path.join(PROFILE_PHOTO_DIR, filename)
+            )
+        )
         self.ui      = ui
         self.id_user = id_user
 

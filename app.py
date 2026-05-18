@@ -273,8 +273,7 @@ class Router(QStackedWidget):
         self.page_detail.open_game(game["id"])
         game_id = game.get("id")
         if game_id:
-            # Ini akan otomatis memanggil load_game, load_price_history, dan load_genres
-            self.game_loader.load(game_id) 
+            self.game_loader.load(game_id)
             
         self.go_to(self.PAGE_DETAIL)
 

@@ -41,6 +41,22 @@ ACCENT_BLUE = "#3d85c8"
 
 POSTER_DIR = "assets/posters"
 
+def _resolve_profile_photo(filename: str) -> str:
+    """Ubah nama file foto profil menjadi full path absolut."""
+    if not filename:
+        return ""
+    # Jika sudah path absolut (data lama), biarkan
+    if os.path.isabs(filename):
+        return filename
+    base = os.path.dirname(os.path.abspath(__file__))
+    # Naik ke root project
+    root = base
+    while not os.path.exists(os.path.join(root, "assets")):
+        parent = os.path.dirname(root)
+        if parent == root:
+            break
+        root = parent
+    return os.path.join(root, "assets", "profile_photos", filename)
 
 def _asset(name):
     base = os.path.dirname(os.path.abspath(__file__))
@@ -227,17 +243,41 @@ class ReviewCard(QFrame):
         v.setContentsMargins(14, 12, 14, 14)
         v.setSpacing(10)
 
-        # ── Header: avatar placeholder + username ──────────────────────────
+        # ── Header: avatar placeholder + username ---------------------------------
         header = QHBoxLayout()
         header.setSpacing(10)
 
-        avatar = QLabel(review["username"][0].upper() if review["username"] else "?")
+        # Coba load foto profil dari path, fallback ke inisial huruf
+        foto_path = _resolve_profile_photo(review.get("foto_profil", ""))
+        avatar = QLabel()
         avatar.setFixedSize(34, 34)
         avatar.setAlignment(Qt.AlignCenter)
-        avatar.setStyleSheet(
-            f"background:{ACCENT_BLUE};color:{WHITE};font-size:14px;"
-            f"font-weight:bold;border-radius:17px;"
-        )
+
+        if foto_path and os.path.isfile(foto_path):
+            # Tampilkan foto sebagai lingkaran
+            px = QPixmap(foto_path).scaled(
+                34, 34, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation
+            )
+            # Crop jadi lingkaran
+            rounded = QPixmap(34, 34)
+            rounded.fill(Qt.transparent)
+            from PyQt5.QtGui import QPainter as _P, QPainterPath as _PP, QBrush as _B
+            painter = _P(rounded)
+            painter.setRenderHint(_P.Antialiasing)
+            path = _PP()
+            path.addEllipse(0, 0, 34, 34)
+            painter.setClipPath(path)
+            painter.drawPixmap(0, 0, px)
+            painter.end()
+            avatar.setPixmap(rounded)
+            avatar.setStyleSheet("border-radius:17px; background:transparent;")
+        else:
+            # Fallback: inisial huruf
+            avatar.setText(review["username"][0].upper() if review["username"] else "?")
+            avatar.setStyleSheet(
+                f"background:{ACCENT_BLUE};color:{WHITE};font-size:14px;"
+                f"font-weight:bold;border-radius:17px;"
+            )
 
         username_lbl = QLabel(review["username"])
         username_lbl.setStyleSheet(
@@ -301,7 +341,7 @@ class GameDetailWindow(QWidget):
         self._game: dict            = {}
         self._user_id: int = None 
         self._raw_cover: QPixmap | None = None
-        self._current_user_id: int  = 1   # ganti sesuai user yang login
+        self._current_user_id: int  = 1
 
         self._loader = GameDetailLoader(self)
         self._loader.game_ready.connect(self._on_game_ready)
@@ -363,9 +403,6 @@ class GameDetailWindow(QWidget):
         self.tags_layout.addStretch()
 
     def load_reviews(self, reviews: list):
-        """Hapus semua item (widget + spacer) lalu render ulang review card."""
-        print(f"[load_reviews] dipanggil, jumlah review: {len(reviews)}")
-
         # Hapus SEMUA item: widget maupun spacer/stretch
         while self._reviews_layout.count():
             item = self._reviews_layout.takeAt(0)
@@ -383,7 +420,6 @@ class GameDetailWindow(QWidget):
             self._reviews_layout.addWidget(empty)
         else:
             for rv in reviews:
-                print(f"  review dari: {rv.get('username')}")
                 card = ReviewCard(rv)
                 self._reviews_layout.addWidget(card)
 

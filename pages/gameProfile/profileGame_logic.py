@@ -149,11 +149,11 @@ def fetch_genres(game_id) -> list[str]:
 
 
 def fetch_reviews(game_id) -> list[dict]:
-    """Ambil semua review, JOIN users untuk username."""
     sql = """
         SELECT
             r.id_review,
             u.username,
+            u.foto_profil,
             r.review_gameplay,
             r.review_cerita,
             r.review_grafik
@@ -168,14 +168,14 @@ def fetch_reviews(game_id) -> list[dict]:
             cur.execute(sql, (game_id,))
             rows = cur.fetchall()
         conn.close()
-        print(f"[fetch_reviews] game_id={game_id}, dapat {len(rows)} baris")
         result = [
             {
-                "id":       row["id_review"],
-                "username": row.get("username") or "Anonim",
-                "gameplay": row.get("review_gameplay") or "",
-                "cerita":   row.get("review_cerita")   or "",
-                "grafik":   row.get("review_grafik")   or "",
+                "id":         row["id_review"],
+                "username":   row.get("username") or "Anonim",
+                "foto_profil": row.get("foto_profil") or "",   # ← tambah ini
+                "gameplay":   row.get("review_gameplay") or "",
+                "cerita":     row.get("review_cerita")   or "",
+                "grafik":     row.get("review_grafik")   or "",
             }
             for row in rows
         ]
