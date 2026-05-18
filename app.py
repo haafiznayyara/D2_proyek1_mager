@@ -262,13 +262,14 @@ class Router(QStackedWidget):
         self.go_to(self.PAGE_LOGIN)
 
     def _open_detail(self, game: dict):
-        """Buka halaman detail dengan data game yang diklik."""
+        if self.current_user:
+            self.page_detail.set_user_id(self.current_user["id_user"])
+
         self.page_detail.load_game(game)
         self.page_detail.open_game(game["id"])
         game_id = game.get("id")
         if game_id:
-            # Ini akan otomatis memanggil load_game, load_price_history, dan load_genres
-            self.game_loader.load(game_id) 
+            self.game_loader.load(game_id)
             
         self.go_to(self.PAGE_DETAIL)
 

@@ -162,13 +162,23 @@ class ProfileWindow(QtWidgets.QMainWindow):
     save_requested   = QtCore.pyqtSignal(str)   # membawa username baru
 
     # ── Metode publik (dipanggil dari logic/router) ───────────────────
+    def _resolve_photo_path(self, foto_profil: str) -> str:
+        """Ubah nama file foto menjadi full path."""
+        if not foto_profil:
+            return ""
+        # Jika sudah berupa path absolut (data lama), biarkan
+        if os.path.isabs(foto_profil):
+            return foto_profil
+        base = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(base, "..", "..", "assets", "profile_photos", foto_profil)
 
     def load_user(self, user: dict):
         username     = user.get("username", "")
         display_name = user.get("display_name") or username  # fallback ke username
         self.displayNameEdit.setText(display_name)
         self.usernameEdit.setText(username)
-        self._current_photo = user.get("foto_profil") or ""
+        foto = user.get("foto_profil") or ""
+        self._current_photo = self._resolve_photo_path(foto)
         if self._current_photo and os.path.exists(self._current_photo):
             self.update_photo(self._current_photo)
         else:
