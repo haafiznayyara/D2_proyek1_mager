@@ -128,7 +128,7 @@ class Navbar(QWidget):
 
     def __init__(self, active_page: str = "", parent=None):
         super().__init__(parent)
-        self.setFixedHeight(64)
+        self.setFixedHeight(68)
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setStyleSheet(f"background:{_BLACK};")
 
@@ -169,7 +169,6 @@ class Navbar(QWidget):
                     background: transparent; border: none;
                     color: {color}; font-family: 'Segoe UI';
                     font-size: 15px; padding: 0 16px;
-                    {'font-weight:bold;' if is_active else ''}
                 }}
                 QPushButton:hover {{ color:{_WHITE}; }}
             """)
@@ -190,15 +189,13 @@ class Navbar(QWidget):
             icon_color = _GREEN if active else _WHITE
             b = QPushButton()
             b.setFixedSize(42, 40)
+            b.setFocusPolicy(Qt.NoFocus)
             b.setCursor(QCursor(Qt.PointingHandCursor))
-            b.setToolTip(tooltip)
             border_line = f"1.5px solid {_GREEN}" if active else "none"
             b.setStyleSheet(f"""
                 QPushButton {{
                     background: {_DARK}; border: {border_line}; border-radius: 8px;
                 }}
-                QPushButton:hover {{ background:{_MUTED}; }}
-                QPushButton:pressed {{ background:{_GREEN}; }}
             """)
             path = os.path.join(_HERE, png_name)
             if os.path.exists(path):
@@ -214,9 +211,33 @@ class Navbar(QWidget):
             "wishlist_outline.png", "♡", "wishlist", "Wishlist", self.wishlist_clicked
         )
         h.addWidget(self.wishlist_btn)
-        h.addSpacing(8)
+        self._badge = QLabel("0", self)
+        self._badge.setFixedSize(20, 20)
+        self._badge.setAlignment(Qt.AlignCenter)
+        self._badge.setFont(QFont("Segoe UI", 7))
+        self._badge.setStyleSheet(
+            "background:#E81B1B; color:white; border-radius:10px; font-weight:bold;"
+        )
+        self._badge.hide()
+        self._badge.raise_()
+        self._badge.hide()
+        h.addSpacing(14)
 
         self.profile_btn = _icon_btn(
             "avatar_outline_white.png", "👤", "profile", "Akun Saya", self.profile_clicked
         )
         h.addWidget(self.profile_btn)
+
+    def update_wishlist_count(self, count: int):
+        if count > 0:
+            self._badge.setText(str(count))
+            self._badge.show()
+        else:
+            self._badge.hide()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, '_badge') and hasattr(self, 'wishlist_btn'):
+            btn_pos = self.wishlist_btn.pos()
+            self._badge.move(btn_pos.x() + self.wishlist_btn.width() - 9, btn_pos.y() - 10)
+            self._badge.raise_()

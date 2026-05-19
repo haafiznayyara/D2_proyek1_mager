@@ -51,6 +51,7 @@ FOOTER_GAP  = 5      # gap between card bottom and footer bar
 # ── Games Grid ────────────────────────────────────────────────────────────
 class GamesGrid(QWidget):
     card_clicked = pyqtSignal(dict)
+    wishlist_clicked = pyqtSignal(dict)
 
     def __init__(self, games: list):
         super().__init__()
@@ -90,6 +91,7 @@ class GamesGrid(QWidget):
             card.show()
             card.clicked.connect(self.card_clicked)
             self.cards.append(card)
+            card.wishlist_clicked.connect(self.wishlist_clicked)
 
             # ── Separate "Tertinggi" footer bar ───────────────────────────
             footer = QWidget(self.canvas)
@@ -264,6 +266,8 @@ class HeroBanner(QWidget):
 
 # ── Main Window ───────────────────────────────────────────────────────────
 class PopularGamesWindow(QMainWindow):
+    wishlist_clicked = pyqtSignal(dict)
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("MAGER — Game Populer")
@@ -315,6 +319,7 @@ class PopularGamesWindow(QMainWindow):
 
         self.grid = GamesGrid(self._all_games)
         self.grid.card_clicked.connect(self._on_card_clicked)
+        self.grid.wishlist_clicked.connect(self.wishlist_clicked)
 
         # Sambungkan tombol sort di GamesGrid ke handler
         self.popular_header.sort_clicked.connect(self._toggle_sort)
