@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QStackedWidget
+from PyQt5.QtWidgets import QApplication, QStackedWidget, QFrame
 from PyQt5.QtGui import QColor, QPalette
 
 # --- Import Logic ---
@@ -62,7 +62,21 @@ class Router(QStackedWidget):
 
     def _on_add_to_wishlist(self, game: dict):
         self.wishlist_logic.on_add_clicked(game)
-        self.wishlist_logic.load_wishlist()
+
+    def _on_wishlist_toggled(self, id_game: str, status: bool):
+        from PyQt5.QtWidgets import QFrame
+        for page in [self.page_dashboard, self.page_popular, self.page_filter_harga]:
+            for card in page.findChildren(QFrame):
+                if hasattr(card, 'set_wishlisted') and hasattr(card, 'game'):
+                    if str(card.game.get("id")) == str(id_game):
+                        card.set_wishlisted(status)
+    
+    def _sync_wishlist_icons(self, wishlist_ids: set):
+        for page in [self.page_dashboard, self.page_popular, self.page_filter_harga]:
+            for card in page.findChildren(QFrame):
+                if hasattr(card, 'set_wishlisted') and hasattr(card, 'game'):
+                    game_id = str(card.game.get("id", ""))
+                    card.set_wishlisted(game_id in wishlist_ids)
 
     def __init__(self, games):
         super().__init__()
@@ -122,11 +136,20 @@ class Router(QStackedWidget):
         self.page_detail.back_clicked.connect(
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
+        self.page_detail.nav.dashboard_clicked.connect(
+        lambda: self.setCurrentWidget(self.page_dashboard)
+        )
         self.page_detail.nav_wishlist_clicked.connect(
             self._go_to_wishlist
         )
         self.page_detail.nav_profile_clicked.connect(
             lambda: self.go_to(self.PAGE_PROFILE)
+        )
+        self.page_detail.nav_popular_clicked.connect(
+        lambda: self.setCurrentWidget(self.page_popular)
+        )
+        self.page_detail.nav_cheapest_clicked.connect(
+            lambda: self.setCurrentWidget(self.page_filter_harga)
         )
 
         # ROUTE WISHLIST
@@ -240,12 +263,34 @@ class Router(QStackedWidget):
         self.page_dashboard.wishlist_clicked.connect(
             self._on_add_to_wishlist
         )
-        self.wishlist_logic.wishlist_count_changed.connect(
-            self.page_profile.update_wishlist_count
+        self.page_popular.grid.wishlist_clicked.connect(
+            self._on_add_to_wishlist
         )
-        self.page_profile.update_wishlist_count(
-            len(fetch_wishlist(id_user))
+        self.page_filter_harga.wishlist_clicked.connect(
+            self._on_add_to_wishlist
         )
+        self.wishlist_logic.wishlist_toggled.connect(self._on_wishlist_toggled)
+        self.page_dashboard.cat_bar.category_changed.connect(
+            lambda _: self._sync_wishlist_icons(
+            {str(item["id_game"]) for item in fetch_wishlist(id_user)}
+            )
+        )
+        _initial_count = len(fetch_wishlist(id_user))
+        _wishlist_ids = {str(item["id_game"]) for item in fetch_wishlist(id_user)}
+        self._sync_wishlist_icons(_wishlist_ids)
+        for page in [
+            self.page_dashboard,
+            self.page_popular,
+            self.page_filter_harga,
+            self.page_wishlist,
+            self.page_profile,
+            self.page_detail,
+        ]:
+            self.wishlist_logic.wishlist_count_changed.connect(
+                page.nav.update_wishlist_count
+            )
+            page.nav.update_wishlist_count(_initial_count)
+        self.page_profile.update_wishlist_count(_initial_count)
 
         self.go_to(self.PAGE_DASHBOARD)
 

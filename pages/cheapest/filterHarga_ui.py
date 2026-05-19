@@ -279,6 +279,7 @@ class GamesGrid(QWidget):
     """Grid untuk menampilkan card game."""
     
     card_clicked = pyqtSignal(dict)
+    wishlist_clicked = pyqtSignal(dict)
     
     def __init__(self):
         super().__init__()
@@ -320,6 +321,7 @@ class GamesGrid(QWidget):
             card.setParent(self.canvas)
             card.show()
             card.clicked.connect(self.card_clicked)
+            card.wishlist_clicked.connect(self.wishlist_clicked)
             self.cards.append(card)
         
         self._relayout()
@@ -383,6 +385,7 @@ class FilterHargaWindow(QWidget):
     """Main window untuk halaman Filter Harga."""
     
     card_clicked = pyqtSignal(dict)
+    wishlist_clicked = pyqtSignal(dict)
     
     def __init__(self):
         super().__init__()
@@ -436,6 +439,7 @@ class FilterHargaWindow(QWidget):
         
         self.grid = GamesGrid()
         self.grid.card_clicked.connect(self.card_clicked)
+        self.grid.wishlist_clicked.connect(self.wishlist_clicked)
         scroll.setWidget(self.grid)
         root.addWidget(scroll)
         

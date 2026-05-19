@@ -191,7 +191,6 @@ class PopularGameCard(QFrame):
                 border: none;
                 border-radius: 19px;
             }}
-            QPushButton:hover {{ background: rgba(74,222,128,0.5); }}
         """)
         self._wish_btn.clicked.connect(self._on_wish_clicked)
         
@@ -296,6 +295,12 @@ class PopularGameCard(QFrame):
         if icon:
             self._wish_btn.setIcon(icon)
         self.wishlist_clicked.emit(self.game)
+
+    def set_wishlisted(self, is_wishlisted: bool):
+        self._wishlisted = is_wishlisted
+        icon = self._wish_icon_filled if is_wishlisted else self._wish_icon_outline
+        if icon:
+            self._wish_btn.setIcon(icon)
 
     def set_width(self, w: int):
         if w == self._cw:  # ← kembalikan ini

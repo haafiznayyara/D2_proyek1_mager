@@ -115,6 +115,35 @@ def delete_wishlist_item(id_wishlist: int) -> bool:
     finally:
         conn.close()
 
+def remove_from_wishlist_by_game(id_user: int, id_game: str) -> bool:
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM wishlist WHERE id_user = %s AND id_game = %s",
+                (id_user, id_game)
+            )
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"[ERROR] Gagal hapus wishlist: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+def is_in_wishlist(id_user: int, id_game: str) -> bool:
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT 1 FROM wishlist WHERE id_user = %s AND id_game = %s",
+                (id_user, id_game)
+            )
+            return cur.fetchone() is not None
+    finally:
+        conn.close()
+
 def count_wishlist(id_user: int) -> int:
     conn = get_connection()
     try:
@@ -133,6 +162,7 @@ def count_wishlist(id_user: int) -> int:
 class WishlistLogic(QObject):
     go_to_dashboard = pyqtSignal()
     wishlist_count_changed = pyqtSignal(int)
+    wishlist_toggled = pyqtSignal(str, bool)
 
     def __init__(self, ui, id_user: int, parent=None):
         super().__init__(parent)
@@ -196,19 +226,12 @@ class WishlistLogic(QObject):
             )
     def on_add_clicked(self, game: dict):
         id_game = game.get("id")
-        result = add_to_wishlist(self.id_user, id_game)
-        if result == "duplicate":
-            QMessageBox.information(
-                self.ui, "Info",
-                f"<b>{game.get('title')}</b> sudah ada di wishlist kamu!"
-            )
-        elif result:
-            QMessageBox.information(
-                self.ui, "Berhasil",
-                f"<b>{game.get('title')}</b> berhasil ditambahkan ke wishlist!"
-            )
+        if is_in_wishlist(self.id_user, id_game):
+            remove_from_wishlist_by_game(self.id_user, id_game)
         else:
-            QMessageBox.critical(
-                self.ui, "Gagal",
-                "Terjadi kesalahan. Silakan coba lagi."
-            )
+            add_to_wishlist(self.id_user, id_game)
+    
+        count = count_wishlist(self.id_user)
+        self.wishlist_count_changed.emit(count)
+        self.wishlist_toggled.emit(str(id_game), is_in_wishlist(self.id_user, id_game))
+        self.load_wishlist()

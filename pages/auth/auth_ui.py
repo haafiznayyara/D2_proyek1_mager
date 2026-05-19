@@ -283,7 +283,7 @@ class LoginWindow(QWidget):
         self.btn_login = QPushButton("Login")
         self.btn_login.setFixedHeight(BTN_H)
         self.btn_login.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_login.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        self.btn_login.setFont(QFont("Segoe UI", 12))
         self.btn_login.setStyleSheet(f"""
             QPushButton {{
                 background: {GREEN}; border: none;
@@ -427,11 +427,11 @@ class RegisterWindow(QWidget):
         self.btn_reg = QPushButton("Daftar")
         self.btn_reg.setFixedHeight(BTN_H)
         self.btn_reg.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_reg.setFont(QFont("Segoe UI", 12, QFont.Bold))
+        self.btn_reg.setFont(QFont("Segoe UI", 12))
         self.btn_reg.setStyleSheet(f"""
             QPushButton {{
                 background: {GREEN}; border: none;
-                border-radius: 10px; color: {BLACK}; font-weight: bold;
+                border-radius: 10px; color: {BLACK}; font-weight: bold
             }}
             QPushButton:hover {{ background: #3dcc70; }}
             QPushButton:pressed {{ background: #2ebd60; }}

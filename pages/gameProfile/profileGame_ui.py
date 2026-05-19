@@ -335,6 +335,8 @@ class GameDetailWindow(QWidget):
     back_clicked         = pyqtSignal()
     nav_wishlist_clicked = pyqtSignal()
     nav_profile_clicked  = pyqtSignal()
+    nav_popular_clicked   = pyqtSignal()
+    nav_cheapest_clicked  = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -579,6 +581,8 @@ class GameDetailWindow(QWidget):
         self.nav = Navbar(active_page="")
         self.nav.wishlist_clicked.connect(self.nav_wishlist_clicked)
         self.nav.profile_clicked.connect(self.nav_profile_clicked)
+        self.nav.popular_clicked.connect(self.nav_popular_clicked)
+        self.nav.cheapest_clicked.connect(self.nav_cheapest_clicked)
         vbox.addWidget(self.nav)
 
         # Back bar
@@ -635,7 +639,7 @@ class GameDetailWindow(QWidget):
 
     def _qss(self):
         return f"""
-* {{ font-family: Arial; }}
+QWidget#GameDetailWindow, QWidget#GameDetailWindow * {{ font-family: Arial; }}
 QWidget {{ background: {BG}; color: {WHITE}; }}
 QScrollBar:vertical {{
     background: {BG_DARK}; width: 6px; border-radius: 3px;

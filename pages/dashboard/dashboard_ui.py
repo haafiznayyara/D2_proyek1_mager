@@ -179,7 +179,7 @@ class CategoryBar(QWidget):
                     QPushButton {{
                         background: {ACCENT}; color: #000000;
                         border: none; border-radius: 10px;
-                        font-size: 13px; font-weight: bold;
+                        font-size: 13px;
                         padding: 0 20px;
                     }}
                 """)
