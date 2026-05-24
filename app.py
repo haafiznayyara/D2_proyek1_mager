@@ -189,6 +189,9 @@ class Router(QStackedWidget):
         self.page_profile.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
         )
+        self.page_profile.nav.cheapest_clicked.connect(
+            lambda: self.go_to(self.PAGE_FILTER_HARGA)
+        )
         self.page_profile.wishlist_clicked.connect(
             self._go_to_wishlist
         )
