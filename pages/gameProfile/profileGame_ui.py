@@ -10,10 +10,10 @@ from PyQt5.QtWidgets import (
     QLabel, QPushButton, QLineEdit, QScrollArea, QFrame,
     QSizePolicy, QGridLayout, QTextEdit
 )
-from PyQt5.QtCore import Qt, QRect, QRectF, QPointF, pyqtSignal, QTimer
+from PyQt5.QtCore import QSize, Qt, QRect, QRectF, QPointF, pyqtSignal, QTimer
 from PyQt5.QtGui import (
     QFont, QColor, QPainter, QPen, QBrush, QPainterPath,
-    QLinearGradient, QPixmap, QRadialGradient
+    QLinearGradient, QPixmap, QRadialGradient, QIcon
 )
 
 from pages.gameProfile.profileGame_logic import (
@@ -728,7 +728,9 @@ class GameDetailWindow(QWidget):
         back_bar.setStyleSheet(f"background:{BG};")
         bb = QHBoxLayout(back_bar)
         bb.setContentsMargins(24, 10, 24, 6)
-        btn_back = QPushButton("← Kembali")
+        btn_back = QPushButton(" Kembali")
+        btn_back.setIcon(QIcon("assets/icon-back.png"))
+        btn_back.setIconSize(QSize(16, 16))
         btn_back.setStyleSheet(
             f"QPushButton{{background:transparent;border:none;color:{MUTED};"
             f"font-size:13px;padding:4px 0;}} QPushButton:hover{{color:{WHITE};}}"

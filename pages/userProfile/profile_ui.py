@@ -7,11 +7,11 @@ Tampilan halaman Profile User — hanya UI, tanpa logic/DB.
 import os
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QPushButton
 from widget.navbar import Navbar
 from pages.userProfile.crop_dialog import CropDialog
-from PyQt5.QtGui import QPainter, QColor, QFont, QBrush, QPen
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtGui import QPainter, QColor, QFont, QBrush, QPen, QIcon
+from PyQt5.QtCore import QSize, Qt, QRect
 
 STYLESHEET = """
 QMainWindow {
@@ -360,7 +360,9 @@ class ProfileWindow(QtWidgets.QMainWindow):
         contentVLayout.setSpacing(16)
 
         # Back button
-        self.btnBack = QtWidgets.QPushButton("← Kembali")
+        self.btnBack = QPushButton(" Kembali")
+        self.btnBack.setIcon(QIcon("assets/icon-back.png"))
+        self.btnBack.setIconSize(QSize(16, 16))
         self.btnBack.setObjectName("btnBack")
         self.btnBack.setMaximumWidth(120)
         self.btnBack.clicked.connect(self.back_clicked.emit)
