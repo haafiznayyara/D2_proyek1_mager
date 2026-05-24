@@ -79,7 +79,28 @@ def fetch_favorite_genres(id_user: int) -> list[dict]:
         return []
     finally:
         conn.close()
+        
 
+def fetch_like_dislike_count(id_user: int) -> dict:
+    sql = """
+        SELECT type, COUNT(*) as total
+        FROM game_likes
+        WHERE id_user = %s
+        GROUP BY type
+    """
+    try:
+        conn = get_connection()
+        with conn.cursor(pymysql.cursors.DictCursor) as cur:
+            cur.execute(sql, (id_user,))
+            rows = cur.fetchall()
+        conn.close()
+        result = {"like": 0, "dislike": 0}
+        for row in rows:
+            result[row["type"]] = int(row["total"])
+        return result
+    except Exception as e:
+        print(f"[fetch_like_dislike_count] Error: {e}")
+        return {"like": 0, "dislike": 0}
 
 def update_display_name(id_user: int, display_name: str) -> bool:
     conn = get_connection()
@@ -170,6 +191,14 @@ class ProfileLogic(QObject):
         # Load data user terbaru dari DB
         self._load_user()
 
+        # Load like/dislike count
+        counts = fetch_like_dislike_count(self.id_user)
+        self.ui.update_like_dislike_count(counts["like"], counts["dislike"])
+        games = fetch_liked_games(self.id_user)
+        self.ui.update_like_dislike_list(games)
+        reviews = fetch_user_reviews(self.id_user)
+        self.ui.update_review_list(reviews)
+
     def _load_user(self):
         """Ambil data user dari DB dan tampilkan ke UI."""
         user = fetch_user(self.id_user)
@@ -179,8 +208,14 @@ class ProfileLogic(QObject):
         genres = fetch_favorite_genres(self.id_user)
         self.ui.load_genre_chart(genres)
         
-    def refresh(self):        
+    def refresh(self):
         self._load_user()
+        counts = fetch_like_dislike_count(self.id_user)
+        self.ui.update_like_dislike_count(counts["like"], counts["dislike"])
+        games = fetch_liked_games(self.id_user)
+        self.ui.update_like_dislike_list(games)
+        reviews = fetch_user_reviews(self.id_user)
+        self.ui.update_review_list(reviews)
 
     def on_save_display_name(self, new_display: str):
         if not new_display:
@@ -208,3 +243,44 @@ class ProfileLogic(QObject):
                 self.ui, "Gagal",
                 "Terjadi kesalahan saat menyimpan foto.\nSilakan coba lagi."
             )
+
+# Fungsi tambahan untuk fetch liked game user (untuk dipanggil di menu profile user)
+def fetch_liked_games(id_user: int) -> list[dict]:
+    sql = """
+        SELECT g.nama_game, gl.type
+        FROM game_likes gl
+        JOIN game g ON gl.id_game = g.id_game
+        WHERE gl.id_user = %s
+        ORDER BY gl.created_at DESC
+    """
+    try:
+        conn = get_connection()
+        with conn.cursor(pymysql.cursors.DictCursor) as cur:
+            cur.execute(sql, (id_user,))
+            return cur.fetchall() or []
+    except Exception as e:
+        print(f"[fetch_liked_games] Error: {e}")
+        return []
+    
+def fetch_user_reviews(id_user: int) -> list[dict]:
+    sql = """
+        SELECT g.nama_game,
+               r.review_gameplay,
+               r.review_cerita,
+               r.review_grafik
+        FROM review r
+        JOIN game g ON r.id_game = g.id_game
+        WHERE r.id_user = %s
+        ORDER BY r.id_review DESC
+    """
+    try:
+        conn = get_connection()
+        with conn.cursor(pymysql.cursors.DictCursor) as cur:
+            cur.execute(sql, (id_user,))
+            rows = cur.fetchall() or []
+        conn.close()
+        print(f"[fetch_user_reviews] id_user={id_user}, dapat {len(rows)} baris")  # ← tambah
+        return rows
+    except Exception as e:
+        print(f"[fetch_user_reviews] Error: {e}")
+        return []
