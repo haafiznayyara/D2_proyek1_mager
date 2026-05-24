@@ -187,6 +187,7 @@ def fetch_reviews(game_id) -> list[dict]:
 
 def submit_review(game_id, user_id: int,
                   gameplay: str, cerita: str, grafik: str) -> bool:
+    print(f"[submit_review] game_id={game_id}, user_id={user_id}") 
     """INSERT atau UPDATE review dengan explicit commit."""
     conn = None
     try:

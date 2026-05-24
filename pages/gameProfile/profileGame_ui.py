@@ -430,6 +430,8 @@ class GameDetailWindow(QWidget):
     nav_profile_clicked  = pyqtSignal()
     nav_popular_clicked   = pyqtSignal()
     nav_cheapest_clicked  = pyqtSignal()
+    like_status_changed  = pyqtSignal()
+    review_submitted     = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -437,6 +439,7 @@ class GameDetailWindow(QWidget):
         self._user_id: int = None 
         self._raw_cover: QPixmap | None = None
         self._current_user_id: int  = 1
+        
 
         self._loader = GameDetailLoader(self)
         self._loader.game_ready.connect(self._on_game_ready)
@@ -482,6 +485,7 @@ class GameDetailWindow(QWidget):
         if ok:
             # Reload count dari DB agar angka akurat
             self._load_like_status()
+            self.like_status_changed.emit()
         else:
             # Revert icon jika DB gagal
             ico = self.ico_like if action == "like" else self.ico_dislike
@@ -683,7 +687,7 @@ class GameDetailWindow(QWidget):
         self._review_status.setText("")
 
         self._submitter.submit(
-            game_id, self._current_user_id,
+            game_id, self._user_id,
             gameplay, cerita, grafik
         )
 
@@ -701,8 +705,11 @@ class GameDetailWindow(QWidget):
             )
             # Delay 300ms sebelum reload agar sinyal submit selesai dulu
             game_id = self._game.get("id")
+            
             if game_id:
                 QTimer.singleShot(300, lambda: self._loader.load(game_id))
+            self.review_submitted.emit()
+            print("[review_submitted] emit dipanggil")
         else:
             self._review_status.setText("✗  Gagal menyimpan review, coba lagi.")
             self._review_status.setStyleSheet(
