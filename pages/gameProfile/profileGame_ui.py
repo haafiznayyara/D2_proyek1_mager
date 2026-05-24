@@ -20,6 +20,7 @@ from pages.gameProfile.profileGame_logic import (
     GameDetailLoader, ImageFetcher, ReviewSubmitter,
     fmt_price, fmt_number, rating_label,
     check_wishlist, toggle_wishlist,
+    fetch_game_like_status, toggle_game_like,
 )
 
 # ── Palette ──────────────────────────────────────────────────────────────────
@@ -127,95 +128,187 @@ class RatingCircle(QWidget):
 class PriceChart(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setMinimumHeight(280)
+        self.setMinimumHeight(300)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self._pts: list[QPointF] = []
-        self._max_price: float   = 1.0
-        self._x_labels: list[str] = []
-        self._raw: list[dict]    = []
+        self._raw: list[dict] = []
+        self._max_price: float = 1.0
+        self._hover_idx: int = -1
+        self.setMouseTracking(True)
 
     def set_data(self, history: list[dict]):
         if not history:
             return
-            
-        # 1. Cari harga tertinggi untuk batas atas grafik (Sumbu Y)
+        self._raw = history
         self._max_price = max(h["price"] for h in history) or 1.0
-        self._raw       = history
-        step = max(1, len(history) // 8)
-        self._x_labels = [
-            (history[i]["date"] if i < len(history) else "")
-            for i in range(0, len(history), step)
-        ]
         self.update()
 
-    def paintEvent(self, _):
-        p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
-        W, H = self.width(), self.height()
-        pad_l, pad_r, pad_t, pad_b = 65, 20, 12, 40
-        draw_w = W - pad_l - pad_r
-        draw_h = H - pad_t - pad_b
-
-        p.fillRect(0, 0, W, H, QColor(BG_CARD))
-        p.setPen(QPen(QColor(BORDER), 1))
-        for i in range(5):
-            y = pad_t + draw_h - int(i / 4 * draw_h)
-            p.drawLine(pad_l, y, W - pad_r, y)
-
-        p.setPen(QPen(QColor(MUTED)))
-        p.setFont(QFont("Arial", 7))
-        for i in range(5):
-            y   = pad_t + draw_h - int(i / 4 * draw_h)
-            val = int(i / 4 * self._max_price)
-            lbl = f"Rp {val//1000}k" if val >= 1000 else f"Rp {val}"
-            p.drawText(QRect(0, y - 8, pad_l - 4, 16),
-                       Qt.AlignRight | Qt.AlignVCenter, lbl)
-
+    def _get_pts(self, W, H, pad_l=70, pad_r=24, pad_t=20, pad_b=50):
         raw = self._raw
         if not raw:
-            p.setPen(QPen(QColor(MUTED)))
-            p.drawText(QRect(0, 0, W, H), Qt.AlignCenter, "Belum ada riwayat harga")
-            return
-
-        n   = len(raw)
+            return [], pad_l, pad_r, pad_t, pad_b
+        draw_w = W - pad_l - pad_r
+        draw_h = H - pad_t - pad_b
+        n = len(raw)
         pts = []
         for i, h in enumerate(raw):
             x = pad_l + int(i / max(n - 1, 1) * draw_w)
             y = pad_t + draw_h - int(h["price"] / self._max_price * draw_h)
             pts.append(QPointF(x, y))
+        return pts, pad_l, pad_r, pad_t, pad_b
 
-        step = max(1, n // 15) # Maksimal tampilkan berapa label agar tidak dempet
-        p.setPen(QPen(QColor(MUTED)))
-        
-        for i in range(0, n, step):
-            x = int(pts[i].x())
-            
-            # Ambil data tanggal langsung dari raw data
-            # Gunakan key "tanggal" atau "date" sesuai yang ada di databasemu
-            raw_date = raw[i].get("tanggal") or raw[i].get("date", "")
-            lbl = str(raw_date)[:10]
-            
-            # Lebar kotak diperbesar dari 60 jadi 90 (x - 45, width 90)
-            # Ini mencegah teks YYYY-MM-DD terpotong jadi 024-...
-            p.drawText(QRect(x - 45, H - pad_b + 4, 90, 20), Qt.AlignCenter, lbl)
+    def mouseMoveEvent(self, event):
+        if not self._raw:
+            return
+        W, H = self.width(), self.height()
+        pts, pad_l, pad_r, pad_t, pad_b = self._get_pts(W, H)
+        mx = event.x()
+        # Cari titik terdekat secara horizontal
+        min_dist = float("inf")
+        idx = -1
+        for i, pt in enumerate(pts):
+            d = abs(pt.x() - mx)
+            if d < min_dist:
+                min_dist = d
+                idx = i
+        if min_dist < 40:
+            self._hover_idx = idx
+        else:
+            self._hover_idx = -1
+        self.update()
 
+    def leaveEvent(self, event):
+        self._hover_idx = -1
+        self.update()
+
+    def paintEvent(self, _):
+        if not self._raw:
+            p = QPainter(self)
+            p.setPen(QPen(QColor(MUTED)))
+            p.drawText(self.rect(), Qt.AlignCenter, "Belum ada riwayat harga")
+            return
+
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        W, H = self.width(), self.height()
+        pad_l, pad_r, pad_t, pad_b = 70, 24, 20, 50
+        draw_w = W - pad_l - pad_r
+        draw_h = H - pad_t - pad_b
+
+        # Background
+        p.fillRect(0, 0, W, H, QColor(BG_CARD))
+
+        # Grid lines horizontal (5 garis)
+        Y_STEPS = 5
+        for i in range(Y_STEPS + 1):
+            y = pad_t + draw_h - int(i / Y_STEPS * draw_h)
+            # Garis grid tipis
+            p.setPen(QPen(QColor(BORDER), 1, Qt.DotLine))
+            p.drawLine(pad_l, y, W - pad_r, y)
+            # Label Y
+            val = int(i / Y_STEPS * self._max_price)
+            lbl = f"Rp {val//1000}k" if val >= 1000 else f"Rp {val}"
+            p.setPen(QPen(QColor(MUTED)))
+            p.setFont(QFont("Arial", 8))
+            p.drawText(QRect(0, y - 9, pad_l - 8, 18),
+                       Qt.AlignRight | Qt.AlignVCenter, lbl)
+
+        pts, *_ = self._get_pts(W, H, pad_l, pad_r, pad_t, pad_b)
+        raw = self._raw
+        n = len(raw)
+
+        # ── Area fill dengan gradient ────────────────────────────────────
         fill = QPainterPath()
         fill.moveTo(pts[0])
-        for pt in pts[1:]: fill.lineTo(pt)
+        # Smooth curve via cubic bezier
+        for i in range(1, len(pts)):
+            prev = pts[i - 1]
+            curr = pts[i]
+            cx = (prev.x() + curr.x()) / 2
+            fill.cubicTo(QPointF(cx, prev.y()), QPointF(cx, curr.y()), curr)
         fill.lineTo(pts[-1].x(), pad_t + draw_h)
         fill.lineTo(pts[0].x(), pad_t + draw_h)
         fill.closeSubpath()
+
         grad = QLinearGradient(0, pad_t, 0, pad_t + draw_h)
-        grad.setColorAt(0, QColor(0, 200, 83, 60))
-        grad.setColorAt(1, QColor(0, 200, 83, 0))
+        grad.setColorAt(0.0, QColor(74, 222, 128, 55))
+        grad.setColorAt(0.6, QColor(74, 222, 128, 18))
+        grad.setColorAt(1.0, QColor(74, 222, 128, 0))
         p.fillPath(fill, QBrush(grad))
 
+        # ── Line utama (smooth) ──────────────────────────────────────────
         line = QPainterPath()
         line.moveTo(pts[0])
-        for pt in pts[1:]: line.lineTo(pt)
+        for i in range(1, len(pts)):
+            prev = pts[i - 1]
+            curr = pts[i]
+            cx = (prev.x() + curr.x()) / 2
+            line.cubicTo(QPointF(cx, prev.y()), QPointF(cx, curr.y()), curr)
         p.setPen(QPen(QColor(GREEN), 2))
         p.setBrush(Qt.NoBrush)
         p.drawPath(line)
+
+        # ── Label X (tanggal) ────────────────────────────────────────────
+        step = max(1, n // 7)
+        p.setPen(QPen(QColor(MUTED)))
+        p.setFont(QFont("Arial", 8))
+        for i in range(0, n, step):
+            x = int(pts[i].x())
+            raw_date = raw[i].get("tanggal") or raw[i].get("date", "")
+            lbl = str(raw_date)[:10]
+            # Tick kecil
+            p.setPen(QPen(QColor(DIM), 1))
+            p.drawLine(x, pad_t + draw_h, x, pad_t + draw_h + 5)
+            p.setPen(QPen(QColor(MUTED)))
+            p.drawText(QRect(x - 30, H - pad_b + 8, 60, 16), Qt.AlignCenter, lbl)
+
+        # ── Hover: crosshair + tooltip ───────────────────────────────────
+        idx = self._hover_idx
+        if 0 <= idx < len(pts):
+            hx = int(pts[idx].x())
+            hy = int(pts[idx].y())
+            hprice = raw[idx]["price"]
+            hdate  = str(raw[idx].get("tanggal") or raw[idx].get("date", ""))[:10]
+
+            # Vertical line
+            p.setPen(QPen(QColor(DIM), 1, Qt.DashLine))
+            p.drawLine(hx, pad_t, hx, pad_t + draw_h)
+
+            # Dot
+            p.setPen(QPen(QColor(GREEN), 2))
+            p.setBrush(QBrush(QColor(BG_CARD)))
+            p.drawEllipse(QPointF(hx, hy), 5, 5)
+            p.setBrush(QBrush(QColor(GREEN)))
+            p.drawEllipse(QPointF(hx, hy), 3, 3)
+
+            # Tooltip box
+            price_str = f"Rp {hprice:,.0f}".replace(",", ".")
+            tip_text  = f"{hdate}\n{price_str}"
+            tw, th = 130, 44
+            tx = hx + 12
+            if tx + tw > W - pad_r:
+                tx = hx - tw - 12
+            ty = hy - th // 2
+            ty = max(pad_t + 4, min(ty, pad_t + draw_h - th - 4))
+
+            # Shadow tipis
+            p.setPen(Qt.NoPen)
+            p.setBrush(QBrush(QColor(0, 0, 0, 40)))
+            p.drawRoundedRect(QRectF(tx + 2, ty + 2, tw, th), 6, 6)
+
+            # Box
+            p.setBrush(QBrush(QColor("#1e2e42")))
+            p.setPen(QPen(QColor(BORDER), 1))
+            p.drawRoundedRect(QRectF(tx, ty, tw, th), 6, 6)
+
+            # Teks tanggal
+            p.setPen(QPen(QColor(MUTED)))
+            p.setFont(QFont("Arial", 8))
+            p.drawText(QRect(tx + 10, ty + 6, tw - 14, 16), Qt.AlignLeft | Qt.AlignVCenter, hdate)
+
+            # Teks harga
+            p.setPen(QPen(QColor(GREEN)))
+            p.setFont(QFont("Arial", 10, QFont.Bold))
+            p.drawText(QRect(tx + 10, ty + 22, tw - 14, 18), Qt.AlignLeft | Qt.AlignVCenter, price_str)
 
 
 # ── Review Card ───────────────────────────────────────────────────────────────
@@ -364,6 +457,55 @@ class GameDetailWindow(QWidget):
     def set_user_id(self, user_id: int):
         """Set ID user yang sedang login (untuk submit review)."""
         self._current_user_id = user_id
+        
+    def _on_like_clicked(self, action: str, active: bool):
+        """Handle klik like/dislike dengan mutual exclusion & sinkronisasi DB."""
+        game_id = self._game.get("id")
+
+        # Jika belum login, revert icon dan keluar
+        if not game_id or not self._user_id:
+            ico = self.ico_like if action == "like" else self.ico_dislike
+            ico.is_active = not active
+            ico.update_image()
+            return
+
+        # Mutual exclusion: matikan icon lawan jika sedang aktif
+        if action == "like" and active and self.ico_dislike.is_active:
+            self.ico_dislike.is_active = False
+            self.ico_dislike.update_image()
+        elif action == "dislike" and active and self.ico_like.is_active:
+            self.ico_like.is_active = False
+            self.ico_like.update_image()
+
+        # Kirim ke DB
+        ok = toggle_game_like(game_id, self._user_id, action)
+        if ok:
+            # Reload count dari DB agar angka akurat
+            self._load_like_status()
+        else:
+            # Revert icon jika DB gagal
+            ico = self.ico_like if action == "like" else self.ico_dislike
+            ico.is_active = not active
+            ico.update_image()
+
+    def _load_like_status(self):
+        """Load status like/dislike dari DB dan sinkronkan icon + counter."""
+        game_id = self._game.get("id")
+        if not game_id:
+            return
+
+        status = fetch_game_like_status(game_id, self._user_id or 0)
+
+        # Update counter
+        self.lbl_good_count.setText(str(status["total_like"]))
+        self.lbl_bad_count.setText(str(status["total_dislike"]))
+
+        # Update state icon sesuai pilihan user
+        user_type = status["user_type"]          # 'like' | 'dislike' | None
+        self.ico_like.is_active    = (user_type == "like")
+        self.ico_dislike.is_active = (user_type == "dislike")
+        self.ico_like.update_image()
+        self.ico_dislike.update_image()
 
     def load_game(self, game: dict, user_id: int = None):
         self._game = game
@@ -381,6 +523,8 @@ class GameDetailWindow(QWidget):
         if self._user_id and game.get("id"):
             is_in = check_wishlist(str(game["id"]), self._user_id)
             self._update_wishlist_btn(is_in)
+            
+        self._load_like_status()
 
     def load_price_history(self, history: list):
         self.price_chart.set_data(history)
@@ -500,14 +644,8 @@ class GameDetailWindow(QWidget):
         price = g.get("price", 0)
         if price == 0:
             self.lbl_price.setText("Gratis")
-            self.lbl_old_price.hide()
-            self.lbl_disc.hide()
         else:
             self.lbl_price.setText(fmt_price(price))
-            self.lbl_old_price.setText(fmt_price(int(price * 2)))
-            self.lbl_old_price.show()
-            self.lbl_disc.setText("-50%")
-            self.lbl_disc.show()
 
         self.lbl_platform_price.setText(fmt_price(price) if price > 0 else "Gratis")
 
@@ -925,7 +1063,9 @@ QTextEdit:focus {{ border: 1px solid {GREEN}; }}
 
     def _sidebar_rating(self):
         f = self._card_frame()
-        v = QVBoxLayout(f); v.setContentsMargins(16, 18, 16, 18); v.setSpacing(10)
+        v = QVBoxLayout(f)
+        v.setContentsMargins(16, 18, 16, 18)
+        v.setSpacing(10)
         v.setAlignment(Qt.AlignHCenter)
 
         self.ring = RatingCircle(0, "—")
@@ -948,59 +1088,65 @@ QTextEdit:focus {{ border: 1px solid {GREEN}; }}
         thumbs.setSpacing(24)
         thumbs.setAlignment(Qt.AlignHCenter)
 
-        def thumb_block(img_n, img_a, count_attr):
-            bw = QWidget(); bw.setStyleSheet("background:transparent;")
-            bh = QHBoxLayout(bw); bh.setContentsMargins(0, 0, 0, 0); bh.setSpacing(6)
-            ico = ClickableIcon(img_n, img_a)
-            ico.setStyleSheet("background:transparent;")
-            num = QLabel("0")
-            num.setStyleSheet(
-                f"color:{LIGHT};font-size:12px;font-weight:bold;background:transparent;"
-            )
-            setattr(self, count_attr, num)
-            def on_click(active, _num=num):
-                cur = int(_num.text())
-                _num.setText(str(cur + 1 if active else max(0, cur - 1)))
-            ico.clicked.connect(on_click)
-            bh.addWidget(ico); bh.addWidget(num)
-            return bw
+        # ── Like block ────────────────────────────────────────────────────
+        like_w = QWidget()
+        like_w.setStyleSheet("background:transparent;")
+        like_h = QHBoxLayout(like_w)
+        like_h.setContentsMargins(0, 0, 0, 0)
+        like_h.setSpacing(6)
+        self.ico_like = ClickableIcon(
+            "assets/like_outline.png", "assets/like_filled.png"
+        )
+        self.ico_like.setStyleSheet("background:transparent;")
+        self.lbl_good_count = QLabel("0")
+        self.lbl_good_count.setStyleSheet(
+            f"color:{LIGHT};font-size:12px;font-weight:bold;background:transparent;"
+        )
+        like_h.addWidget(self.ico_like)
+        like_h.addWidget(self.lbl_good_count)
 
-        thumbs.addWidget(thumb_block(
-            "assets/like_outline.png", "assets/like_filled.png", "lbl_good_count"
-        ))
-        thumbs.addWidget(thumb_block(
-            "assets/dislike_outline.png", "assets/dislike_filled.png", "lbl_bad_count"
-        ))
+        # ── Dislike block ─────────────────────────────────────────────────
+        dislike_w = QWidget()
+        dislike_w.setStyleSheet("background:transparent;")
+        dislike_h = QHBoxLayout(dislike_w)
+        dislike_h.setContentsMargins(0, 0, 0, 0)
+        dislike_h.setSpacing(6)
+        self.ico_dislike = ClickableIcon(
+            "assets/dislike_outline.png", "assets/dislike_filled.png"
+        )
+        self.ico_dislike.setStyleSheet("background:transparent;")
+        self.lbl_bad_count = QLabel("0")
+        self.lbl_bad_count.setStyleSheet(
+            f"color:{LIGHT};font-size:12px;font-weight:bold;background:transparent;"
+        )
+        dislike_h.addWidget(self.ico_dislike)
+        dislike_h.addWidget(self.lbl_bad_count)
+
+        # ── Connect sinyal ────────────────────────────────────────────────
+        self.ico_like.clicked.connect(
+            lambda active: self._on_like_clicked("like", active)
+        )
+        self.ico_dislike.clicked.connect(
+            lambda active: self._on_like_clicked("dislike", active)
+        )
+
+        thumbs.addWidget(like_w)
+        thumbs.addWidget(dislike_w)
         v.addLayout(thumbs)
         return f
 
     def _sidebar_price(self):
         f = self._card_frame()
         v = QVBoxLayout(f); v.setContentsMargins(16, 16, 16, 16); v.setSpacing(6)
-        lbl = QLabel("Harga Normal")
+        lbl = QLabel("Harga")
         lbl.setStyleSheet(f"color:{MUTED};font-size:11px;background:transparent;")
         v.addWidget(lbl)
-        self.lbl_old_price = QLabel("")
-        self.lbl_old_price.setStyleSheet(
-            f"color:{DIM};font-size:13px;text-decoration:line-through;background:transparent;"
-        )
-        v.addWidget(self.lbl_old_price)
 
-        price_row = QHBoxLayout(); price_row.setSpacing(10)
-        self.lbl_disc = QLabel("")
-        self.lbl_disc.setStyleSheet(
-            f"background:{DISC_GREEN};color:#0d1117;font-size:12px;"
-            "font-weight:bold;padding:4px 10px;border-radius:4px;"
-        )
-        self.lbl_disc.setFixedHeight(28)
         self.lbl_price = QLabel("—")
         self.lbl_price.setStyleSheet(
             f"color:{GREEN};font-size:20px;font-weight:bold;background:transparent;"
         )
-        price_row.addWidget(self.lbl_disc, alignment=Qt.AlignVCenter)
-        price_row.addWidget(self.lbl_price, alignment=Qt.AlignVCenter)
-        price_row.addStretch()
-        v.addLayout(price_row)
+        v.addWidget(self.lbl_price)
         v.addSpacing(4)
 
         self.btn_wishlist = QPushButton("♡  Tambah ke Wishlist")
@@ -1075,9 +1221,9 @@ QTextEdit:focus {{ border: 1px solid {GREEN}; }}
         else:
             self.btn_wishlist.setText("♡  Tambah ke Wishlist")
             self.btn_wishlist.setStyleSheet(
-                f"QPushButton{{background:{DISC_GREEN};border:1px solid {GREEN};"
-                f"border-radius:6px;color:{GREEN};font-size:13px;font-weight:500;}}"
-                f"QPushButton:hover{{background:#1a5c30;}}"
+                f"QPushButton{{background:{GREEN};border:none;"
+                f"border-radius:6px;color:#0d1117;font-size:13px;font-weight:500;}}"
+                f"QPushButton:hover{{background:#00c853;}}"
             )
 
     def _on_wishlist_clicked(self):

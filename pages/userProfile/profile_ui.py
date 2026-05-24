@@ -10,6 +10,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 from widget.navbar import Navbar
 from pages.userProfile.crop_dialog import CropDialog
+from PyQt5.QtGui import QPainter, QColor, QFont, QBrush, QPen
+from PyQt5.QtCore import Qt, QRect
 
 STYLESHEET = """
 QMainWindow {
@@ -151,6 +153,89 @@ def make_icon_label(png_file, size=20):
     lbl.setPixmap(QtGui.QPixmap(icon_path(png_file)))
     return lbl
 
+class GenreBarChart(QtWidgets.QWidget):
+    """Bar chart horizontal untuk 5 genre favorit user."""
+
+    BAR_COLOR     = QColor("#4ADE80")
+    BAR_BG_COLOR  = QColor("#0d1829")
+    TEXT_COLOR    = QColor("#c9d1e0")
+    MUTED_COLOR   = QColor("#7b8db0")
+    EMPTY_COLOR   = QColor("#515050")
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._data: list[dict] = []   # [{'nama_genre': str, 'total': int}]
+        self.setMinimumHeight(180)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Fixed
+        )
+        self.setStyleSheet("background: transparent;")
+
+    def set_data(self, genres: list[dict]):
+        """genres = [{'nama_genre': str, 'total': int}, ...] max 5."""
+        self._data = genres[:5]
+        # Tinggi menyesuaikan jumlah bar
+        row_h = 36
+        self.setMinimumHeight(max(160, len(self._data) * row_h + 40))
+        self.update()
+
+    def paintEvent(self, _):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+
+        W, H = self.width(), self.height()
+        pad_l, pad_r, pad_t, pad_b = 110, 50, 10, 10
+        draw_w = W - pad_l - pad_r
+        n = len(self._data)
+
+        if n == 0:
+            p.setPen(QPen(self.EMPTY_COLOR))
+            p.setFont(QFont("Segoe UI", 10))
+            p.drawText(
+                QRect(0, 0, W, H),
+                Qt.AlignCenter,
+                "Belum ada data genre favorit"
+            )
+            return
+
+        max_val = max(d["total"] for d in self._data) or 1
+        row_h   = (H - pad_t - pad_b) // n
+
+        for i, item in enumerate(self._data):
+            genre = item["nama_genre"] or "—"
+            total = int(item["total"])
+            y     = pad_t + i * row_h
+
+            # ── Label genre (kiri) ─────────────────────────────────
+            p.setPen(QPen(self.TEXT_COLOR))
+            p.setFont(QFont("Segoe UI", 9))
+            p.drawText(
+                QRect(0, y + 2, pad_l - 10, row_h - 4),
+                Qt.AlignRight | Qt.AlignVCenter,
+                genre
+            )
+
+            # ── Background bar ─────────────────────────────────────
+            bar_h  = max(14, row_h - 16)
+            bar_y  = y + (row_h - bar_h) // 2
+            p.setBrush(QBrush(self.BAR_BG_COLOR))
+            p.setPen(Qt.NoPen)
+            p.drawRoundedRect(pad_l, bar_y, draw_w, bar_h, 4, 4)
+
+            # ── Foreground bar (fill sesuai nilai) ─────────────────
+            fill_w = max(8, int(total / max_val * draw_w))
+            p.setBrush(QBrush(self.BAR_COLOR))
+            p.drawRoundedRect(pad_l, bar_y, fill_w, bar_h, 4, 4)
+
+            # ── Angka di kanan bar ─────────────────────────────────
+            p.setPen(QPen(self.MUTED_COLOR))
+            p.setFont(QFont("Segoe UI", 8))
+            p.drawText(
+                QRect(pad_l + draw_w + 6, y + 2, pad_r - 6, row_h - 4),
+                Qt.AlignLeft | Qt.AlignVCenter,
+                str(total)
+            )
 
 class ProfileWindow(QtWidgets.QMainWindow):
 
@@ -380,14 +465,9 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.sectionLabel.setObjectName("sectionLabel")
         leftPanelLayout.addWidget(self.sectionLabel)
 
-        leftPanelLayout.addStretch()
-
-        self.emptyLabel = QtWidgets.QLabel("Belum ada data preferensi game")
-        self.emptyLabel.setObjectName("emptyLabel")
-        self.emptyLabel.setAlignment(QtCore.Qt.AlignCenter)
-        leftPanelLayout.addWidget(self.emptyLabel)
-
-        leftPanelLayout.addStretch()
+        # Bar chart widget
+        self.genreChart = GenreBarChart()
+        leftPanelLayout.addWidget(self.genreChart)
 
         # Logout
         self.btnLogout = QtWidgets.QPushButton("  Logout")
@@ -482,6 +562,9 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
         contentVLayout.addLayout(mainContentLayout)
         self.mainVLayout.addWidget(self.contentWidget)
+        
+    def load_genre_chart(self, genres: list[dict]):
+        self.genreChart.set_data(genres)
 
 
 # ── Entry point ───────────────────────────────────────────────────────

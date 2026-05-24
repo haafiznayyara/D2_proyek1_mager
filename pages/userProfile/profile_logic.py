@@ -53,6 +53,32 @@ def fetch_user(id_user: int) -> dict:
             return cur.fetchone() or {}
     finally:
         conn.close()
+        
+def fetch_favorite_genres(id_user: int) -> list[dict]:
+    """
+    Ambil 5 genre teratas berdasarkan game yang di-like user.
+    Return: [{'nama_genre': str, 'total': int}, ...]
+    """
+    sql = """
+        SELECT g.nama_genre, COUNT(*) AS total
+        FROM game_likes gl
+        JOIN detail_genre dg ON gl.id_game = dg.id_game
+        JOIN genre g ON dg.id_genre = g.id_genre
+        WHERE gl.id_user = %s AND gl.type = 'like'
+        GROUP BY g.nama_genre
+        ORDER BY total DESC
+        LIMIT 5
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor(pymysql.cursors.DictCursor) as cur:
+            cur.execute(sql, (id_user,))
+            return cur.fetchall() or []
+    except Exception as e:
+        print(f"[fetch_favorite_genres] Error: {e}")
+        return []
+    finally:
+        conn.close()
 
 
 def update_display_name(id_user: int, display_name: str) -> bool:
@@ -149,6 +175,12 @@ class ProfileLogic(QObject):
         user = fetch_user(self.id_user)
         if user:
             self.ui.load_user(user)
+            
+        genres = fetch_favorite_genres(self.id_user)
+        self.ui.load_genre_chart(genres)
+        
+    def refresh(self):        
+        self._load_user()
 
     def on_save_display_name(self, new_display: str):
         if not new_display:

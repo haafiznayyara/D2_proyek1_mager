@@ -77,6 +77,11 @@ class Router(QStackedWidget):
                 if hasattr(card, 'set_wishlisted') and hasattr(card, 'game'):
                     game_id = str(card.game.get("id", ""))
                     card.set_wishlisted(game_id in wishlist_ids)
+    
+    def _go_to_profile(self):
+        if hasattr(self, 'profile_logic') and self.profile_logic:
+            self.profile_logic.refresh()
+        self.go_to(self.PAGE_PROFILE)
 
     def __init__(self, games):
         super().__init__()
@@ -121,7 +126,7 @@ class Router(QStackedWidget):
             self._go_to_wishlist
         )
         self.page_dashboard.nav.profile_clicked.connect(
-            lambda: self.go_to(self.PAGE_PROFILE)
+            self._go_to_profile
         )
         self.page_dashboard.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
@@ -143,7 +148,7 @@ class Router(QStackedWidget):
             self._go_to_wishlist
         )
         self.page_detail.nav_profile_clicked.connect(
-            lambda: self.go_to(self.PAGE_PROFILE)
+            self._go_to_profile
         )
         self.page_detail.nav_popular_clicked.connect(
         lambda: self.setCurrentWidget(self.page_popular)
@@ -163,7 +168,7 @@ class Router(QStackedWidget):
             self._go_to_wishlist
         )
         self.page_wishlist.nav.profile_clicked.connect(
-            lambda: self.go_to(self.PAGE_PROFILE)
+            self._go_to_profile
         )
         self.page_wishlist.nav.dashboard_clicked.connect(
             lambda: self.go_to(self.PAGE_DASHBOARD)
@@ -200,7 +205,7 @@ class Router(QStackedWidget):
             self._go_to_wishlist
         )
         self.page_popular.nav.profile_clicked.connect(
-            lambda: self.go_to(self.PAGE_PROFILE)
+            self._go_to_profile
         )
         self.page_popular.nav.cheapest_clicked.connect(
             lambda: self.go_to(self.PAGE_FILTER_HARGA)
@@ -217,7 +222,7 @@ class Router(QStackedWidget):
             self._go_to_wishlist
         )
         self.page_filter_harga.nav.profile_clicked.connect(
-            lambda: self.go_to(self.PAGE_PROFILE)
+            self._go_to_profile
         )
         self.page_filter_harga.nav.cheapest_clicked.connect(
             lambda: self.go_to(self.PAGE_FILTER_HARGA)

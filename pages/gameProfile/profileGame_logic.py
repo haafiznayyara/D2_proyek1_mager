@@ -440,3 +440,101 @@ def toggle_wishlist(game_id: str, user_id: int, add: bool) -> bool:
     except Exception as e:
         print(f"[toggle_wishlist] Error: {e}")
         return False
+    
+# ─────────────────────────────────────────────────────────────────────────────
+# Like / Dislike Game
+# ─────────────────────────────────────────────────────────────────────────────
+def fetch_game_like_status(game_id, user_id: int) -> dict:
+    """
+    Return:
+        {
+          'user_type'     : 'like' | 'dislike' | None,
+          'total_like'    : int,
+          'total_dislike' : int,
+        }
+    """
+    try:
+        conn = _conn_read()
+        with conn.cursor() as cur:
+            # Total like & dislike semua user
+            cur.execute(
+                "SELECT type, COUNT(*) AS total "
+                "FROM game_likes WHERE id_game = %s GROUP BY type",
+                (game_id,),
+            )
+            total_like = total_dislike = 0
+            for r in cur.fetchall():
+                if r["type"] == "like":
+                    total_like = int(r["total"])
+                elif r["type"] == "dislike":
+                    total_dislike = int(r["total"])
+
+            # Status user yang sedang login
+            user_type = None
+            if user_id:
+                cur.execute(
+                    "SELECT type FROM game_likes "
+                    "WHERE id_game = %s AND id_user = %s LIMIT 1",
+                    (game_id, user_id),
+                )
+                row = cur.fetchone()
+                if row:
+                    user_type = row["type"]
+        conn.close()
+        return {
+            "user_type":     user_type,
+            "total_like":    total_like,
+            "total_dislike": total_dislike,
+        }
+    except Exception as exc:
+        print(f"[fetch_game_like_status] Error: {exc}")
+        return {"user_type": None, "total_like": 0, "total_dislike": 0}
+
+
+def toggle_game_like(game_id, user_id: int, action: str) -> bool:
+    """
+    action = 'like' | 'dislike'
+
+    Logic:
+      - Belum ada row  → INSERT
+      - Ada, tipe sama → DELETE  (toggle off)
+      - Ada, tipe beda → UPDATE  (ganti pilihan)
+    """
+    try:
+        conn = _conn_write()
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT type FROM game_likes "
+                "WHERE id_game = %s AND id_user = %s LIMIT 1",
+                (game_id, user_id),
+            )
+            existing = cur.fetchone()
+
+            if existing is None:
+                cur.execute(
+                    "INSERT INTO game_likes (id_user, id_game, type) "
+                    "VALUES (%s, %s, %s)",
+                    (user_id, game_id, action),
+                )
+                print(f"[toggle_game_like] INSERT {action}")
+            elif existing["type"] == action:
+                cur.execute(
+                    "DELETE FROM game_likes "
+                    "WHERE id_game = %s AND id_user = %s",
+                    (game_id, user_id),
+                )
+                print(f"[toggle_game_like] DELETE (toggle off)")
+            else:
+                cur.execute(
+                    "UPDATE game_likes SET type = %s "
+                    "WHERE id_game = %s AND id_user = %s",
+                    (action, game_id, user_id),
+                )
+                print(f"[toggle_game_like] UPDATE → {action}")
+
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as exc:
+        print(f"[toggle_game_like] Error: {exc}")
+        return False
