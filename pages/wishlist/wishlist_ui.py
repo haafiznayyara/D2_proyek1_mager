@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
     QDialog, QGraphicsDropShadowEffect, QScrollArea
 )
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
-from PyQt5.QtGui import QCursor, QColor
+from PyQt5.QtGui import QCursor, QColor, QIcon
 from widget.navbar import Navbar
 
 # ── Palette ───────────────────────────────────────────────────────────
@@ -195,7 +195,9 @@ class WishlistWindow(QMainWindow):
         self.contentLayout.setContentsMargins(40, 30, 40, 30)
         self.contentLayout.setSpacing(16)
 
-        self.btnKembali = QPushButton("← Kembali")
+        self.btnKembali = QPushButton(" Kembali")
+        self.btnKembali.setIcon(QIcon("assets/icon-back.png"))
+        self.btnKembali.setIconSize(QSize(16, 16))
         self.btnKembali.setCursor(QCursor(Qt.PointingHandCursor))
         self.btnKembali.setStyleSheet(f"""
             QPushButton {{
