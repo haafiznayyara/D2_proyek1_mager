@@ -284,6 +284,7 @@ class GamesGrid(QWidget):
     def __init__(self):
         super().__init__()
         self.cards = []
+        self._wishlist_ids = set()
         self.setStyleSheet(f"background: {BG};")
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
@@ -325,6 +326,7 @@ class GamesGrid(QWidget):
             self.cards.append(card)
         
         self._relayout()
+        self.sync_wishlist(self._wishlist_ids)
     
     def _relayout(self):
         """Re-calculate layout posisi cards."""
@@ -352,6 +354,12 @@ class GamesGrid(QWidget):
         rows = (len(self.cards) + COLS - 1) // COLS
         total_h = rows * card_h + (rows - 1) * GAP + 4
         self.canvas.setFixedHeight(total_h)
+    
+    def sync_wishlist(self, wishlist_ids: set):
+        self._wishlist_ids = wishlist_ids
+        for card in self.cards:
+            if hasattr(card, 'set_wishlisted'):
+                card.set_wishlisted(str(card.game.get("id", "")) in wishlist_ids)
     
     def resizeEvent(self, e):
         super().resizeEvent(e)

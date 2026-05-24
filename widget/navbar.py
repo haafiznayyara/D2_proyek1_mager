@@ -196,6 +196,8 @@ class Navbar(QWidget):
                 QPushButton {{
                     background: {_DARK}; border: {border_line}; border-radius: 8px;
                 }}
+                QPushButton:hover {{ background: {_DARK}; }}
+                QPushButton:pressed {{ background: {_DARK}; }}
             """)
             path = os.path.join(_HERE, png_name)
             if os.path.exists(path):

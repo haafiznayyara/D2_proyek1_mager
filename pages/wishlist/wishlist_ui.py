@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
     QDialog, QGraphicsDropShadowEffect, QScrollArea
 )
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
-from PyQt5.QtGui import QCursor, QColor, QIcon
+from PyQt5.QtGui import QCursor, QColor, QIcon, QPainter
 from widget.navbar import Navbar
 
 # ── Palette ───────────────────────────────────────────────────────────
@@ -40,15 +40,22 @@ class DeleteConfirmDialog(QDialog):
         self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setModal(True)
-        self.setFixedWidth(400)
+        if parent:
+            self.setFixedSize(parent.size())
 
         self._result = False
         self._build_ui(nama_game)
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.fillRect(self.rect(), QColor(0, 0, 0, 128))
+        p.end()
 
     def _build_ui(self, nama_game: str):
         # Wrapper dengan shadow
         wrapper = QWidget(self)
         wrapper.setObjectName("dlgWrapper")
+        wrapper.setFixedWidth(480)
         wrapper.setStyleSheet(f"""
             QWidget#dlgWrapper {{
                 background-color: {CARD};
@@ -64,11 +71,12 @@ class DeleteConfirmDialog(QDialog):
         wrapper.setGraphicsEffect(shadow)
 
         outerLayout = QVBoxLayout(self)
-        outerLayout.setContentsMargins(16, 16, 16, 16)
+        outerLayout.setContentsMargins(0, 0, 0, 0)
+        outerLayout.setAlignment(Qt.AlignCenter)
         outerLayout.addWidget(wrapper)
 
         innerLayout = QVBoxLayout(wrapper)
-        innerLayout.setContentsMargins(28, 28, 28, 24)
+        innerLayout.setContentsMargins(40, 36, 40, 32)
         innerLayout.setSpacing(16)
 
         # Judul
@@ -85,7 +93,7 @@ class DeleteConfirmDialog(QDialog):
         innerLayout.addWidget(titleLabel)
 
         # Pesan
-        msgLabel = QLabel(f"Apakah Anda yakin ingin menghapus<br><b>{nama_game}</b> dari wishlist?")
+        msgLabel = QLabel(f"Apakah Anda yakin ingin menghapus <b>{nama_game}</b> dari wishlist?")
         msgLabel.setAlignment(Qt.AlignCenter)
         msgLabel.setWordWrap(True)
         msgLabel.setStyleSheet(f"""
@@ -336,10 +344,11 @@ class WishlistWindow(QMainWindow):
                     font-size: 11px; font-family: Arial; border-radius: 4px;
                 }}
             """)
-        layout.addWidget(thumb)
+        layout.addWidget(thumb, alignment=Qt.AlignTop)
 
         # Info game
         infoWidget = QWidget()
+        infoWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         infoLayout = QVBoxLayout(infoWidget)
         infoLayout.setSpacing(6)
         infoLayout.setContentsMargins(0, 0, 0, 0)
@@ -348,13 +357,14 @@ class WishlistWindow(QMainWindow):
         nameLabel.setStyleSheet(f"""
             QLabel {{ color: {TEXT1}; font-size: 17px; font-weight: bold; font-family: Arial; }}
         """)
-        infoLayout.addWidget(nameLabel)
+        infoLayout.addWidget(nameLabel, alignment=Qt.AlignTop)
 
         # Tag genre
         genres_str = item.get("genres") or ""
         genre_list = [g.strip() for g in genres_str.split(",") if g.strip()][:3]
         if genre_list:
             tagRow = QWidget()
+            tagRow.setFixedHeight(28)
             tagLayout = QHBoxLayout(tagRow)
             tagLayout.setSpacing(6)
             tagLayout.setContentsMargins(0, 0, 0, 0)
@@ -389,24 +399,6 @@ class WishlistWindow(QMainWindow):
         """)
         priceLayout.addWidget(ratingLabel)
 
-        if persen_disc > 0:
-            discLabel = QLabel(f"-{int(persen_disc)}%")
-            discLabel.setStyleSheet(f"""
-                QLabel {{
-                    background-color: {ACCENT}; color: #000000; font-size: 12px;
-                    font-weight: bold; font-family: Arial;
-                    border-radius: 4px; padding: 2px 6px;
-                }}
-            """)
-            priceLayout.addWidget(discLabel)
-
-            origLabel = QLabel(f"Rp {int(harga_reguler):,}".replace(",", "."))
-            origLabel.setStyleSheet(f"""
-                QLabel {{ color: {TEXT2}; font-size: 12px; font-family: Arial;
-                          text-decoration: line-through; }}
-            """)
-            priceLayout.addWidget(origLabel)
-
         saleLabel = QLabel(f"Rp {int(harga_diskon):,}".replace(",", "."))
         saleLabel.setStyleSheet(f"""
             QLabel {{ color: {ACCENT}; font-size: 15px; font-weight: bold; font-family: Arial; }}
@@ -415,7 +407,7 @@ class WishlistWindow(QMainWindow):
         priceLayout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         infoLayout.addWidget(priceRow)
-        layout.addWidget(infoWidget)
+        layout.addWidget(infoWidget, alignment=Qt.AlignTop)
         layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         # Kolom kanan
@@ -432,15 +424,22 @@ class WishlistWindow(QMainWindow):
         rightColLayout.addWidget(dateLabel)
         rightColLayout.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        btnDelete = QPushButton("🗑")
+        _trash_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "assets", "trash.png"
+        )
+        btnDelete = QPushButton()
         btnDelete.setFixedSize(QSize(36, 36))
         btnDelete.setCursor(QCursor(Qt.PointingHandCursor))
+        if os.path.exists(_trash_path):
+            btnDelete.setIcon(QIcon(QPixmap(_trash_path).scaled(18, 18, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            btnDelete.setIconSize(QSize(18, 18))
         btnDelete.setStyleSheet(f"""
             QPushButton {{
-                background-color: rgba(231, 76, 60, 0.1); color: {DANGER};
-                border: 1px solid rgba(231, 76, 60, 0.4); border-radius: 6px; font-size: 14px;
+                background-color: rgba(231, 76, 60, 0.1);
+                border: 1px solid rgba(231, 76, 60, 0.4); border-radius: 6px;
             }}
-            QPushButton:hover {{ background-color: {DANGER}; color: {TEXT1}; }}
+            QPushButton:hover {{ background-color: {DANGER}; }}
         """)
         btnDelete.clicked.connect(
             lambda _, wid=id_wishlist, nm=nama_game:
@@ -448,7 +447,7 @@ class WishlistWindow(QMainWindow):
         )
         rightColLayout.addWidget(btnDelete, alignment=Qt.AlignRight)
 
-        layout.addWidget(rightCol)
+        layout.addWidget(rightCol, alignment=Qt.AlignTop)
         return card
 
     # ── CTA Card ──────────────────────────────────────────────────────

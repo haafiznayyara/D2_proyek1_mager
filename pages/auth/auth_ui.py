@@ -158,7 +158,11 @@ class SuccessRegisterPage(QWidget):
                 border: none;
             }}
         """)
-        pix = QPixmap(_asset("../../assets/tick_filled.png"))
+        _tick_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "assets", "tick_filled.png"
+        )
+        pix = QPixmap(_tick_path)
         if not pix.isNull():
             icon_circle.setPixmap(
                 pix.scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation)
