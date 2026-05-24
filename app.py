@@ -64,19 +64,16 @@ class Router(QStackedWidget):
         self.wishlist_logic.on_add_clicked(game)
 
     def _on_wishlist_toggled(self, id_game: str, status: bool):
-        from PyQt5.QtWidgets import QFrame
-        for page in [self.page_dashboard, self.page_popular, self.page_filter_harga]:
-            for card in page.findChildren(QFrame):
-                if hasattr(card, 'set_wishlisted') and hasattr(card, 'game'):
-                    if str(card.game.get("id")) == str(id_game):
-                        card.set_wishlisted(status)
+        id_user = self.current_user.get("id_user") if self.current_user else None
+        if id_user is not None:
+            from pages.wishlist.wishlist_logic import fetch_wishlist
+            _wishlist_ids = {str(item["id_game"]) for item in fetch_wishlist(id_user)}
+            self._sync_wishlist_icons(_wishlist_ids)
     
     def _sync_wishlist_icons(self, wishlist_ids: set):
-        for page in [self.page_dashboard, self.page_popular, self.page_filter_harga]:
-            for card in page.findChildren(QFrame):
-                if hasattr(card, 'set_wishlisted') and hasattr(card, 'game'):
-                    game_id = str(card.game.get("id", ""))
-                    card.set_wishlisted(game_id in wishlist_ids)
+        self.page_dashboard.grid_widget.sync_wishlist(wishlist_ids)
+        self.page_popular.grid.sync_wishlist(wishlist_ids)
+        self.page_filter_harga.grid.sync_wishlist(wishlist_ids)
     
     def _go_to_profile(self):
         if hasattr(self, 'profile_logic') and self.profile_logic:

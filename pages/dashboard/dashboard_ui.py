@@ -28,6 +28,7 @@ class GamesGrid(QWidget):
         super().__init__()
         self._all_games = games
         self.cards = []
+        self._wishlist_ids = set()
         self.setStyleSheet(f"background: {BG};")
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
@@ -62,6 +63,7 @@ class GamesGrid(QWidget):
             card.wishlist_clicked.connect(self.wishlist_clicked)          
             self.cards.append(card)
         self._relayout()
+        self.sync_wishlist(self._wishlist_ids)
 
     def _relayout(self):
         if not self.cards:
@@ -91,6 +93,12 @@ class GamesGrid(QWidget):
 
     def filter(self, cat, query=""):
         self._populate(filter_games(self._all_games, cat, query))
+
+    def sync_wishlist(self, wishlist_ids: set):   # tambah method ini
+        self._wishlist_ids = wishlist_ids
+        for card in self.cards:
+            if hasattr(card, 'set_wishlisted'):
+                card.set_wishlisted(str(card.game.get("id", "")) in wishlist_ids)
 
     def resizeEvent(self, e):
         super().resizeEvent(e)
