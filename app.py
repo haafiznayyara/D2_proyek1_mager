@@ -88,6 +88,7 @@ class Router(QStackedWidget):
 
         # ── Buat semua halaman ──────────────────────────────────────────
         self.current_user = None   # diisi saat login berhasil
+        self.all_games = games
 
         self.page_dashboard = MainWindow(games)
         self.page_detail    = GameDetailWindow()
@@ -193,6 +194,9 @@ class Router(QStackedWidget):
         self.page_profile.logout_clicked.connect(
             self._on_logout
         )
+        self.page_profile.game_detail_requested.connect(
+            self._open_detail_by_id
+        )
         
         #ROUTE POPULAR
         self.page_popular.nav.dashboard_clicked.connect(
@@ -294,6 +298,25 @@ class Router(QStackedWidget):
             page.nav.update_wishlist_count(_initial_count)
         self.page_profile.update_wishlist_count(_initial_count)
 
+        # Auto-refresh profile saat like/dislike/wishlist/review berubah di game detail
+        try:
+            self.page_detail.like_status_changed.disconnect()
+            self.page_detail.review_submitted.disconnect()
+            self.page_detail.wishlist_changed.disconnect()
+        except TypeError:
+            pass
+        self.page_detail.like_status_changed.connect(self.profile_logic.refresh)
+        self.page_detail.review_submitted.connect(self.profile_logic.refresh)
+        self.page_detail.wishlist_changed.connect(self.profile_logic.refresh)
+        self.page_detail.wishlist_changed.connect(
+            lambda: self.wishlist_logic.load_wishlist() if self.wishlist_logic else None
+        )
+        self.page_detail.wishlist_changed.connect(
+            lambda: self._sync_wishlist_icons(
+                {str(item["id_game"]) for item in fetch_wishlist(self.current_user["id_user"])}
+            ) if self.current_user else None
+        )
+
         self.go_to(self.PAGE_DASHBOARD)
 
     def _on_register_success(self):
@@ -311,8 +334,14 @@ class Router(QStackedWidget):
             except TypeError:
                 pass
             self.wishlist_logic = None
-        self.current_user = None
+        pass 
         self.go_to(self.PAGE_LOGIN)
+
+    def _open_detail_by_id(self, id_game: int):
+        """Buka halaman detail berdasarkan id_game (dipakai dari profile)."""
+        game = next((g for g in self.all_games if g["id"] == id_game), None)
+        if game:
+            self._open_detail(game)
 
     def _open_detail(self, game: dict):
         """Buka halaman detail dengan data game yang diklik."""

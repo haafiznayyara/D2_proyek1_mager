@@ -245,6 +245,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
     logout_clicked   = QtCore.pyqtSignal()
     photo_changed    = QtCore.pyqtSignal(str)   # membawa path foto asli
     save_requested   = QtCore.pyqtSignal(str)   # membawa username baru
+    game_detail_requested = QtCore.pyqtSignal(int)   # membawa ID game
 
     # ── Metode publik (dipanggil dari logic/router) ───────────────────
     def _resolve_photo_path(self, foto_profil: str) -> str:
@@ -291,13 +292,6 @@ class ProfileWindow(QtWidgets.QMainWindow):
         painter.end()
         self.avatarLabel.setPixmap(rounded)
         self.avatarLabel.setText("")
-
-    def update_wishlist_count(self, jumlah: int):
-        """Update label total game di card Riwayat Wishlist."""
-        for lbl in self.cardWishlist.findChildren(QtWidgets.QLabel):
-            if lbl.text().startswith("Total:"):
-                lbl.setText(f"Total: {jumlah} Game")
-                break
 
     # ── Slot internal ─────────────────────────────────────────────────
 
@@ -524,18 +518,64 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
             return card
 
-        self.cardLike = make_card(
-            "cardLike", "Vector.png", "Riwayat Like", "#FFFFFF",
-            "Total: 0 Game", "Belum ada game yang di-like"
-        )
-        self.cardDislike = make_card(
-            "cardDislike", "Vector (2).png", "Riwayat Dislike", "#FFFFFF",
-            "Total: 0 Game", "Belum ada game yang di-dislike"
-        )
-        self.cardKomentar = make_card(
-            "cardKomentar", "Vector (1).png", "Riwayat Komentar", "#FFFFFF",
-            "Total: 0 Game", "Belum ada komentar"
-        )
+        def make_list_card(obj_name, icon_png, title_text, empty_text):
+            card = QtWidgets.QWidget()
+            card.setObjectName(obj_name)
+            card.setMinimumHeight(250)
+            card.setMaximumHeight(250)
+            vbox = QtWidgets.QVBoxLayout(card)
+            vbox.setContentsMargins(20, 20, 20, 20)
+            vbox.setSpacing(8)
+
+            title_row = QtWidgets.QHBoxLayout()
+            title_row.setSpacing(8)
+            title_row.addWidget(make_icon_label(icon_png, 20))
+            title_lbl = QtWidgets.QLabel(title_text)
+            title_lbl.setStyleSheet(
+                "color: #FFFFFF; font-size: 16px; font-weight: bold; font-family: 'Segoe UI';"
+            )
+            title_row.addWidget(title_lbl)
+            title_row.addStretch()
+            vbox.addLayout(title_row)
+
+            total_lbl = QtWidgets.QLabel("Total: 0 Game")
+            total_lbl.setStyleSheet("color: #8B96A5; font-size: 12px; font-family: 'Segoe UI';")
+            vbox.addWidget(total_lbl)
+
+            scroll = QtWidgets.QScrollArea()
+            scroll.setWidgetResizable(True)
+            scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
+            scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            scroll.setStyleSheet("""
+                QScrollArea { background: transparent; border: none; }
+                QScrollBar:vertical { background: #0d1829; width: 5px; border-radius: 2px; }
+                QScrollBar::handle:vertical { background: #2A3647; border-radius: 2px; }
+                QScrollBar::add-line, QScrollBar::sub-line { height: 0; }
+            """)
+
+            container = QtWidgets.QWidget()
+            container.setStyleSheet("background: transparent;")
+            list_layout = QtWidgets.QVBoxLayout(container)
+            list_layout.setContentsMargins(0, 0, 0, 0)
+            list_layout.setSpacing(4)
+
+            empty_lbl = QtWidgets.QLabel(empty_text)
+            empty_lbl.setAlignment(QtCore.Qt.AlignCenter)
+            empty_lbl.setStyleSheet("color: #515050; font-size: 12px; font-family: 'Segoe UI';")
+            list_layout.addWidget(empty_lbl)
+            list_layout.addStretch()
+
+            scroll.setWidget(container)
+            vbox.addWidget(scroll)
+
+            card._total_lbl   = total_lbl
+            card._list_layout = list_layout
+            card._empty_text  = empty_text
+            return card
+
+        self.cardLike     = make_list_card("cardLike",     "Vector.png",       "Riwayat Like",     "Belum ada game yang di-like")
+        self.cardDislike  = make_list_card("cardDislike",  "Vector (2).png",   "Riwayat Dislike",  "Belum ada game yang di-dislike")
+        self.cardKomentar = make_list_card("cardKomentar", "Vector (1).png",   "Riwayat Komentar", "Belum ada komentar")
 
         self.btnWishlist = QtWidgets.QPushButton("Lihat Wishlist")
         self.btnWishlist.setObjectName("btnWishlist")
@@ -564,9 +604,102 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
         contentVLayout.addLayout(mainContentLayout)
         self.mainVLayout.addWidget(self.contentWidget)
-        
+
     def load_genre_chart(self, genres: list[dict]):
         self.genreChart.set_data(genres)
+
+    def update_wishlist_count(self, jumlah: int):
+        """Update label total game di card Riwayat Wishlist."""
+        for lbl in self.cardWishlist.findChildren(QtWidgets.QLabel):
+            if lbl.text().startswith("Total:"):
+                lbl.setText(f"Total: {jumlah} Game")
+                break
+
+    def update_like_dislike_list(self, games: list[dict]):
+        """Isi card Like dan Dislike dengan list game."""
+        liked    = [g for g in games if g["type"] == "like"]
+        disliked = [g for g in games if g["type"] == "dislike"]
+
+        def _fill(card, items, icon_file, empty_text):
+            layout = card._list_layout
+            while layout.count():
+                item = layout.takeAt(0)
+                if item.widget():
+                    item.widget().deleteLater()
+
+            card._total_lbl.setText(f"Total: {len(items)} Game")
+
+            if not items:
+                lbl = QtWidgets.QLabel(empty_text)
+                lbl.setAlignment(QtCore.Qt.AlignCenter)
+                lbl.setStyleSheet("color: #515050; font-size: 12px; font-family: 'Segoe UI';")
+                layout.addWidget(lbl)
+            else:
+                for g in items:
+                    row = QtWidgets.QWidget()
+                    row.setStyleSheet("background: #0d1829; border-radius: 6px; border: none; ")
+                    row.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+                    rh = QtWidgets.QHBoxLayout(row)
+                    rh.setContentsMargins(10, 7, 10, 7)
+                    name_lbl = QtWidgets.QLabel(g["nama_game"])
+                    name_lbl.setStyleSheet("color: #c9d1e0; font-size: 12px; font-family: 'Segoe UI'; background: transparent;")
+                    ico = QtWidgets.QLabel()
+                    ico.setFixedSize(16, 16)
+                    ico.setScaledContents(True)
+                    ico.setPixmap(QtGui.QPixmap(icon_path(icon_file)))
+                    ico.setStyleSheet("background: transparent;")
+                    rh.addWidget(name_lbl)
+                    rh.addStretch()
+                    rh.addWidget(ico)
+                    _gid = g["id_game"]
+                    row.mousePressEvent = lambda _, gid=_gid: self.game_detail_requested.emit(gid)
+                    row.enterEvent      = lambda _, r=row: r.setStyleSheet("background: #0d1829; border-radius: 6px; border: none; ")
+                    row.leaveEvent      = lambda _, r=row: r.setStyleSheet("background: #0d1829; border-radius: 6px; border: none; ")
+                    layout.addWidget(row)
+            layout.addStretch()
+
+        _fill(self.cardLike,    liked,    "Vector.png",     "Belum ada game yang di-like")
+        _fill(self.cardDislike, disliked, "Vector (2).png", "Belum ada game yang di-dislike")
+
+    def update_review_list(self, reviews: list[dict]):
+        """Isi card Komentar dengan list review."""
+        layout = self.cardKomentar._list_layout
+        while layout.count():
+            item = layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        self.cardKomentar._total_lbl.setText(f"Total: {len(reviews)} Game")
+
+        if not reviews:
+            lbl = QtWidgets.QLabel("Belum ada komentar")
+            lbl.setAlignment(QtCore.Qt.AlignCenter)
+            lbl.setStyleSheet("color: #515050; font-size: 12px; font-family: 'Segoe UI';")
+            layout.addWidget(lbl)
+        else:
+            for r in reviews:
+                row = QtWidgets.QWidget()
+                row.setStyleSheet("background: #0d1829; border-radius: 6px; border: none;")
+                row.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+                rv = QtWidgets.QVBoxLayout(row)
+                rv.setContentsMargins(10, 8, 10, 8)
+                rv.setSpacing(3)
+                name_lbl = QtWidgets.QLabel(r["nama_game"])
+                name_lbl.setStyleSheet("color: #4ADE80; font-size: 12px; font-weight: bold; font-family: 'Segoe UI'; background: transparent;")
+                rv.addWidget(name_lbl)
+                preview = (r.get("review_gameplay") or r.get("review_cerita") or r.get("review_grafik") or "").strip()
+                if len(preview) > 60:
+                    preview = preview[:60] + "..."
+                if preview:
+                    text_lbl = QtWidgets.QLabel(preview)
+                    text_lbl.setStyleSheet("color: #7b8db0; font-size: 11px; font-family: 'Segoe UI'; background: transparent;")
+                    rv.addWidget(text_lbl)
+                _gid = r["id_game"]
+                row.mousePressEvent = lambda _, gid=_gid: self.game_detail_requested.emit(gid)
+                row.enterEvent      = lambda _, rw=row: rw.setStyleSheet("background: #0d1829; border-radius: 6px; border: none;")
+                row.leaveEvent      = lambda _, rw=row: rw.setStyleSheet("background: #0d1829; border-radius: 6px; border: none;")
+                layout.addWidget(row)
+        layout.addStretch()
 
 
 # ── Entry point ───────────────────────────────────────────────────────

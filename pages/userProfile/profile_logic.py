@@ -81,6 +81,47 @@ def fetch_favorite_genres(id_user: int) -> list[dict]:
         conn.close()
 
 
+def fetch_liked_games(id_user: int) -> list[dict]:
+    """Ambil semua game yang di-like/dislike user."""
+    sql = """
+        SELECT g.id_game, g.nama_game, gl.type
+        FROM game_likes gl
+        JOIN game g ON gl.id_game = g.id_game
+        WHERE gl.id_user = %s
+    """
+    try:
+        conn = get_connection()
+        with conn.cursor(pymysql.cursors.DictCursor) as cur:
+            cur.execute(sql, (id_user,))
+            return cur.fetchall() or []
+    except Exception as e:
+        print(f"[fetch_liked_games] Error: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def fetch_user_reviews(id_user: int) -> list[dict]:
+    """Ambil semua review yang ditulis user."""
+    sql = """
+        SELECT g.id_game, g.nama_game, r.review_gameplay, r.review_cerita, r.review_grafik
+        FROM review r
+        JOIN game g ON r.id_game = g.id_game
+        WHERE r.id_user = %s
+        ORDER BY r.id_review DESC
+    """
+    try:
+        conn = get_connection()
+        with conn.cursor(pymysql.cursors.DictCursor) as cur:
+            cur.execute(sql, (id_user,))
+            return cur.fetchall() or []
+    except Exception as e:
+        print(f"[fetch_user_reviews] Error: {e}")
+        return []
+    finally:
+        conn.close()
+
+
 def update_display_name(id_user: int, display_name: str) -> bool:
     conn = get_connection()
     try:
@@ -138,6 +179,19 @@ def update_foto_profil(id_user: int, src_path: str) -> str | None:
 
 # ── Logic Class ───────────────────────────────────────────────────────
 
+def fetch_wishlist_count(id_user: int) -> int:
+    try:
+        conn = get_connection()
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM wishlist WHERE id_user = %s", (id_user,))
+            return cur.fetchone()[0] or 0
+    except Exception as e:
+        print(f"[fetch_wishlist_count] Error: {e}")
+        return 0
+    finally:
+        conn.close()
+
+
 class ProfileLogic(QObject):
     """
     Logic layer Profile.
@@ -175,11 +229,20 @@ class ProfileLogic(QObject):
         user = fetch_user(self.id_user)
         if user:
             self.ui.load_user(user)
-            
+
         genres = fetch_favorite_genres(self.id_user)
         self.ui.load_genre_chart(genres)
-        
-    def refresh(self):        
+
+        games = fetch_liked_games(self.id_user)
+        self.ui.update_like_dislike_list(games)
+
+        reviews = fetch_user_reviews(self.id_user)
+        self.ui.update_review_list(reviews)
+
+        wishlist_count = fetch_wishlist_count(self.id_user)
+        self.ui.update_wishlist_count(wishlist_count)
+
+    def refresh(self):
         self._load_user()
 
     def on_save_display_name(self, new_display: str):
