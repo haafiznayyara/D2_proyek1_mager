@@ -183,7 +183,7 @@ class WishlistLogic(QObject):
         if btn is not None:
             try:
                 btn.clicked.disconnect(self._on_jelajahi_clicked)
-            except TypeError:
+            except (TypeError, RuntimeError):
                 pass
             btn.clicked.connect(self._on_jelajahi_clicked)
 
