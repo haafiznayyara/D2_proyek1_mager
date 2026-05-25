@@ -7,7 +7,7 @@ import pymysql
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox
 
-from pages.wishlist.wishlist_ui import DeleteConfirmDialog
+from widget.confirm_dialog import ConfirmDialog
 
 
 # ── Konfigurasi koneksi database ──────────────────────────────────────
@@ -211,7 +211,12 @@ class WishlistLogic(QObject):
 
     def on_delete_clicked(self, id_wishlist: int, nama_game: str):
         """Tampilkan custom dialog konfirmasi lalu hapus jika dikonfirmasi."""
-        dialog = DeleteConfirmDialog(nama_game, parent=self.ui)
+        dialog = ConfirmDialog(
+            title="Konfirmasi Penghapusan",
+            message=f"Apakah Anda yakin ingin menghapus <b>{nama_game}</b> dari wishlist?",
+            confirm_text="Ya, Hapus",
+            parent=self.ui
+)
         dialog.exec_()
 
         if not dialog.confirmed():
