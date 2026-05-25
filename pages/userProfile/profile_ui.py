@@ -12,6 +12,7 @@ from widget.navbar import Navbar
 from pages.userProfile.crop_dialog import CropDialog
 from PyQt5.QtGui import QPainter, QColor, QFont, QBrush, QPen, QIcon
 from PyQt5.QtCore import QSize, Qt, QRect
+from widget.confirm_dialog import ConfirmDialog
 
 STYLESHEET = """
 QMainWindow {
@@ -710,11 +711,15 @@ class ProfileWindow(QtWidgets.QMainWindow):
     
     # Alert dialog untuk konfirmasi logout
     def _on_logout_clicked(self):
-        dialog = QDialog(self)
-        dialog.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
-        dialog.setAttribute(Qt.WA_TranslucentBackground)
-        dialog.setModal(True)
-        dialog.setFixedWidth(400)
+        dialog = ConfirmDialog(
+            title="Konfirmasi Logout",
+            message="Apakah Anda yakin ingin logout dari akun sekarang?",
+            confirm_text="Ya, Logout",
+            parent=self
+        )
+        dialog.exec_()
+        if dialog.confirmed():
+            self.logout_clicked.emit()
 
         wrapper = QtWidgets.QWidget(dialog)
         wrapper.setObjectName("dlgWrapper")
