@@ -25,6 +25,71 @@ TAG_BG       = "#2A3647"
 DANGER       = "#e74c3c"
 DANGER_HOVER = "#c0392b"
 
+class RatingRingWidget(QWidget):
+    def __init__(self, value: int, parent=None):
+        super().__init__(parent)
+        self._value = max(0, min(100, int(value)))
+        self.setFixedSize(QSize(48, 48))
+
+    def _ring_color(self) -> QColor:
+        if self._value >= 90:
+            return QColor("#4ADE80")
+        elif self._value >= 75:
+            return QColor("#FACC15")
+        else:
+            return QColor("#e74c3c")
+
+    def paintEvent(self, event):
+        from PyQt5.QtGui import QPen, QFont
+        size   = min(self.width(), self.height())
+        margin = 4
+        rect   = self.rect().adjusted(margin, margin, -margin, -margin)
+
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+
+        # ── Track (lingkaran abu-abu di belakang) ──────────────────
+        pen_track = QPen(QColor("#2A3647"), 4, Qt.SolidLine, Qt.RoundCap)
+        p.setPen(pen_track)
+        p.setBrush(Qt.NoBrush)
+        p.drawEllipse(rect)
+
+        # ── Arc terisi sesuai persentase ───────────────────────────
+        pen_arc = QPen(self._ring_color(), 4, Qt.SolidLine, Qt.RoundCap)
+        p.setPen(pen_arc)
+        # drawArc: sudut dalam 1/16 derajat, mulai dari jam 12 (90°)
+        start_angle = 90 * 16
+        span_angle  = -int(360 * 16 * self._value / 100)
+        p.drawArc(rect, start_angle, span_angle)
+
+        # ── Teks angka di tengah ───────────────────────────────────
+        font = QFont("Arial", 11, QFont.Bold)
+        p.setFont(font)
+        p.setPen(self._ring_color())
+        p.drawText(self.rect(), Qt.AlignCenter, str(self._value))
+
+        p.end()
+        
+class ClickableCard(QWidget):
+    clicked = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setCursor(QCursor(Qt.PointingHandCursor))
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self._pressed = False
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._pressed = True
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton and self._pressed:
+            if self.rect().contains(event.pos()):
+                self.clicked.emit()
+        self._pressed = False
+        super().mouseReleaseEvent(event)
 
 # ══════════════════════════════════════════════════════════════════════
 #  CUSTOM DIALOG: Konfirmasi Penghapusan
@@ -170,6 +235,7 @@ class DeleteConfirmDialog(QDialog):
 # ══════════════════════════════════════════════════════════════════════
 class WishlistWindow(QMainWindow):
     delete_requested = pyqtSignal(int, str)
+    game_clicked = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -300,21 +366,25 @@ class WishlistWindow(QMainWindow):
         nama_game     = item.get("nama_game", "—")
         harga_reguler = item.get("harga_reguler") or 0
         harga_diskon  = item.get("harga_diskon") or harga_reguler
-        persen_disc   = item.get("persen_diskon") or 0
         rating        = item.get("rating") or 0
         tgl           = item.get("tanggal_ditambahkan")
         tgl_str       = tgl.strftime("%d %B %Y").lstrip("0") if tgl else "—"
 
-        card = QWidget()
+        id_game = str(item.get("id_game", ""))
+
+        card = ClickableCard()
         card.setObjectName(f"wcard_{id_wishlist}")
         card.setStyleSheet(f"""
-            QWidget#wcard_{id_wishlist} {{
+            #wcard_{id_wishlist} {{
                 background-color: {CARD};
                 border: 1px solid {BORDER};
                 border-radius: 8px;
             }}
-            QWidget#wcard_{id_wishlist}:hover {{ border: 1px solid {ACCENT_HOVER}; }}
+            #wcard_{id_wishlist}:hover {{
+                border: 1px solid {ACCENT_HOVER};
+            }}
         """)
+        card.clicked.connect(lambda checked=False, gid=id_game: self.game_clicked.emit(gid))
 
         layout = QHBoxLayout(card)
         layout.setContentsMargins(16, 16, 16, 16)
@@ -387,17 +457,8 @@ class WishlistWindow(QMainWindow):
         priceLayout.setSpacing(8)
         priceLayout.setContentsMargins(0, 0, 0, 0)
 
-        ratingLabel = QLabel(str(int(rating)))
-        ratingLabel.setFixedSize(QSize(44, 44))
-        ratingLabel.setAlignment(Qt.AlignCenter)
-        ratingLabel.setStyleSheet(f"""
-            QLabel {{
-                background-color: transparent; color: {ACCENT}; font-size: 12px;
-                font-weight: bold; font-family: Arial;
-                border: 3px solid {ACCENT}; border-radius: 22px;
-            }}
-        """)
-        priceLayout.addWidget(ratingLabel)
+        ratingRing = RatingRingWidget(int(rating))
+        priceLayout.addWidget(ratingRing)
 
         saleLabel = QLabel(f"Rp {int(harga_diskon):,}".replace(",", "."))
         saleLabel.setStyleSheet(f"""

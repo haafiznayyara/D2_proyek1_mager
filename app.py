@@ -170,6 +170,7 @@ class Router(QStackedWidget):
         self.page_wishlist.nav.profile_clicked.connect(
             self._go_to_profile
         )
+        
         self.page_wishlist.nav.dashboard_clicked.connect(
             lambda: self.go_to(self.PAGE_DASHBOARD)
         )
@@ -260,6 +261,17 @@ class Router(QStackedWidget):
             counts = fetch_like_dislike_count(self.current_user["id_user"])
             self.page_profile.update_like_dislike_count(counts["like"], counts["dislike"])
     
+    def _buka_detail_game(self, id_game: str):
+        """Dipanggil saat card di wishlist diklik → buka halaman detail game."""
+        game = next(
+            (g for g in self.all_games if str(g["id"]) == str(id_game)),
+            None
+        )
+        if game:
+            self._open_detail(game)
+        else:
+            print(f"[Router] Game id={id_game} tidak ditemukan di all_games")
+    
     def _on_login(self, user: dict):
         print(f"[DEBUG] Login berhasil: {user}")
         self.current_user = user
@@ -268,6 +280,8 @@ class Router(QStackedWidget):
         id_user = user.get("id_user", 1)
         self.wishlist_logic = WishlistLogic(self.page_wishlist, id_user)
         self.profile_logic = ProfileLogic(self.page_profile, id_user)
+        
+        self.wishlist_logic.go_to_game_detail.connect(self._buka_detail_game)
 
         # Navigasi: "Jelajahi Game" & "← Kembali" → Dashboard
         self.wishlist_logic.go_to_dashboard.connect(

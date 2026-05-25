@@ -161,6 +161,7 @@ def count_wishlist(id_user: int) -> int:
 
 class WishlistLogic(QObject):
     go_to_dashboard = pyqtSignal()
+    go_to_game_detail  = pyqtSignal(str) 
     wishlist_count_changed = pyqtSignal(int)
     wishlist_toggled = pyqtSignal(str, bool)
 
@@ -171,6 +172,7 @@ class WishlistLogic(QObject):
 
         self._connect_static_nav()
         self.load_wishlist()
+        self.ui.game_clicked.connect(self._on_game_clicked)
 
     def _connect_static_nav(self):
         for btn_name in ("btnKembali", "btnJelajahiGame2"):
@@ -224,6 +226,11 @@ class WishlistLogic(QObject):
                 "Gagal",
                 "Terjadi kesalahan saat menghapus item.\nSilakan coba lagi.",
             )
+    
+    def _on_game_clicked(self, id_game: str):
+        """Diteruskan ke MainWindow/router untuk membuka halaman detail game."""
+        self.go_to_game_detail.emit(id_game)
+    
     def on_add_clicked(self, game: dict):
         id_game = game.get("id")
         if is_in_wishlist(self.id_user, id_game):
