@@ -154,7 +154,9 @@ class Router(QStackedWidget):
         self.page_detail.nav_cheapest_clicked.connect(
             lambda: self.setCurrentWidget(self.page_filter_harga)
         )
-
+        self.page_detail.like_status_changed.connect(self._on_like_status_changed)
+        
+        
         # ROUTE WISHLIST
         self.page_wishlist.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
@@ -188,6 +190,9 @@ class Router(QStackedWidget):
         self.page_profile.nav.popular_clicked.connect(
             lambda: self.go_to(self.PAGE_POPULAR)
         )
+        self.page_profile.nav.cheapest_clicked.connect(
+            lambda: self.go_to(self.PAGE_FILTER_HARGA)
+        )
         self.page_profile.wishlist_clicked.connect(
             self._go_to_wishlist
         )
@@ -198,6 +203,7 @@ class Router(QStackedWidget):
             self._open_detail_by_id
         )
         
+        self.page_detail.review_submitted.connect(self._on_review_submitted_profile)
         #ROUTE POPULAR
         self.page_popular.nav.dashboard_clicked.connect(
             lambda: self.go_to(self.PAGE_DASHBOARD)
@@ -248,6 +254,11 @@ class Router(QStackedWidget):
             self.wishlist_logic.load_wishlist()
         self.go_to(self.PAGE_WISHLIST)       
     
+    def _on_like_status_changed(self):
+        if self.current_user and hasattr(self, 'profile_logic'):
+            from pages.userProfile.profile_logic import fetch_like_dislike_count
+            counts = fetch_like_dislike_count(self.current_user["id_user"])
+            self.page_profile.update_like_dislike_count(counts["like"], counts["dislike"])
     
     def _on_login(self, user: dict):
         print(f"[DEBUG] Login berhasil: {user}")
@@ -352,6 +363,14 @@ class Router(QStackedWidget):
             self.game_loader.load(game_id)
             
         self.go_to(self.PAGE_DETAIL)
+        
+    def _on_review_submitted_profile(self):
+        print("[_on_review_submitted_profile] dipanggil") 
+        if self.current_user and hasattr(self, 'profile_logic'):
+            from pages.userProfile.profile_logic import fetch_user_reviews
+            reviews = fetch_user_reviews(self.current_user["id_user"])
+            print(f"[_on_review_submitted_profile] dapat {len(reviews)} review")
+            self.page_profile.update_review_list(reviews)
 
 def main():
     app = QApplication(sys.argv)

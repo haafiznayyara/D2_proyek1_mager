@@ -79,7 +79,28 @@ def fetch_favorite_genres(id_user: int) -> list[dict]:
         return []
     finally:
         conn.close()
+        
 
+def fetch_like_dislike_count(id_user: int) -> dict:
+    sql = """
+        SELECT type, COUNT(*) as total
+        FROM game_likes
+        WHERE id_user = %s
+        GROUP BY type
+    """
+    try:
+        conn = get_connection()
+        with conn.cursor(pymysql.cursors.DictCursor) as cur:
+            cur.execute(sql, (id_user,))
+            rows = cur.fetchall()
+        conn.close()
+        result = {"like": 0, "dislike": 0}
+        for row in rows:
+            result[row["type"]] = int(row["total"])
+        return result
+    except Exception as e:
+        print(f"[fetch_like_dislike_count] Error: {e}")
+        return {"like": 0, "dislike": 0}
 
 def fetch_liked_games(id_user: int) -> list[dict]:
     """Ambil semua game yang di-like/dislike user."""
@@ -224,6 +245,14 @@ class ProfileLogic(QObject):
         # Load data user terbaru dari DB
         self._load_user()
 
+        # Load like/dislike count
+        counts = fetch_like_dislike_count(self.id_user)
+        self.ui.update_like_dislike_count(counts["like"], counts["dislike"])
+        games = fetch_liked_games(self.id_user)
+        self.ui.update_like_dislike_list(games)
+        reviews = fetch_user_reviews(self.id_user)
+        self.ui.update_review_list(reviews)
+
     def _load_user(self):
         """Ambil data user dari DB dan tampilkan ke UI."""
         user = fetch_user(self.id_user)
@@ -244,6 +273,12 @@ class ProfileLogic(QObject):
 
     def refresh(self):
         self._load_user()
+        counts = fetch_like_dislike_count(self.id_user)
+        self.ui.update_like_dislike_count(counts["like"], counts["dislike"])
+        games = fetch_liked_games(self.id_user)
+        self.ui.update_like_dislike_list(games)
+        reviews = fetch_user_reviews(self.id_user)
+        self.ui.update_review_list(reviews)
 
     def on_save_display_name(self, new_display: str):
         if not new_display:

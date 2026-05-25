@@ -421,7 +421,8 @@ class GameDetailWindow(QWidget):
         self._game: dict           = {}
         self._user_id: int         = None
         self._raw_cover: QPixmap | None = None
-        self._current_user_id: int = 1
+        self._current_user_id: int  = 1
+        
 
         self._loader = GameDetailLoader(self)
         self._loader.game_ready.connect(self._on_game_ready)
@@ -652,7 +653,11 @@ class GameDetailWindow(QWidget):
         self._btn_submit_review.setEnabled(False)
         self._btn_submit_review.setText("Menyimpan...")
         self._review_status.setText("")
-        self._submitter.submit(game_id, self._user_id, gameplay, cerita, grafik)
+
+        self._submitter.submit(
+            game_id, self._user_id,
+            gameplay, cerita, grafik
+        )
 
     def _on_review_submitted(self, ok: bool):
         self._btn_submit_review.setEnabled(True)
@@ -666,6 +671,7 @@ class GameDetailWindow(QWidget):
                 f"color:{GREEN};font-size:11px;background:transparent;"
             )
             game_id = self._game.get("id")
+            
             if game_id:
                 QTimer.singleShot(300, lambda: self._loader.load(game_id))
             self.review_submitted.emit()
