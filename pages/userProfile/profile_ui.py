@@ -716,6 +716,71 @@ class ProfileWindow(QtWidgets.QMainWindow):
         dialog.setModal(True)
         dialog.setFixedWidth(400)
 
+<<<<<<< HEAD
+=======
+        wrapper = QtWidgets.QWidget(dialog)
+        wrapper.setObjectName("dlgWrapper")
+        wrapper.setStyleSheet("""
+            QWidget#dlgWrapper {
+                background-color: #1A2332;
+                border: 1px solid #2A3647;
+                border-radius: 12px;
+            }
+        """)
+
+        shadow = QGraphicsDropShadowEffect(dialog)
+        shadow.setBlurRadius(30)
+        shadow.setOffset(0, 8)
+        shadow.setColor(QColor(0, 0, 0, 160))
+        wrapper.setGraphicsEffect(shadow)
+
+        outerLayout = QVBoxLayout(dialog)
+        outerLayout.setContentsMargins(16, 16, 16, 16)
+        outerLayout.addWidget(wrapper)
+
+        innerLayout = QVBoxLayout(wrapper)
+        innerLayout.setContentsMargins(28, 28, 28, 24)
+        innerLayout.setSpacing(16)
+
+        titleLabel = QtWidgets.QLabel("Konfirmasi Logout")
+        titleLabel.setAlignment(Qt.AlignCenter)
+        titleLabel.setStyleSheet("color: #FFFFFF; font-size: 16px; font-weight: bold; font-family: 'Segoe UI';")
+        innerLayout.addWidget(titleLabel)
+
+        msgLabel = QtWidgets.QLabel("Apakah kamu yakin ingin keluar\ndari akun ini?")
+        msgLabel.setAlignment(Qt.AlignCenter)
+        msgLabel.setWordWrap(True)
+        msgLabel.setStyleSheet("color: #8B96A5; font-size: 13px; font-family: 'Segoe UI';")
+        innerLayout.addWidget(msgLabel)
+
+        btnRow = QHBoxLayout()
+        btnRow.setSpacing(12)
+
+        btnYa = QtWidgets.QPushButton("Ya, Logout")
+        btnYa.setFixedHeight(40)
+        btnYa.setCursor(QtGui.QCursor(Qt.PointingHandCursor))
+        btnYa.setStyleSheet("""
+            QPushButton { background-color: #5c1a1a; color: #e05555; font-size: 13px;
+                        font-weight: bold; border: none; border-radius: 8px; }
+            QPushButton:hover { background-color: #701f1f; }
+        """)
+        btnYa.clicked.connect(dialog.accept)
+
+        btnBatal = QtWidgets.QPushButton("Batal")
+        btnBatal.setFixedHeight(40)
+        btnBatal.setCursor(QtGui.QCursor(Qt.PointingHandCursor))
+        btnBatal.setStyleSheet("""
+            QPushButton { background-color: transparent; color: #FFFFFF; font-size: 13px;
+                        font-weight: bold; border: 1px solid #2A3647; border-radius: 8px; }
+            QPushButton:hover { background-color: #1A2332; border: 1px solid #8B96A5; }
+        """)
+        btnBatal.clicked.connect(dialog.reject)
+
+        btnRow.addWidget(btnYa)
+        btnRow.addWidget(btnBatal)
+        innerLayout.addLayout(btnRow)
+
+>>>>>>> 7a31116d5245f12c7797fe6faf4843716bbe5727
     def update_wishlist_count(self, jumlah: int):
         """Update label total game di card Riwayat Wishlist."""
         for lbl in self.cardWishlist.findChildren(QtWidgets.QLabel):
