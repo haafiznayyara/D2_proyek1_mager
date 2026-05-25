@@ -410,7 +410,7 @@ class FilterHargaWindow(QWidget):
         root.setSpacing(0)
         
         # ── Navbar ────────────────────────────────────────────────────────
-        self.nav = Navbar(active_page="cheapest")
+        self.nav = Navbar(active_page="cheapest", show_search=True)
         self.nav.setAttribute(Qt.WA_StyledBackground, True)
         self.nav.setStyleSheet("background: #000000;")
         root.addWidget(self.nav)
