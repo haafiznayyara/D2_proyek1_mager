@@ -716,8 +716,6 @@ class ProfileWindow(QtWidgets.QMainWindow):
         dialog.setModal(True)
         dialog.setFixedWidth(400)
 
-<<<<<<< HEAD
-=======
         wrapper = QtWidgets.QWidget(dialog)
         wrapper.setObjectName("dlgWrapper")
         wrapper.setStyleSheet("""
@@ -780,7 +778,6 @@ class ProfileWindow(QtWidgets.QMainWindow):
         btnRow.addWidget(btnBatal)
         innerLayout.addLayout(btnRow)
 
->>>>>>> 7a31116d5245f12c7797fe6faf4843716bbe5727
     def update_wishlist_count(self, jumlah: int):
         """Update label total game di card Riwayat Wishlist."""
         for lbl in self.cardWishlist.findChildren(QtWidgets.QLabel):
