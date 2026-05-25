@@ -293,7 +293,7 @@ class PopularGamesWindow(QMainWindow):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        self.nav = Navbar(active_page="popular")
+        self.nav = Navbar(active_page="popular", show_search=True)
         root.addWidget(self.nav)
 
         self.hero = HeroBanner()

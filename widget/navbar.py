@@ -32,7 +32,7 @@ def _tint_pixmap(path: str, color: str, size: int = 20) -> QPixmap:
     return result
 
 
-# ── SearchBox — pakai paintEvent supaya border 100% dikontrol sendiri ─────
+# ── SearchBox ─────────────────────────────────────────────────────────────
 class SearchBox(QWidget):
     textChanged = pyqtSignal(str)
 
@@ -47,7 +47,6 @@ class SearchBox(QWidget):
         lay.setContentsMargins(12, 0, 10, 0)
         lay.setSpacing(0)
 
-        # Input
         self._edit = QLineEdit()
         self._edit.setFrame(False)
         self._edit.setFont(QFont("Segoe UI", 9))
@@ -57,7 +56,6 @@ class SearchBox(QWidget):
         )
         lay.addWidget(self._edit, stretch=1)
 
-        # Icon kanan
         self._icon = QLabel()
         self._icon.setFixedSize(18, 18)
         self._icon.setAlignment(Qt.AlignCenter)
@@ -67,7 +65,6 @@ class SearchBox(QWidget):
             self._icon.setPixmap(_tint_pixmap(_sp, _MUTED, 16))
         lay.addWidget(self._icon)
 
-        # Placeholder overlay
         self._ph = QLabel("Search games...", self)
         self._ph.setFont(QFont("Segoe UI", 9))
         self._ph.setStyleSheet(f"color:{_MUTED}; background:transparent; border:none;")
@@ -126,7 +123,16 @@ class Navbar(QWidget):
     wishlist_clicked  = pyqtSignal()
     profile_clicked   = pyqtSignal()
 
-    def __init__(self, active_page: str = "", parent=None):
+    def __init__(self, active_page: str = "", show_search: bool = False, parent=None):
+        """
+        Parameters
+        ----------
+        active_page : str
+            Key halaman aktif untuk highlight nav-item & icon.
+        show_search : bool
+            True  → tampilkan SearchBox (default untuk dashboard).
+            False → sembunyikan SearchBox (wishlist, profil, detail game, dll).
+        """
         super().__init__(parent)
         self.setFixedHeight(68)
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -136,7 +142,7 @@ class Navbar(QWidget):
         h.setContentsMargins(28, 0, 28, 0)
         h.setSpacing(0)
 
-        # Logo — klik untuk balik ke dashboard, warna tetap putih
+        # Logo
         logo = QPushButton("MAGER")
         logo.setFont(QFont("Consolas", 18, QFont.Bold))
         logo.setCursor(QCursor(Qt.PointingHandCursor))
@@ -177,14 +183,17 @@ class Navbar(QWidget):
 
         h.addStretch()
 
-        # Search
-        self.search_box = SearchBox()
-        self.search_box.textChanged.connect(self.search_changed)
-        h.addWidget(self.search_box)
-        h.addSpacing(10)
+        # Search — hanya ditambahkan jika show_search=True
+        if show_search:
+            self.search_box = SearchBox()
+            self.search_box.textChanged.connect(self.search_changed)
+            h.addWidget(self.search_box)
+            h.addSpacing(10)
+        else:
+            self.search_box = None
 
         # Icon button helper
-        def _icon_btn(png_name, fallback, page_key, tooltip, signal):
+        def _icon_btn(png_name, fallback, page_key, signal):
             active     = active_page == page_key
             icon_color = _GREEN if active else _WHITE
             b = QPushButton()
@@ -210,9 +219,10 @@ class Navbar(QWidget):
             return b
 
         self.wishlist_btn = _icon_btn(
-            "wishlist_outline.png", "♡", "wishlist", "Wishlist", self.wishlist_clicked
+            "wishlist_outline.png", "♡", "wishlist", self.wishlist_clicked
         )
         h.addWidget(self.wishlist_btn)
+
         self._badge = QLabel("0", self)
         self._badge.setFixedSize(20, 20)
         self._badge.setAlignment(Qt.AlignCenter)
@@ -222,11 +232,10 @@ class Navbar(QWidget):
         )
         self._badge.hide()
         self._badge.raise_()
-        self._badge.hide()
         h.addSpacing(14)
 
         self.profile_btn = _icon_btn(
-            "avatar_outline_white.png", "👤", "profile", "Akun Saya", self.profile_clicked
+            "avatar_outline_white.png", "👤", "profile", self.profile_clicked
         )
         h.addWidget(self.profile_btn)
 
