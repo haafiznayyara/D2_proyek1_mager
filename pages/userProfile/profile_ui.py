@@ -38,7 +38,7 @@ QPushButton#btnBack:hover {
 
 /* ===== LEFT PANEL ===== */
 QWidget#leftPanel {
-    background-color: #1A2332;
+    background-color: #1A1F36;
     border-radius: 12px;
 }
 QLabel#panelTitle {
@@ -53,8 +53,8 @@ QLabel#fieldLabel, QLabel#fieldLabel_2 {
     font-family: 'Segoe UI';
 }
 QLineEdit#displayNameEdit {
-    background-color: #1A1F36;
-    border: 1px solid #2A3050;
+    background-color: #2A3050;
+    border: none;
     border-radius: 6px;
     color: #FFFFFF;
     font-size: 13px;
@@ -62,8 +62,8 @@ QLineEdit#displayNameEdit {
     padding: 6px 10px;
 }
 QLineEdit#usernameEdit {
-    background-color: transparent;
-    border: 1px solid #2A3050;
+    background-color: #0F1621;
+    border: none;
     border-radius: 6px;
     color: #8B96A5;
     font-size: 13px;
@@ -81,7 +81,7 @@ QPushButton#btnSave {
     padding: 10px;
 }
 QPushButton#btnSave:hover {
-    background-color: #16a34a;
+    background-color: #4ADE80;
 }
 QLabel#sectionLabel {
     color: #FFFFFF;
@@ -95,7 +95,7 @@ QLabel#emptyLabel {
     font-family: 'Segoe UI';
 }
 QPushButton#btnLogout {
-    background-color: #5c1a1a;
+    background-color: #5C1A1A;
     color: #e05555;
     font-size: 13px;
     font-weight: bold;
@@ -105,12 +105,12 @@ QPushButton#btnLogout {
     padding: 10px;
 }
 QPushButton#btnLogout:hover {
-    background-color: #701f1f;
+    background-color: #5C1A1A;
 }
 
 /* ===== RIGHT CARDS ===== */
 QWidget#cardLike, QWidget#cardDislike, QWidget#cardKomentar, QWidget#cardWishlist {
-    background-color: #1A2332;
+    background-color: #1A1F36;
     border-radius: 12px;
 }
 QLabel#cardTotal {
@@ -135,7 +135,7 @@ QPushButton#btnWishlist {
     padding: 10px;
 }
 QPushButton#btnWishlist:hover {
-    background-color: #16a34a;
+    background-color: #4ADE80;
 }
 """
 
@@ -158,7 +158,7 @@ class GenreBarChart(QtWidgets.QWidget):
     """Bar chart horizontal untuk 5 genre favorit user."""
 
     BAR_COLOR     = QColor("#4ADE80")
-    BAR_BG_COLOR  = QColor("#0d1829")
+    BAR_BG_COLOR  = QColor("#0F1621")
     TEXT_COLOR    = QColor("#c9d1e0")
     MUTED_COLOR   = QColor("#7b8db0")
     EMPTY_COLOR   = QColor("#515050")
@@ -549,7 +549,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
             scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             scroll.setStyleSheet("""
                 QScrollArea { background: transparent; border: none; }
-                QScrollBar:vertical { background: #0d1829; width: 5px; border-radius: 2px; }
+                QScrollBar:vertical { background: #2A3050; width: 5px; border-radius: 2px; }
                 QScrollBar::handle:vertical { background: #2A3647; border-radius: 2px; }
                 QScrollBar::add-line, QScrollBar::sub-line { height: 0; }
             """)
@@ -640,7 +640,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
             else:
                 for g in items:
                     row = QtWidgets.QWidget()
-                    row.setStyleSheet("background: #0d1829; border-radius: 6px;")
+                    row.setStyleSheet("background: #2A3050; border-radius: 6px;")
                     rh = QtWidgets.QHBoxLayout(row)
                     rh.setContentsMargins(10, 7, 10, 7)
                     name_lbl = QtWidgets.QLabel(g["nama_game"])
@@ -679,7 +679,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
         else:
             for r in reviews:
                 row = QtWidgets.QWidget()
-                row.setStyleSheet("background: #0d1829; border-radius: 6px;")
+                row.setStyleSheet("background: #2A3050; border-radius: 6px;")
                 rv = QtWidgets.QVBoxLayout(row)
                 rv.setContentsMargins(10, 8, 10, 8)
                 rv.setSpacing(3)
@@ -812,7 +812,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
             else:
                 for g in items:
                     row = QtWidgets.QWidget()
-                    row.setStyleSheet("background: #0d1829; border-radius: 6px; border: none; ")
+                    row.setStyleSheet("background: #2A3050; border-radius: 6px; border: none; ")
                     row.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
                     rh = QtWidgets.QHBoxLayout(row)
                     rh.setContentsMargins(10, 7, 10, 7)
@@ -828,8 +828,8 @@ class ProfileWindow(QtWidgets.QMainWindow):
                     rh.addWidget(ico)
                     _gid = g["id_game"]
                     row.mousePressEvent = lambda _, gid=_gid: self.game_detail_requested.emit(gid)
-                    row.enterEvent      = lambda _, r=row: r.setStyleSheet("background: #0d1829; border-radius: 6px; border: none; ")
-                    row.leaveEvent      = lambda _, r=row: r.setStyleSheet("background: #0d1829; border-radius: 6px; border: none; ")
+                    row.enterEvent      = lambda _, r=row: r.setStyleSheet("background: #2A3050; border-radius: 6px; border: none; ")
+                    row.leaveEvent      = lambda _, r=row: r.setStyleSheet("background: #2A3050; border-radius: 6px; border: none; ")
                     layout.addWidget(row)
             layout.addStretch()
 
@@ -854,7 +854,7 @@ class ProfileWindow(QtWidgets.QMainWindow):
         else:
             for r in reviews:
                 row = QtWidgets.QWidget()
-                row.setStyleSheet("background: #0d1829; border-radius: 6px; border: none;")
+                row.setStyleSheet("background: #2A3050; border-radius: 6px; border: none;")
                 row.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
                 rv = QtWidgets.QVBoxLayout(row)
                 rv.setContentsMargins(10, 8, 10, 8)
@@ -871,8 +871,8 @@ class ProfileWindow(QtWidgets.QMainWindow):
                     rv.addWidget(text_lbl)
                 _gid = r["id_game"]
                 row.mousePressEvent = lambda _, gid=_gid: self.game_detail_requested.emit(gid)
-                row.enterEvent      = lambda _, rw=row: rw.setStyleSheet("background: #0d1829; border-radius: 6px; border: none;")
-                row.leaveEvent      = lambda _, rw=row: rw.setStyleSheet("background: #0d1829; border-radius: 6px; border: none;")
+                row.enterEvent      = lambda _, rw=row: rw.setStyleSheet("background: #2A3050; border-radius: 6px; border: none;")
+                row.leaveEvent      = lambda _, rw=row: rw.setStyleSheet("background: #2A3050; border-radius: 6px; border: none;")
                 layout.addWidget(row)
         layout.addStretch()
 

@@ -209,7 +209,7 @@ class WishlistLogic(QObject):
         else:
             label.setText(f"Anda memiliki {jumlah} game dalam wishlist")
 
-    def on_delete_clicked(self, id_wishlist: int, nama_game: str):
+    def on_delete_clicked(self, id_wishlist: int, nama_game: str, id_game: str = ""):
         """Tampilkan custom dialog konfirmasi lalu hapus jika dikonfirmasi."""
         dialog = ConfirmDialog(
             title="Konfirmasi Penghapusan",
@@ -225,6 +225,10 @@ class WishlistLogic(QObject):
         success = delete_wishlist_item(id_wishlist)
         if success:
             self.load_wishlist()
+            count = count_wishlist(self.id_user)
+            self.wishlist_count_changed.emit(count)
+            if id_game:
+                self.wishlist_toggled.emit(str(id_game), False)
         else:
             QMessageBox.critical(
                 self.ui,
