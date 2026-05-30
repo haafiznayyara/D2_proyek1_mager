@@ -234,7 +234,7 @@ class DeleteConfirmDialog(QDialog):
 #  MAIN WINDOW
 # ══════════════════════════════════════════════════════════════════════
 class WishlistWindow(QMainWindow):
-    delete_requested = pyqtSignal(int, str)
+    delete_requested = pyqtSignal(int, str, str)
     game_clicked = pyqtSignal(str)
 
     def __init__(self):
@@ -503,8 +503,8 @@ class WishlistWindow(QMainWindow):
             QPushButton:hover {{ background-color: {DANGER}; }}
         """)
         btnDelete.clicked.connect(
-            lambda _, wid=id_wishlist, nm=nama_game:
-                self.delete_requested.emit(wid, nm)
+            lambda _, wid=id_wishlist, nm=nama_game, gid=id_game:
+                self.delete_requested.emit(wid, nm, gid)
         )
         rightColLayout.addWidget(btnDelete, alignment=Qt.AlignRight)
 

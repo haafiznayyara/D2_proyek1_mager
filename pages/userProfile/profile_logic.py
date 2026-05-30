@@ -286,10 +286,6 @@ class ProfileLogic(QObject):
         success = update_display_name(self.id_user, new_display)
         if success:
             self.username_updated.emit(new_display)
-            QMessageBox.information(
-                self.ui, "Berhasil",
-                f"Display Name berhasil diubah menjadi <b>{new_display}</b>!"
-            )
         else:
             QMessageBox.critical(
                 self.ui, "Gagal",
