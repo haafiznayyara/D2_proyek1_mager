@@ -1,0 +1,1830 @@
+('D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\dist\\Mager.exe',
+ False,
+ False,
+ False,
+ 'd:\\BIG FOLDER KULIAH\\SEMESTER '
+ '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\images\\icon-windowed.ico',
+ None,
+ False,
+ False,
+ b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<assembly xmlns='
+ b'"urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">\n  <trustInfo x'
+ b'mlns="urn:schemas-microsoft-com:asm.v3">\n    <security>\n      <requested'
+ b'Privileges>\n        <requestedExecutionLevel level="asInvoker" uiAccess='
+ b'"false"/>\n      </requestedPrivileges>\n    </security>\n  </trustInfo>\n  '
+ b'<compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">\n    <'
+ b'application>\n      <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f'
+ b'0}"/>\n      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>\n '
+ b'     <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>\n      <s'
+ b'upportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>\n      <supporte'
+ b'dOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>\n    </application>\n  <'
+ b'/compatibility>\n  <application xmlns="urn:schemas-microsoft-com:asm.v3">'
+ b'\n    <windowsSettings>\n      <longPathAware xmlns="http://schemas.micros'
+ b'oft.com/SMI/2016/WindowsSettings">true</longPathAware>\n    </windowsSett'
+ b'ings>\n  </application>\n  <dependency>\n    <dependentAssembly>\n      <ass'
+ b'emblyIdentity type="win32" name="Microsoft.Windows.Common-Controls" version='
+ b'"6.0.0.0" processorArchitecture="*" publicKeyToken="6595b64144ccf1df" langua'
+ b'ge="*"/>\n    </dependentAssembly>\n  </dependency>\n</assembly>',
+ True,
+ False,
+ None,
+ None,
+ None,
+ 'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\build\\mager\\Mager.pkg',
+ [('pyi-contents-directory _internal', '', 'OPTION'),
+  ('PYZ-00.pyz',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\build\\mager\\PYZ-00.pyz',
+   'PYZ'),
+  ('struct',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\build\\mager\\localpycs\\struct.pyc',
+   'PYMODULE'),
+  ('pyimod01_archive',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\build\\mager\\localpycs\\pyimod01_archive.pyc',
+   'PYMODULE'),
+  ('pyimod02_importers',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\build\\mager\\localpycs\\pyimod02_importers.pyc',
+   'PYMODULE'),
+  ('pyimod03_ctypes',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\build\\mager\\localpycs\\pyimod03_ctypes.pyc',
+   'PYMODULE'),
+  ('pyimod04_pywin32',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\build\\mager\\localpycs\\pyimod04_pywin32.pyc',
+   'PYMODULE'),
+  ('pyiboot01_bootstrap',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyInstaller\\loader\\pyiboot01_bootstrap.py',
+   'PYSOURCE'),
+  ('pyi_rth_inspect',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py',
+   'PYSOURCE'),
+  ('pyi_rth_pyqt5',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pyqt5.py',
+   'PYSOURCE'),
+  ('pyi_rth_pkgutil',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgutil.py',
+   'PYSOURCE'),
+  ('app', 'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\app.py', 'PYSOURCE'),
+  ('python311.dll',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\python311.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\libEGL.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\libEGL.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\opengl32sw.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\opengl32sw.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\d3dcompiler_47.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\d3dcompiler_47.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\libGLESv2.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\libGLESv2.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\imageformats\\qwebp.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\imageformats\\qwebp.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\imageformats\\qgif.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\imageformats\\qgif.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\imageformats\\qico.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\imageformats\\qico.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\platforms\\qoffscreen.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\platforms\\qoffscreen.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\platforms\\qminimal.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\platforms\\qminimal.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\imageformats\\qsvg.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\imageformats\\qsvg.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\imageformats\\qtga.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\imageformats\\qtga.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\generic\\qtuiotouchplugin.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\generic\\qtuiotouchplugin.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\platformthemes\\qxdgdesktopportal.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\platformthemes\\qxdgdesktopportal.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\platforms\\qwindows.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\platforms\\qwindows.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\iconengines\\qsvgicon.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\iconengines\\qsvgicon.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\imageformats\\qicns.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\imageformats\\qicns.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\platforms\\qwebgl.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\platforms\\qwebgl.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\imageformats\\qwbmp.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\imageformats\\qwbmp.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\imageformats\\qtiff.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\imageformats\\qtiff.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\imageformats\\qjpeg.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\imageformats\\qjpeg.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\plugins\\styles\\qwindowsvistastyle.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\styles\\qwindowsvistastyle.dll',
+   'BINARY'),
+  ('_decimal.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_decimal.pyd',
+   'EXTENSION'),
+  ('_hashlib.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_hashlib.pyd',
+   'EXTENSION'),
+  ('_lzma.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_lzma.pyd',
+   'EXTENSION'),
+  ('_bz2.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_bz2.pyd',
+   'EXTENSION'),
+  ('unicodedata.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\unicodedata.pyd',
+   'EXTENSION'),
+  ('select.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\select.pyd',
+   'EXTENSION'),
+  ('_socket.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_socket.pyd',
+   'EXTENSION'),
+  ('PyQt5\\QtCore.pyd',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\QtCore.pyd',
+   'EXTENSION'),
+  ('PyQt5\\sip.cp311-win_amd64.pyd',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\sip.cp311-win_amd64.pyd',
+   'EXTENSION'),
+  ('_ssl.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_ssl.pyd',
+   'EXTENSION'),
+  ('_uuid.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_uuid.pyd',
+   'EXTENSION'),
+  ('_queue.pyd',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\_queue.pyd',
+   'EXTENSION'),
+  ('_mysql_connector.cp311-win_amd64.pyd',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\_mysql_connector.cp311-win_amd64.pyd',
+   'EXTENSION'),
+  ('_cffi_backend.cp311-win_amd64.pyd',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\_cffi_backend.cp311-win_amd64.pyd',
+   'EXTENSION'),
+  ('bcrypt\\_bcrypt.pyd',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\bcrypt\\_bcrypt.pyd',
+   'EXTENSION'),
+  ('PyQt5\\QtGui.pyd',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\QtGui.pyd',
+   'EXTENSION'),
+  ('PyQt5\\QtWidgets.pyd',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\QtWidgets.pyd',
+   'EXTENSION'),
+  ('api-ms-win-crt-math-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-math-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-conio-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-conio-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-locale-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-locale-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-filesystem-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-filesystem-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-environment-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-environment-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-runtime-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-runtime-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-heap-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-heap-l1-1-0.dll',
+   'BINARY'),
+  ('VCRUNTIME140.dll',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\VCRUNTIME140.dll',
+   'BINARY'),
+  ('api-ms-win-crt-time-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-time-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-convert-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-convert-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-string-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-string-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-process-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-process-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-stdio-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-stdio-l1-1-0.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\VCRUNTIME140.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\VCRUNTIME140.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\MSVCP140.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\MSVCP140.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\VCRUNTIME140_1.dll',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\VCRUNTIME140_1.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5Gui.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Gui.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5Core.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Core.dll',
+   'BINARY'),
+  ('api-ms-win-crt-utility-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-crt-utility-l1-1-0.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5Svg.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Svg.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5Network.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Network.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5DBus.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5DBus.dll',
+   'BINARY'),
+  ('VCRUNTIME140_1.dll',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\VCRUNTIME140_1.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5Quick.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Quick.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5WebSockets.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5WebSockets.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5Widgets.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Widgets.dll',
+   'BINARY'),
+  ('libcrypto-1_1.dll',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\libcrypto-1_1.dll',
+   'BINARY'),
+  ('python3.dll',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\python3.dll',
+   'BINARY'),
+  ('libssl-1_1.dll',
+   'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\DLLs\\libssl-1_1.dll',
+   'BINARY'),
+  ('libmysql.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\libmysql.dll',
+   'BINARY'),
+  ('api-ms-win-core-synch-l1-2-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-synch-l1-2-0.dll',
+   'BINARY'),
+  ('ucrtbase.dll',
+   'C:\\Program Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\ucrtbase.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\MSVCP140_1.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\MSVCP140_1.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5QmlModels.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5QmlModels.dll',
+   'BINARY'),
+  ('PyQt5\\Qt5\\bin\\Qt5Qml.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Qml.dll',
+   'BINARY'),
+  ('libcrypto-3-x64.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\libcrypto-3-x64.dll',
+   'BINARY'),
+  ('libssl-3-x64.dll',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\libssl-3-x64.dll',
+   'BINARY'),
+  ('api-ms-win-core-localization-l1-2-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-localization-l1-2-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-rtlsupport-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-rtlsupport-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processthreads-l1-1-1.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-processthreads-l1-1-1.dll',
+   'BINARY'),
+  ('api-ms-win-core-sysinfo-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-sysinfo-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l1-2-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-file-l1-2-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-errorhandling-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-errorhandling-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-heap-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-heap-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-interlocked-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-interlocked-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processthreads-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-processthreads-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-util-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-util-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-memory-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-memory-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-timezone-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-timezone-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processenvironment-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-processenvironment-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-handle-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-handle-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-file-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-debug-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-debug-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-fibers-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-fibers-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-libraryloader-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-libraryloader-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-console-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-console-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l2-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-file-l2-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-namedpipe-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-namedpipe-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-profile-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-profile-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-datetime-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-datetime-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-string-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-string-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-synch-l1-1-0.dll',
+   'C:\\Program '
+   'Files\\Microsoft\\jdk-17.0.15.6-hotspot\\bin\\api-ms-win-core-synch-l1-1-0.dll',
+   'BINARY'),
+  ('assets\\Vector (1).png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\Vector (1).png',
+   'DATA'),
+  ('assets\\Vector (2).png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\Vector (2).png',
+   'DATA'),
+  ('assets\\Vector (3).png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\Vector (3).png',
+   'DATA'),
+  ('assets\\Vector.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\Vector.png',
+   'DATA'),
+  ('assets\\avatar_outline.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\avatar_outline.png',
+   'DATA'),
+  ('assets\\avatar_outline_white.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\avatar_outline_white.png',
+   'DATA'),
+  ('assets\\calendar.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\calendar.png',
+   'DATA'),
+  ('assets\\developer-publisher.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\developer-publisher.png',
+   'DATA'),
+  ('assets\\dislike_filled.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\dislike_filled.png',
+   'DATA'),
+  ('assets\\dislike_outline.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\dislike_outline.png',
+   'DATA'),
+  ('assets\\filter_harga_green.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\filter_harga_green.png',
+   'DATA'),
+  ('assets\\filter_outline.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\filter_outline.png',
+   'DATA'),
+  ('assets\\green_arrow.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\green_arrow.png',
+   'DATA'),
+  ('assets\\icon-back.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\icon-back.png',
+   'DATA'),
+  ('assets\\like_filled.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\like_filled.png',
+   'DATA'),
+  ('assets\\like_outline.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\like_outline.png',
+   'DATA'),
+  ('assets\\lock_outline.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\lock_outline.png',
+   'DATA'),
+  ('assets\\material-symbols_logout-rounded.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\material-symbols_logout-rounded.png',
+   'DATA'),
+  ('assets\\mdi_camera-outline.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\mdi_camera-outline.png',
+   'DATA'),
+  ('assets\\posters\\8am.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\8am.jpg',
+   'DATA'),
+  ('assets\\posters\\9-years-of-shadows.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\9-years-of-shadows.jpg',
+   'DATA'),
+  ('assets\\posters\\a-plague-tale-requiem.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\a-plague-tale-requiem.jpg',
+   'DATA'),
+  ('assets\\posters\\abiotic-factor.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\abiotic-factor.jpg',
+   'DATA'),
+  ('assets\\posters\\aeonic.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\aeonic.jpg',
+   'DATA'),
+  ('assets\\posters\\age-of-darkness-final-stand.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\age-of-darkness-final-stand.jpg',
+   'DATA'),
+  ('assets\\posters\\age-of-wonders-4.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\age-of-wonders-4.jpg',
+   'DATA'),
+  ('assets\\posters\\ancestors-the-humankind-odyssey.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\ancestors-the-humankind-odyssey.jpg',
+   'DATA'),
+  ('assets\\posters\\ash-of-gods-redemption.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\ash-of-gods-redemption.jpg',
+   'DATA'),
+  ('assets\\posters\\ashen.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\ashen.jpg',
+   'DATA'),
+  ('assets\\posters\\assassins-creed-odyssey.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\assassins-creed-odyssey.jpg',
+   'DATA'),
+  ('assets\\posters\\astral-ascent.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\astral-ascent.jpg',
+   'DATA'),
+  ('assets\\posters\\astrometica.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\astrometica.jpg',
+   'DATA'),
+  ('assets\\posters\\astroneer.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\astroneer.jpg',
+   'DATA'),
+  ('assets\\posters\\atomic-heart.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\atomic-heart.jpg',
+   'DATA'),
+  ('assets\\posters\\back-4-blood.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\back-4-blood.jpg',
+   'DATA'),
+  ('assets\\posters\\balatro.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\balatro.jpg',
+   'DATA'),
+  ('assets\\posters\\ball-x-pit.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\ball-x-pit.jpg',
+   'DATA'),
+  ('assets\\posters\\bendy-and-the-ink-machine.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\bendy-and-the-ink-machine.jpg',
+   'DATA'),
+  ('assets\\posters\\beyond-two-souls.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\beyond-two-souls.jpg',
+   'DATA'),
+  ('assets\\posters\\black-book.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\black-book.jpg',
+   'DATA'),
+  ('assets\\posters\\blacksad-under-the-skin.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\blacksad-under-the-skin.jpg',
+   'DATA'),
+  ('assets\\posters\\blasphemous-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\blasphemous-2.jpg',
+   'DATA'),
+  ('assets\\posters\\blasphemous.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\blasphemous.jpg',
+   'DATA'),
+  ('assets\\posters\\bloodstained-ritual-of-the-night.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\bloodstained-ritual-of-the-night.jpg',
+   'DATA'),
+  ('assets\\posters\\blue-prince.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\blue-prince.jpg',
+   'DATA'),
+  ('assets\\posters\\breathedge.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\breathedge.jpg',
+   'DATA'),
+  ('assets\\posters\\cairn.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\cairn.jpg',
+   'DATA'),
+  ('assets\\posters\\carrion.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\carrion.jpg',
+   'DATA'),
+  ('assets\\posters\\cat-quest-ii.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\cat-quest-ii.jpg',
+   'DATA'),
+  ('assets\\posters\\chants-of-sennaar.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\chants-of-sennaar.jpg',
+   'DATA'),
+  ('assets\\posters\\children-of-morta.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\children-of-morta.jpg',
+   'DATA'),
+  ('assets\\posters\\clair-obscur-expedition-33.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\clair-obscur-expedition-33.jpg',
+   'DATA'),
+  ('assets\\posters\\cocoon.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\cocoon.jpg',
+   'DATA'),
+  ('assets\\posters\\conscript.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\conscript.jpg',
+   'DATA'),
+  ('assets\\posters\\coromon.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\coromon.jpg',
+   'DATA'),
+  ('assets\\posters\\cronos-the-new-dawn.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\cronos-the-new-dawn.jpg',
+   'DATA'),
+  ('assets\\posters\\crusader-kings-iii.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\crusader-kings-iii.jpg',
+   'DATA'),
+  ('assets\\posters\\cryptmaster.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\cryptmaster.jpg',
+   'DATA'),
+  ('assets\\posters\\cult-of-the-lamb.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\cult-of-the-lamb.jpg',
+   'DATA'),
+  ('assets\\posters\\cyberpunk-2077.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\cyberpunk-2077.jpg',
+   'DATA'),
+  ('assets\\posters\\dark-deity-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\dark-deity-2.jpg',
+   'DATA'),
+  ('assets\\posters\\dark-souls-ii-scholar-of-the-first-sin.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\dark-souls-ii-scholar-of-the-first-sin.jpg',
+   'DATA'),
+  ('assets\\posters\\dark-souls-iii.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\dark-souls-iii.jpg',
+   'DATA'),
+  ('assets\\posters\\dark-souls-remastered.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\dark-souls-remastered.jpg',
+   'DATA'),
+  ('assets\\posters\\darkest-dungeon-ii.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\darkest-dungeon-ii.jpg',
+   'DATA'),
+  ('assets\\posters\\darkest-dungeon.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\darkest-dungeon.jpg',
+   'DATA'),
+  ('assets\\posters\\date-everything.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\date-everything.jpg',
+   'DATA'),
+  ('assets\\posters\\dave-the-diver.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\dave-the-diver.jpg',
+   'DATA'),
+  ('assets\\posters\\days-gone.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\days-gone.jpg',
+   'DATA'),
+  ('assets\\posters\\dead-by-daylight.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\dead-by-daylight.jpg',
+   'DATA'),
+  ('assets\\posters\\dead-cells.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\dead-cells.jpg',
+   'DATA'),
+  ('assets\\posters\\dead-island-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\dead-island-2.jpg',
+   'DATA'),
+  ('assets\\posters\\death-stranding-directors-cut.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\death-stranding-directors-cut.jpg',
+   'DATA'),
+  ('assets\\posters\\deaths-door.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\deaths-door.jpg',
+   'DATA'),
+  ('assets\\posters\\detroit-become-human.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\detroit-become-human.jpg',
+   'DATA'),
+  ('assets\\posters\\devil-may-cry-5-and-vergil.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\devil-may-cry-5-and-vergil.jpg',
+   'DATA'),
+  ('assets\\posters\\disco-elysium-the-final-cut.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\disco-elysium-the-final-cut.jpg',
+   'DATA'),
+  ('assets\\posters\\donut-county.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\donut-county.jpg',
+   'DATA'),
+  ('assets\\posters\\doom-eternal.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\doom-eternal.jpg',
+   'DATA'),
+  ('assets\\posters\\doom-the-dark-ages.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\doom-the-dark-ages.jpg',
+   'DATA'),
+  ('assets\\posters\\doomblade.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\doomblade.jpg',
+   'DATA'),
+  ('assets\\posters\\dragons-dogma-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\dragons-dogma-2.jpg',
+   'DATA'),
+  ('assets\\posters\\dreamscaper.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\dreamscaper.jpg',
+   'DATA'),
+  ('assets\\posters\\dredge.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\dredge.jpg',
+   'DATA'),
+  ('assets\\posters\\dungeons-of-hinterberg.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\dungeons-of-hinterberg.jpg',
+   'DATA'),
+  ('assets\\posters\\easy-delivery-co.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\easy-delivery-co.jpg',
+   'DATA'),
+  ('assets\\posters\\eiyuden-chronicle-hundred-heroes.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\eiyuden-chronicle-hundred-heroes.jpg',
+   'DATA'),
+  ('assets\\posters\\eiyuden-chronicle-rising.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\eiyuden-chronicle-rising.jpg',
+   'DATA'),
+  ('assets\\posters\\elden-ring.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\elden-ring.jpg',
+   'DATA'),
+  ('assets\\posters\\elite-dangerous.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\elite-dangerous.jpg',
+   'DATA'),
+  ('assets\\posters\\en-garde.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\en-garde.jpg',
+   'DATA'),
+  ('assets\\posters\\enter-the-gungeon.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\enter-the-gungeon.jpg',
+   'DATA'),
+  ('assets\\posters\\escape-from-ever-after.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\escape-from-ever-after.jpg',
+   'DATA'),
+  ('assets\\posters\\esoteric-ebb.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\esoteric-ebb.jpg',
+   'DATA'),
+  ('assets\\posters\\eternights.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\eternights.jpg',
+   'DATA'),
+  ('assets\\posters\\final-fantasy-vii-rebirth.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\final-fantasy-vii-rebirth.jpg',
+   'DATA'),
+  ('assets\\posters\\final-fantasy-vii-remake-intergrade.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\final-fantasy-vii-remake-intergrade.jpg',
+   'DATA'),
+  ('assets\\posters\\final-fantasy-xii-the-zodiac-age.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\final-fantasy-xii-the-zodiac-age.jpg',
+   'DATA'),
+  ('assets\\posters\\final-fantasy-xv-windows-edition.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\final-fantasy-xv-windows-edition.jpg',
+   'DATA'),
+  ('assets\\posters\\final-fantasy-xvi.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\final-fantasy-xvi.jpg',
+   'DATA'),
+  ('assets\\posters\\flintlock-the-siege-of-dawn.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\flintlock-the-siege-of-dawn.jpg',
+   'DATA'),
+  ('assets\\posters\\florence.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\florence.jpg',
+   'DATA'),
+  ('assets\\posters\\for-the-king-ii.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\for-the-king-ii.jpg',
+   'DATA'),
+  ('assets\\posters\\for-the-king.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\for-the-king.jpg',
+   'DATA'),
+  ('assets\\posters\\frostpunk-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\frostpunk-2.jpg',
+   'DATA'),
+  ('assets\\posters\\frostpunk.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\frostpunk.jpg',
+   'DATA'),
+  ('assets\\posters\\ghostrunner-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\ghostrunner-2.jpg',
+   'DATA'),
+  ('assets\\posters\\goblin-cleanup.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\goblin-cleanup.jpg',
+   'DATA'),
+  ('assets\\posters\\golf-with-your-friends.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\golf-with-your-friends.jpg',
+   'DATA'),
+  ('assets\\posters\\gord.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\gord.jpg',
+   'DATA'),
+  ('assets\\posters\\gorogoa.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\gorogoa.jpg',
+   'DATA'),
+  ('assets\\posters\\green-hell.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\green-hell.jpg',
+   'DATA'),
+  ('assets\\posters\\grime.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\grime.jpg',
+   'DATA'),
+  ('assets\\posters\\gris.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\gris.jpg',
+   'DATA'),
+  ('assets\\posters\\haste.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\haste.jpg',
+   'DATA'),
+  ('assets\\posters\\have-a-nice-death.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\have-a-nice-death.jpg',
+   'DATA'),
+  ('assets\\posters\\heavy-rain.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\heavy-rain.jpg',
+   'DATA'),
+  ('assets\\posters\\hell-is-us.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\hell-is-us.jpg',
+   'DATA'),
+  ('assets\\posters\\hell-let-loose.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\hell-let-loose.jpg',
+   'DATA'),
+  ('assets\\posters\\hitman-world-of-assassination.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\hitman-world-of-assassination.jpg',
+   'DATA'),
+  ('assets\\posters\\hogwarts-legacy.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\hogwarts-legacy.jpg',
+   'DATA'),
+  ('assets\\posters\\hollow-knight-silksong.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\hollow-knight-silksong.jpg',
+   'DATA'),
+  ('assets\\posters\\hollow-knight.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\hollow-knight.jpg',
+   'DATA'),
+  ('assets\\posters\\honey-i-joined-a-cult.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\honey-i-joined-a-cult.jpg',
+   'DATA'),
+  ('assets\\posters\\human-fall-flat.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\human-fall-flat.jpg',
+   'DATA'),
+  ('assets\\posters\\humanitz.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\humanitz.jpg',
+   'DATA'),
+  ('assets\\posters\\indiana-jones-and-the-great-circle.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\indiana-jones-and-the-great-circle.jpg',
+   'DATA'),
+  ('assets\\posters\\indika.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\indika.jpg',
+   'DATA'),
+  ('assets\\posters\\inscryption.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\inscryption.jpg',
+   'DATA'),
+  ('assets\\posters\\intravenous-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\intravenous-2.jpg',
+   'DATA'),
+  ('assets\\posters\\journey.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\journey.jpg',
+   'DATA'),
+  ('assets\\posters\\katana-zero.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\katana-zero.jpg',
+   'DATA'),
+  ('assets\\posters\\kerbal-space-program.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\kerbal-space-program.jpg',
+   'DATA'),
+  ('assets\\posters\\kill-knight.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\kill-knight.jpg',
+   'DATA'),
+  ('assets\\posters\\killer-frequency.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\killer-frequency.jpg',
+   'DATA'),
+  ('assets\\posters\\kingdom-come-deliverance-ii.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\kingdom-come-deliverance-ii.jpg',
+   'DATA'),
+  ('assets\\posters\\kingdom-hearts-hd-1-5-and-2-5-remix.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\kingdom-hearts-hd-1-5-and-2-5-remix.jpg',
+   'DATA'),
+  ('assets\\posters\\layers-of-fear.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\layers-of-fear.jpg',
+   'DATA'),
+  ('assets\\posters\\lego-star-wars-the-skywalker-saga.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\lego-star-wars-the-skywalker-saga.jpg',
+   'DATA'),
+  ('assets\\posters\\lego-voyagers.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\lego-voyagers.jpg',
+   'DATA'),
+  ('assets\\posters\\lego-worlds.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\lego-worlds.jpg',
+   'DATA'),
+  ('assets\\posters\\lies-of-p.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\lies-of-p.jpg',
+   'DATA'),
+  ('assets\\posters\\little-nightmares-ii.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\little-nightmares-ii.jpg',
+   'DATA'),
+  ('assets\\posters\\lords-of-the-fallen.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\lords-of-the-fallen.jpg',
+   'DATA'),
+  ('assets\\posters\\mad-max.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\mad-max.jpg',
+   'DATA'),
+  ('assets\\posters\\manor-lords.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\manor-lords.jpg',
+   'DATA'),
+  ('assets\\posters\\metaphor-refantazio.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\metaphor-refantazio.jpg',
+   'DATA'),
+  ('assets\\posters\\metro-exodus.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\metro-exodus.jpg',
+   'DATA'),
+  ('assets\\posters\\middle-earth-shadow-of-war.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\middle-earth-shadow-of-war.jpg',
+   'DATA'),
+  ('assets\\posters\\monster-hunter-wilds.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\monster-hunter-wilds.jpg',
+   'DATA'),
+  ('assets\\posters\\monster-hunter-world.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\monster-hunter-world.jpg',
+   'DATA'),
+  ('assets\\posters\\monster-sanctuary.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\monster-sanctuary.jpg',
+   'DATA'),
+  ('assets\\posters\\monster-train-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\monster-train-2.jpg',
+   'DATA'),
+  ('assets\\posters\\moonlighter-2-the-endless-vault.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\moonlighter-2-the-endless-vault.jpg',
+   'DATA'),
+  ('assets\\posters\\moonlighter.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\moonlighter.jpg',
+   'DATA'),
+  ('assets\\posters\\mortal-kombat-1.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\mortal-kombat-1.jpg',
+   'DATA'),
+  ('assets\\posters\\mortal-kombat-11.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\mortal-kombat-11.jpg',
+   'DATA'),
+  ('assets\\posters\\move-or-die.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\move-or-die.jpg',
+   'DATA'),
+  ('assets\\posters\\my-time-at-sandrock.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\my-time-at-sandrock.jpg',
+   'DATA'),
+  ('assets\\posters\\neon-abyss.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\neon-abyss.jpg',
+   'DATA'),
+  ('assets\\posters\\neon-white.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\neon-white.jpg',
+   'DATA'),
+  ('assets\\posters\\nier-automata-game-of-the-yorha-edition.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\nier-automata-game-of-the-yorha-edition.jpg',
+   'DATA'),
+  ('assets\\posters\\nier-replicant-ver-1-22474487139.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\nier-replicant-ver-1-22474487139.jpg',
+   'DATA'),
+  ('assets\\posters\\nioh-complete-edition.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\nioh-complete-edition.jpg',
+   'DATA'),
+  ('assets\\posters\\no-mans-sky.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\no-mans-sky.jpg',
+   'DATA'),
+  ('assets\\posters\\nocturnal--1.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\nocturnal--1.jpg',
+   'DATA'),
+  ('assets\\posters\\norland.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\norland.jpg',
+   'DATA'),
+  ('assets\\posters\\observer-system-redux.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\observer-system-redux.jpg',
+   'DATA'),
+  ('assets\\posters\\octopath-traveler-ii.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\octopath-traveler-ii.jpg',
+   'DATA'),
+  ('assets\\posters\\octopath-traveler.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\octopath-traveler.jpg',
+   'DATA'),
+  ('assets\\posters\\one-lonely-outpost.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\one-lonely-outpost.jpg',
+   'DATA'),
+  ('assets\\posters\\orcs-must-die-3.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\orcs-must-die-3.jpg',
+   'DATA'),
+  ('assets\\posters\\outer-wilds.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\outer-wilds.jpg',
+   'DATA'),
+  ('assets\\posters\\overcooked-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\overcooked-2.jpg',
+   'DATA'),
+  ('assets\\posters\\overcooked-all-you-can-eat.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\overcooked-all-you-can-eat.jpg',
+   'DATA'),
+  ('assets\\posters\\overcooked.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\overcooked.jpg',
+   'DATA'),
+  ('assets\\posters\\pacific-drive.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\pacific-drive.jpg',
+   'DATA'),
+  ('assets\\posters\\pathfinder-wrath-of-the-righteous-enhanced-edition.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\pathfinder-wrath-of-the-righteous-enhanced-edition.jpg',
+   'DATA'),
+  ('assets\\posters\\pathologic-3.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\pathologic-3.jpg',
+   'DATA'),
+  ('assets\\posters\\pennys-big-breakaway.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\pennys-big-breakaway.jpg',
+   'DATA'),
+  ('assets\\posters\\persona-3-reload.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\persona-3-reload.jpg',
+   'DATA'),
+  ('assets\\posters\\persona-5-royal.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\persona-5-royal.jpg',
+   'DATA'),
+  ('assets\\posters\\planet-coaster.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\planet-coaster.jpg',
+   'DATA'),
+  ('assets\\posters\\planet-zoo.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\planet-zoo.jpg',
+   'DATA'),
+  ('assets\\posters\\pragmata.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\pragmata.jpg',
+   'DATA'),
+  ('assets\\posters\\quasimorph.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\quasimorph.jpg',
+   'DATA'),
+  ('assets\\posters\\rain-world.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\rain-world.jpg',
+   'DATA'),
+  ('assets\\posters\\ravenswatch.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\ravenswatch.jpg',
+   'DATA'),
+  ('assets\\posters\\ready-or-not.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\ready-or-not.jpg',
+   'DATA'),
+  ('assets\\posters\\red-dead-redemption-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\red-dead-redemption-2.jpg',
+   'DATA'),
+  ('assets\\posters\\rematch.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\rematch.jpg',
+   'DATA'),
+  ('assets\\posters\\resident-evil-2-2019.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\resident-evil-2-2019.jpg',
+   'DATA'),
+  ('assets\\posters\\resident-evil-3-2020.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\resident-evil-3-2020.jpg',
+   'DATA'),
+  ('assets\\posters\\resident-evil-4-2023.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\resident-evil-4-2023.jpg',
+   'DATA'),
+  ('assets\\posters\\resident-evil-7-biohazard.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\resident-evil-7-biohazard.jpg',
+   'DATA'),
+  ('assets\\posters\\resident-evil-requiem.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\resident-evil-requiem.jpg',
+   'DATA'),
+  ('assets\\posters\\resident-evil-village.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\resident-evil-village.jpg',
+   'DATA'),
+  ('assets\\posters\\returnal.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\returnal.jpg',
+   'DATA'),
+  ('assets\\posters\\revenge-of-the-savage-planet.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\revenge-of-the-savage-planet.jpg',
+   'DATA'),
+  ('assets\\posters\\robocop-rogue-city.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\robocop-rogue-city.jpg',
+   'DATA'),
+  ('assets\\posters\\rust.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\rust.jpg',
+   'DATA'),
+  ('assets\\posters\\sayonara-wild-hearts.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\sayonara-wild-hearts.jpg',
+   'DATA'),
+  ('assets\\posters\\scorn.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\scorn.jpg',
+   'DATA'),
+  ('assets\\posters\\shadow-warrior-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\shadow-warrior-2.jpg',
+   'DATA'),
+  ('assets\\posters\\sheltered.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\sheltered.jpg',
+   'DATA'),
+  ('assets\\posters\\ship-of-fools.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\ship-of-fools.jpg',
+   'DATA'),
+  ('assets\\posters\\sid-meiers-civilization-vii.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\sid-meiers-civilization-vii.jpg',
+   'DATA'),
+  ('assets\\posters\\sifu.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\sifu.jpg',
+   'DATA'),
+  ('assets\\posters\\silent-hill-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\silent-hill-2.jpg',
+   'DATA'),
+  ('assets\\posters\\silent-hill-f.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\silent-hill-f.jpg',
+   'DATA'),
+  ('assets\\posters\\skin-deep.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\skin-deep.jpg',
+   'DATA'),
+  ('assets\\posters\\slay-the-spire.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\slay-the-spire.jpg',
+   'DATA'),
+  ('assets\\posters\\slime-rancher-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\slime-rancher-2.jpg',
+   'DATA'),
+  ('assets\\posters\\slime-rancher.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\slime-rancher.jpg',
+   'DATA'),
+  ('assets\\posters\\solar-ash.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\solar-ash.jpg',
+   'DATA'),
+  ('assets\\posters\\sorry-we-re-closed.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\sorry-we-re-closed.jpg',
+   'DATA'),
+  ('assets\\posters\\squad.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\squad.jpg',
+   'DATA'),
+  ('assets\\posters\\squirrel-with-a-gun.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\squirrel-with-a-gun.jpg',
+   'DATA'),
+  ('assets\\posters\\stalker-2-heart-of-chornobyl.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\stalker-2-heart-of-chornobyl.jpg',
+   'DATA'),
+  ('assets\\posters\\starfield.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\starfield.jpg',
+   'DATA'),
+  ('assets\\posters\\starrupture.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\starrupture.jpg',
+   'DATA'),
+  ('assets\\posters\\starship-troopers-extermination.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\starship-troopers-extermination.jpg',
+   'DATA'),
+  ('assets\\posters\\steelrising.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\steelrising.jpg',
+   'DATA'),
+  ('assets\\posters\\storyteller.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\storyteller.jpg',
+   'DATA'),
+  ('assets\\posters\\stranded-deep.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\stranded-deep.jpg',
+   'DATA'),
+  ('assets\\posters\\stray.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\stray.jpg',
+   'DATA'),
+  ('assets\\posters\\street-fighter-6.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\street-fighter-6.jpg',
+   'DATA'),
+  ('assets\\posters\\streets-of-rogue.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\streets-of-rogue.jpg',
+   'DATA'),
+  ('assets\\posters\\suikoden-i-and-ii-hd-remaster-gate-rune-and-dunan-unification-wars.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\suikoden-i-and-ii-hd-remaster-gate-rune-and-dunan-unification-wars.jpg',
+   'DATA'),
+  ('assets\\posters\\superhot.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\superhot.jpg',
+   'DATA'),
+  ('assets\\posters\\sworn.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\sworn.jpg',
+   'DATA'),
+  ('assets\\posters\\syberia-the-world-before.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\syberia-the-world-before.jpg',
+   'DATA'),
+  ('assets\\posters\\tales-of-the-shire-a-the-lord-of-the-rings-game.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\tales-of-the-shire-a-the-lord-of-the-rings-game.jpg',
+   'DATA'),
+  ('assets\\posters\\tchia.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\tchia.jpg',
+   'DATA'),
+  ('assets\\posters\\telling-lies.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\telling-lies.jpg',
+   'DATA'),
+  ('assets\\posters\\terra-nil.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\terra-nil.jpg',
+   'DATA'),
+  ('assets\\posters\\the-alters.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\the-alters.jpg',
+   'DATA'),
+  ('assets\\posters\\the-artful-escape.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-artful-escape.jpg',
+   'DATA'),
+  ('assets\\posters\\the-bloodline.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-bloodline.jpg',
+   'DATA'),
+  ('assets\\posters\\the-case-of-the-golden-idol.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-case-of-the-golden-idol.jpg',
+   'DATA'),
+  ('assets\\posters\\the-entropy-centre.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-entropy-centre.jpg',
+   'DATA'),
+  ('assets\\posters\\the-escapists-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-escapists-2.jpg',
+   'DATA'),
+  ('assets\\posters\\the-escapists.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-escapists.jpg',
+   'DATA'),
+  ('assets\\posters\\the-first-berserker-khazan.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-first-berserker-khazan.jpg',
+   'DATA'),
+  ('assets\\posters\\the-invincible.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-invincible.jpg',
+   'DATA'),
+  ('assets\\posters\\the-knight-witch.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-knight-witch.jpg',
+   'DATA'),
+  ('assets\\posters\\the-last-faith.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-last-faith.jpg',
+   'DATA'),
+  ('assets\\posters\\the-lord-of-the-rings-return-to-moria.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-lord-of-the-rings-return-to-moria.jpg',
+   'DATA'),
+  ('assets\\posters\\the-medium.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\the-medium.jpg',
+   'DATA'),
+  ('assets\\posters\\the-pathless.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-pathless.jpg',
+   'DATA'),
+  ('assets\\posters\\the-rise-of-the-golden-idol.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-rise-of-the-golden-idol.jpg',
+   'DATA'),
+  ('assets\\posters\\the-survivalists.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-survivalists.jpg',
+   'DATA'),
+  ('assets\\posters\\the-talos-principle-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-talos-principle-2.jpg',
+   'DATA'),
+  ('assets\\posters\\the-thaumaturge.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-thaumaturge.jpg',
+   'DATA'),
+  ('assets\\posters\\the-unfinished-swan.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-unfinished-swan.jpg',
+   'DATA'),
+  ('assets\\posters\\the-unliving.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-unliving.jpg',
+   'DATA'),
+  ('assets\\posters\\the-wild-eight.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\the-wild-eight.jpg',
+   'DATA'),
+  ('assets\\posters\\there-is-no-light-enhanced-edition.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\there-is-no-light-enhanced-edition.jpg',
+   'DATA'),
+  ('assets\\posters\\this-war-of-mine.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\this-war-of-mine.jpg',
+   'DATA'),
+  ('assets\\posters\\thymesia.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\thymesia.jpg',
+   'DATA'),
+  ('assets\\posters\\timberborn.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\timberborn.jpg',
+   'DATA'),
+  ('assets\\posters\\trepang2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\trepang2.jpg',
+   'DATA'),
+  ('assets\\posters\\twelve-minutes.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\twelve-minutes.jpg',
+   'DATA'),
+  ('assets\\posters\\typers-combat.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\typers-combat.jpg',
+   'DATA'),
+  ('assets\\posters\\ultros.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\ultros.jpg',
+   'DATA'),
+  ('assets\\posters\\underrail.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\underrail.jpg',
+   'DATA'),
+  ('assets\\posters\\unheard-voices-of-crime.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\unheard-voices-of-crime.jpg',
+   'DATA'),
+  ('assets\\posters\\until-then.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\until-then.jpg',
+   'DATA'),
+  ('assets\\posters\\v-rising.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\v-rising.jpg',
+   'DATA'),
+  ('assets\\posters\\vampire-the-masquerade-bloodlines-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\vampire-the-masquerade-bloodlines-2.jpg',
+   'DATA'),
+  ('assets\\posters\\void-breaker.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\void-breaker.jpg',
+   'DATA'),
+  ('assets\\posters\\wanderstop.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\wanderstop.jpg',
+   'DATA'),
+  ('assets\\posters\\warhammer-40000-chaos-gate-daemonhunters.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\warhammer-40000-chaos-gate-daemonhunters.jpg',
+   'DATA'),
+  ('assets\\posters\\warhammer-40000-space-marine-2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\warhammer-40000-space-marine-2.jpg',
+   'DATA'),
+  ('assets\\posters\\we-were-here-forever.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\we-were-here-forever.jpg',
+   'DATA'),
+  ('assets\\posters\\what-remains-of-edith-finch.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\what-remains-of-edith-finch.jpg',
+   'DATA'),
+  ('assets\\posters\\windblown.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\windblown.jpg',
+   'DATA'),
+  ('assets\\posters\\worms-w-m-d.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\posters\\worms-w-m-d.jpg',
+   'DATA'),
+  ('assets\\posters\\wuchang-fallen-feathers.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\wuchang-fallen-feathers.jpg',
+   'DATA'),
+  ('assets\\posters\\yakuza-like-a-dragon.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\posters\\yakuza-like-a-dragon.jpg',
+   'DATA'),
+  ('assets\\profile_photos\\user_1.jpeg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\profile_photos\\user_1.jpeg',
+   'DATA'),
+  ('assets\\profile_photos\\user_1.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\profile_photos\\user_1.png',
+   'DATA'),
+  ('assets\\profile_photos\\user_2.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\profile_photos\\user_2.jpg',
+   'DATA'),
+  ('assets\\profile_photos\\user_4.jpeg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\profile_photos\\user_4.jpeg',
+   'DATA'),
+  ('assets\\profile_photos\\user_4.jpg',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\profile_photos\\user_4.jpg',
+   'DATA'),
+  ('assets\\review_user.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\review_user.png',
+   'DATA'),
+  ('assets\\reviews.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\reviews.png',
+   'DATA'),
+  ('assets\\search_outline.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\search_outline.png',
+   'DATA'),
+  ('assets\\tick_filled.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\tick_filled.png',
+   'DATA'),
+  ('assets\\trash.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\trash.png',
+   'DATA'),
+  ('assets\\wishlist_filled.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\wishlist_filled.png',
+   'DATA'),
+  ('assets\\wishlist_filled_profile.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\mager\\assets\\wishlist_filled_profile.png',
+   'DATA'),
+  ('assets\\wishlist_outline.png',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\assets\\wishlist_outline.png',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_cs.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_cs.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_sk.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_sk.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_ru.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_ru.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_zh_CN.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_zh_CN.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_zh_TW.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_zh_TW.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_pt.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_pt.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_en.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_en.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_fi.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_fi.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_cs.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_cs.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_he.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_he.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_lv.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_lv.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_uk.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_uk.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_en.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_en.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_de.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_de.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_ru.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_ru.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_sl.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_sl.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_sv.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_sv.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_cs.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_cs.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_pl.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_pl.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_hu.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_hu.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_gd.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_gd.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_lt.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_lt.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_fr.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_fr.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_he.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_he.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_gl.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_gl.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_ko.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_ko.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_sk.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_sk.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_ca.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_ca.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_bg.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_bg.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_tr.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_tr.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_sk.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_sk.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_tr.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_tr.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_bg.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_bg.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_it.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_it.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_pl.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_pl.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_de.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_de.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_ja.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_ja.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_fr.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_fr.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_da.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_da.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_es.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_es.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_es.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_es.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_gd.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_gd.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_ar.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_ar.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_ko.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_ko.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_lv.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_lv.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_zh_TW.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_zh_TW.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_ja.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_ja.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_gl.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_gl.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_uk.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_uk.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_ru.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_ru.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_da.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_da.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_fi.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_fi.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_fr.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_fr.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_ca.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_ca.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_ko.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_ko.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_it.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_it.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_zh_TW.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_zh_TW.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_pl.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_pl.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_da.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_da.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_hu.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_hu.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_fa.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_fa.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_sl.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_sl.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_ja.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_ja.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_es.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_es.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_ar.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_ar.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_zh_CN.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_zh_CN.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_ar.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_ar.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_tr.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_tr.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qtbase_ca.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qtbase_ca.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_hu.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_hu.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_de.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_de.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_uk.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_uk.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_it.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_it.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_bg.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_bg.qm',
+   'DATA'),
+  ('PyQt5\\Qt5\\translations\\qt_help_en.qm',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyQt5\\Qt5\\translations\\qt_help_en.qm',
+   'DATA'),
+  ('base_library.zip',
+   'D:\\BIG FOLDER KULIAH\\SEMESTER 2\\mager\\build\\mager\\base_library.zip',
+   'DATA')],
+ [],
+ False,
+ False,
+ 1780240606,
+ [('runw.exe',
+   'd:\\BIG FOLDER KULIAH\\SEMESTER '
+   '2\\PPLD\\tes\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\runw.exe',
+   'EXECUTABLE')],
+ 'C:\\Users\\HAAFIZ\\AppData\\Local\\Programs\\Python\\Python311\\python311.dll')
