@@ -362,11 +362,12 @@ class Router(QStackedWidget):
         pass 
         self.go_to(self.PAGE_LOGIN)
 
-    def _open_detail_by_id(self, id_game: int):
-        """Buka halaman detail berdasarkan id_game (dipakai dari profile)."""
-        game = next((g for g in self.all_games if g["id"] == id_game), None)
+    def _open_detail_by_id(self, id_game: str):
+        game = next((g for g in self.all_games if str(g["id"]) == str(id_game)), None)
         if game:
             self._open_detail(game)
+        else:
+            print(f"[Router] game id={id_game} tidak ditemukan")
 
     def _open_detail(self, game: dict):
         """Buka halaman detail dengan data game yang diklik."""

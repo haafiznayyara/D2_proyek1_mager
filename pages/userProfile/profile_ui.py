@@ -6,6 +6,7 @@ Tampilan halaman Profile User — hanya UI, tanpa logic/DB.
 
 import os
 import sys
+from datetime import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QPushButton, QMessageBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QGraphicsDropShadowEffect
 from widget.navbar import Navbar
@@ -83,6 +84,10 @@ QPushButton#btnSave {
 QPushButton#btnSave:hover {
     background-color: #4ADE80;
 }
+QPushButton#btnSave:disabled {
+    background-color: #2A3050;
+    color: #515050;
+}
 QLabel#sectionLabel {
     color: #FFFFFF;
     font-size: 15px;
@@ -154,6 +159,72 @@ def make_icon_label(png_file, size=20):
     lbl.setPixmap(QtGui.QPixmap(icon_path(png_file)))
     return lbl
 
+
+def format_created_at(created_at) -> str:
+    """
+    Ubah nilai created_at (string ISO / datetime) menjadi label waktu singkat.
+    Contoh output: "hari ini", "kemarin", "3 hari lalu", "12 Jan 2024"
+    """
+    if not created_at:
+        return ""
+    try:
+        if isinstance(created_at, datetime):
+            dt = created_at
+        else:
+            # Coba beberapa format umum
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"):
+                try:
+                    dt = datetime.strptime(str(created_at), fmt)
+                    break
+                except ValueError:
+                    continue
+            else:
+                return str(created_at)
+
+        now = datetime.now()
+        delta = (now.date() - dt.date()).days
+
+        if delta == 0:
+            return "hari ini"
+        elif delta == 1:
+            return "kemarin"
+        elif delta < 7:
+            return f"{delta} hari lalu"
+        elif delta < 30:
+            weeks = delta // 7
+            return f"{weeks} minggu lalu"
+        else:
+            # Format tanggal ringkas
+            bulan = [
+                "", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+                "Jul", "Agt", "Sep", "Okt", "Nov", "Des"
+            ]
+            return f"{dt.day} {bulan[dt.month]} {dt.year}"
+    except Exception:
+        return ""
+
+class _ClickableCard(QtWidgets.QWidget):
+    """Card yang emit signal clicked hanya saat benar-benar diklik (bukan scroll)."""
+    clicked = QtCore.pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
+        self._pressed = False
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self._pressed = True
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton and self._pressed:
+            if self.rect().contains(event.pos()):
+                self.clicked.emit()
+        self._pressed = False
+        super().mouseReleaseEvent(event)
+
 class GenreBarChart(QtWidgets.QWidget):
     """Bar chart horizontal untuk 5 genre favorit user."""
 
@@ -176,7 +247,6 @@ class GenreBarChart(QtWidgets.QWidget):
     def set_data(self, genres: list[dict]):
         """genres = [{'nama_genre': str, 'total': int}, ...] max 5."""
         self._data = genres[:5]
-        # Tinggi menyesuaikan jumlah bar
         row_h = 36
         self.setMinimumHeight(max(160, len(self._data) * row_h + 40))
         self.update()
@@ -238,22 +308,22 @@ class GenreBarChart(QtWidgets.QWidget):
                 str(total)
             )
 
+
 class ProfileWindow(QtWidgets.QMainWindow):
 
     # ── Signals ───────────────────────────────────────────────────────
-    wishlist_clicked = QtCore.pyqtSignal()
-    back_clicked     = QtCore.pyqtSignal()
-    logout_clicked   = QtCore.pyqtSignal()
-    photo_changed    = QtCore.pyqtSignal(str)   # membawa path foto asli
-    save_requested   = QtCore.pyqtSignal(str)   # membawa username baru
-    game_detail_requested = QtCore.pyqtSignal(int)   # membawa ID game
+    wishlist_clicked      = QtCore.pyqtSignal()
+    back_clicked          = QtCore.pyqtSignal()
+    logout_clicked        = QtCore.pyqtSignal()
+    photo_changed         = QtCore.pyqtSignal(str)   # membawa path foto asli
+    save_requested        = QtCore.pyqtSignal(str)   # membawa display name baru
+    game_detail_requested = QtCore.pyqtSignal(str)   # membawa ID game
 
     # ── Metode publik (dipanggil dari logic/router) ───────────────────
     def _resolve_photo_path(self, foto_profil: str) -> str:
         """Ubah nama file foto menjadi full path."""
         if not foto_profil:
             return ""
-        # Jika sudah berupa path absolut (data lama), biarkan
         if os.path.isabs(foto_profil):
             return foto_profil
         base = os.path.dirname(os.path.abspath(__file__))
@@ -261,9 +331,14 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
     def load_user(self, user: dict):
         username     = user.get("username", "")
-        display_name = user.get("display_name") or username  # fallback ke username
+        display_name = user.get("display_name") or username
         self.displayNameEdit.setText(display_name)
         self.usernameEdit.setText(username)
+
+        # Simpan nilai awal agar bisa mendeteksi perubahan
+        self._original_display_name = display_name
+        self._sync_save_button()
+
         foto = user.get("foto_profil") or ""
         self._current_photo = self._resolve_photo_path(foto)
         if self._current_photo and os.path.exists(self._current_photo):
@@ -294,15 +369,24 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.avatarLabel.setPixmap(rounded)
         self.avatarLabel.setText("")
 
-    # ── Slot internal ─────────────────────────────────────────────────
+    # ── Tombol Simpan: aktif hanya jika display name berubah ──────────
+    def _sync_save_button(self):
+        """Enable btnSave hanya jika display name berbeda dari nilai awal."""
+        current = self.displayNameEdit.text().strip()
+        has_change = bool(current) and (current != self._original_display_name)
+        self.btnSave.setEnabled(has_change)
 
+    # ── Slot internal ─────────────────────────────────────────────────
     def _on_save_clicked(self):
         new_display = self.displayNameEdit.text().strip()
         if not new_display:
             return
         if not getattr(self, '_current_photo', ''):
             self.avatarLabel.setText(new_display[0].upper())
-        self.save_requested.emit(new_display)   
+        # Update nilai original setelah disimpan, lalu disable tombol lagi
+        self._original_display_name = new_display
+        self._sync_save_button()
+        self.save_requested.emit(new_display)
 
     def _on_photo_clicked(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -324,13 +408,13 @@ class ProfileWindow(QtWidgets.QMainWindow):
             )
             self.avatarLabel.setText("")
             self._current_photo = path
-            self.photo_changed.emit(path)   # ← kirim ke logic
+            self.photo_changed.emit(path)
 
     # ── Constructor ───────────────────────────────────────────────────
-
     def __init__(self):
         super().__init__()
         self._current_photo = ""
+        self._original_display_name = ""   # baseline untuk deteksi perubahan
         self.setObjectName("ProfileWindow")
         self.resize(1100, 700)
         self.setWindowTitle("MAGER - Profil User")
@@ -439,6 +523,8 @@ class ProfileWindow(QtWidgets.QMainWindow):
         self.displayNameEdit = QtWidgets.QLineEdit()
         self.displayNameEdit.setObjectName("displayNameEdit")
         self.displayNameEdit.setReadOnly(False)
+        # Pantau perubahan teks secara real-time
+        self.displayNameEdit.textChanged.connect(self._sync_save_button)
         leftPanelLayout.addWidget(self.fieldLabel)
         leftPanelLayout.addWidget(self.displayNameEdit)
 
@@ -451,9 +537,11 @@ class ProfileWindow(QtWidgets.QMainWindow):
         leftPanelLayout.addWidget(self.fieldLabel_2)
         leftPanelLayout.addWidget(self.usernameEdit)
 
-        # Simpan
+        # Simpan — mulai dalam keadaan disabled
         self.btnSave = QtWidgets.QPushButton("Simpan Perubahan")
         self.btnSave.setObjectName("btnSave")
+        self.btnSave.setEnabled(False)
+        self.btnSave.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.btnSave.clicked.connect(self._on_save_clicked)
         leftPanelLayout.addWidget(self.btnSave)
 
@@ -594,7 +682,6 @@ class ProfileWindow(QtWidgets.QMainWindow):
         cardsGridLayout.addWidget(self.cardKomentar, 1, 0)
         cardsGridLayout.addWidget(self.cardWishlist, 1, 1)
 
-        # Bungkus cardsGridLayout dengan widget agar bisa dibatasi
         cardsWidget = QtWidgets.QWidget()
         cardsWidget.setLayout(cardsGridLayout)
         cardsWidget.setContentsMargins(0, 0, 0, 0)
@@ -608,8 +695,9 @@ class ProfileWindow(QtWidgets.QMainWindow):
 
     def load_genre_chart(self, genres: list[dict]):
         self.genreChart.set_data(genres)
-        
+
     def update_like_dislike_count(self, like: int, dislike: int):
+        """Update label total di card Like dan Dislike secara terpisah."""
         for lbl in self.cardLike.findChildren(QtWidgets.QLabel):
             if lbl.text().startswith("Total:"):
                 lbl.setText(f"Total: {like} Game")
@@ -618,170 +706,6 @@ class ProfileWindow(QtWidgets.QMainWindow):
             if lbl.text().startswith("Total:"):
                 lbl.setText(f"Total: {dislike} Game")
                 break
-    def update_like_dislike_list(self, games: list[dict]):
-        def _fill_card(card, items):
-            layout = card._list_layout
-            # Hapus semua kecuali empty label dan stretch
-            while layout.count():
-                item = layout.takeAt(0)
-                if item.widget():
-                    item.widget().deleteLater()
-
-            card._total_lbl.setText(f"Total: {len(items)} Game")
-
-            if not items:
-                empty = QtWidgets.QLabel(
-                    "Belum ada game yang di-like" if "Like" in card._total_lbl.parent().objectName()
-                    else "Belum ada game yang di-dislike"
-                )
-                empty.setAlignment(QtCore.Qt.AlignCenter)
-                empty.setStyleSheet("color: #515050; font-size: 12px; font-family: 'Segoe UI';")
-                layout.addWidget(empty)
-            else:
-                for g in items:
-                    row = QtWidgets.QWidget()
-                    row.setStyleSheet("background: #2A3050; border-radius: 6px;")
-                    rh = QtWidgets.QHBoxLayout(row)
-                    rh.setContentsMargins(10, 7, 10, 7)
-                    name_lbl = QtWidgets.QLabel(g["nama_game"])
-                    name_lbl.setStyleSheet("color: #c9d1e0; font-size: 12px; font-family: 'Segoe UI'; background: transparent;")
-                    icon_lbl = QtWidgets.QLabel()
-                    icon_lbl.setFixedSize(18, 18)
-                    icon_lbl.setScaledContents(True)
-                    icon_lbl.setPixmap(QtGui.QPixmap(icon_path("Vector.png" if g["type"] == "like" else "Vector (2).png")))
-                    icon_lbl.setStyleSheet("background: transparent;")
-                    rh.addWidget(name_lbl)
-                    rh.addStretch()
-                    rh.addWidget(icon_lbl)
-                    layout.addWidget(row)
-
-            layout.addStretch()
-
-        liked    = [g for g in games if g["type"] == "like"]
-        disliked = [g for g in games if g["type"] == "dislike"]
-        _fill_card(self.cardLike,    liked)
-        _fill_card(self.cardDislike, disliked)
-    
-    def update_review_list(self, reviews: list[dict]):
-        layout = self.cardKomentar._list_layout
-        while layout.count():
-            item = layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-
-        self.cardKomentar._total_lbl.setText(f"Total: {len(reviews)} Game")
-
-        if not reviews:
-            empty = QtWidgets.QLabel("Belum ada komentar")
-            empty.setAlignment(QtCore.Qt.AlignCenter)
-            empty.setStyleSheet("color: #515050; font-size: 12px; font-family: 'Segoe UI';")
-            layout.addWidget(empty)
-        else:
-            for r in reviews:
-                row = QtWidgets.QWidget()
-                row.setStyleSheet("background: #2A3050; border-radius: 6px;")
-                rv = QtWidgets.QVBoxLayout(row)
-                rv.setContentsMargins(10, 8, 10, 8)
-                rv.setSpacing(3)
-
-                name_lbl = QtWidgets.QLabel(r["nama_game"])
-                name_lbl.setStyleSheet(
-                    "color: #4ADE80; font-size: 12px; font-weight: bold; font-family: 'Segoe UI'; background: transparent;"
-                )
-                rv.addWidget(name_lbl)
-
-                # Ambil teks review pertama yang tidak kosong
-                preview = (
-                    r.get("review_gameplay") or
-                    r.get("review_cerita") or
-                    r.get("review_grafik") or ""
-                ).strip()
-                if len(preview) > 60:
-                    preview = preview[:60] + "..."
-
-                if preview:
-                    text_lbl = QtWidgets.QLabel(preview)
-                    text_lbl.setStyleSheet(
-                        "color: #7b8db0; font-size: 11px; font-family: 'Segoe UI'; background: transparent;"
-                    )
-                    rv.addWidget(text_lbl)
-
-                layout.addWidget(row)
-        layout.addStretch()
-    
-    # Alert dialog untuk konfirmasi logout
-    def _on_logout_clicked(self):
-        dialog = ConfirmDialog(
-            title="Konfirmasi Logout",
-            message="Apakah Anda yakin ingin logout dari akun sekarang?",
-            confirm_text="Ya, Logout",
-            parent=self
-        )
-        dialog.exec_()
-        if dialog.confirmed():
-            self.logout_clicked.emit()
-
-        wrapper = QtWidgets.QWidget(dialog)
-        wrapper.setObjectName("dlgWrapper")
-        wrapper.setStyleSheet("""
-            QWidget#dlgWrapper {
-                background-color: #1A2332;
-                border: 1px solid #2A3647;
-                border-radius: 12px;
-            }
-        """)
-
-        shadow = QGraphicsDropShadowEffect(dialog)
-        shadow.setBlurRadius(30)
-        shadow.setOffset(0, 8)
-        shadow.setColor(QColor(0, 0, 0, 160))
-        wrapper.setGraphicsEffect(shadow)
-
-        outerLayout = QVBoxLayout(dialog)
-        outerLayout.setContentsMargins(16, 16, 16, 16)
-        outerLayout.addWidget(wrapper)
-
-        innerLayout = QVBoxLayout(wrapper)
-        innerLayout.setContentsMargins(28, 28, 28, 24)
-        innerLayout.setSpacing(16)
-
-        titleLabel = QtWidgets.QLabel("Konfirmasi Logout")
-        titleLabel.setAlignment(Qt.AlignCenter)
-        titleLabel.setStyleSheet("color: #FFFFFF; font-size: 16px; font-weight: bold; font-family: 'Segoe UI';")
-        innerLayout.addWidget(titleLabel)
-
-        msgLabel = QtWidgets.QLabel("Apakah kamu yakin ingin keluar\ndari akun ini?")
-        msgLabel.setAlignment(Qt.AlignCenter)
-        msgLabel.setWordWrap(True)
-        msgLabel.setStyleSheet("color: #8B96A5; font-size: 13px; font-family: 'Segoe UI';")
-        innerLayout.addWidget(msgLabel)
-
-        btnRow = QHBoxLayout()
-        btnRow.setSpacing(12)
-
-        btnYa = QtWidgets.QPushButton("Ya, Logout")
-        btnYa.setFixedHeight(40)
-        btnYa.setCursor(QtGui.QCursor(Qt.PointingHandCursor))
-        btnYa.setStyleSheet("""
-            QPushButton { background-color: #5c1a1a; color: #e05555; font-size: 13px;
-                        font-weight: bold; border: none; border-radius: 8px; }
-            QPushButton:hover { background-color: #701f1f; }
-        """)
-        btnYa.clicked.connect(dialog.accept)
-
-        btnBatal = QtWidgets.QPushButton("Batal")
-        btnBatal.setFixedHeight(40)
-        btnBatal.setCursor(QtGui.QCursor(Qt.PointingHandCursor))
-        btnBatal.setStyleSheet("""
-            QPushButton { background-color: transparent; color: #FFFFFF; font-size: 13px;
-                        font-weight: bold; border: 1px solid #2A3647; border-radius: 8px; }
-            QPushButton:hover { background-color: #1A2332; border: 1px solid #8B96A5; }
-        """)
-        btnBatal.clicked.connect(dialog.reject)
-
-        btnRow.addWidget(btnYa)
-        btnRow.addWidget(btnBatal)
-        innerLayout.addLayout(btnRow)
 
     def update_wishlist_count(self, jumlah: int):
         """Update label total game di card Riwayat Wishlist."""
@@ -790,12 +714,114 @@ class ProfileWindow(QtWidgets.QMainWindow):
                 lbl.setText(f"Total: {jumlah} Game")
                 break
 
+    def _build_game_mini_card(self, g: dict) -> QtWidgets.QWidget:
+        """
+        Card mini bergaya wishlist untuk item like/dislike.
+        Field yang diharapkan: id_game, nama_game, type, created_at,
+                               url_gambar (opsional), genres (opsional),
+                               rating (opsional).
+        """
+        POSTER_DIR = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..", "..", "assets", "posters"
+        )
+        nama_game = g.get("nama_game", "—")
+        id_game   = g["id_game"]
+        rating    = int(g.get("rating") or 0)
+        ts_text   = format_created_at(g.get("created_at"))
+        url_gambar = g.get("url_gambar") or ""
+        genres_str = g.get("genres") or ""
+        genre_list = [x.strip() for x in genres_str.split(",") if x.strip()][:3]
+
+        # ── Outer card ────────────────────────────────────────────────
+        card = _ClickableCard()
+        card.setObjectName(f"mini_card_{id_game}")
+        card.setStyleSheet(f"""
+            QWidget#mini_card_{id_game} {{
+                background-color: #0F1621;
+                border: 1px solid #2A3647;
+                border-radius: 8px;
+            }}
+            QWidget#mini_card_{id_game}:hover {{
+                border: 1px solid #4ADE80;
+            }}
+        """)
+
+        outer = QtWidgets.QHBoxLayout(card)
+        outer.setContentsMargins(10, 10, 12, 10)
+        outer.setSpacing(10)
+
+        # ── Info tengah ───────────────────────────────────────────────
+        info = QtWidgets.QWidget()
+        info.setStyleSheet("background: transparent;")
+        info.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        info_vbox = QtWidgets.QVBoxLayout(info)
+        info_vbox.setContentsMargins(0, 0, 0, 0)
+        info_vbox.setSpacing(4)
+
+        # Nama game
+        name_lbl = QtWidgets.QLabel(nama_game)
+        name_lbl.setStyleSheet(
+            "color: #FFFFFF; font-size: 12px; font-weight: bold;"
+            " font-family: 'Segoe UI'; background: transparent;"
+        )
+        name_lbl.setWordWrap(False)
+        info_vbox.addWidget(name_lbl)
+
+        # Genre tags (maks 3)
+        if genre_list:
+            tag_row = QtWidgets.QWidget()
+            tag_row.setStyleSheet("background: transparent;")
+            tag_h = QtWidgets.QHBoxLayout(tag_row)
+            tag_h.setContentsMargins(0, 0, 0, 0)
+            tag_h.setSpacing(4)
+            for genre in genre_list:
+                tag = QtWidgets.QLabel(genre)
+                tag.setStyleSheet(
+                    "background: #2A3647; color: #8B96A5; font-size: 9px;"
+                    " font-family: 'Segoe UI'; border-radius: 3px; padding: 1px 5px;"
+                )
+                tag_h.addWidget(tag)
+            tag_h.addStretch()
+            info_vbox.addWidget(tag_row)
+
+        outer.addWidget(info, alignment=QtCore.Qt.AlignVCenter)
+
+        # ── Kolom kanan: rating + timestamp ───────────────────────────
+        right = QtWidgets.QWidget()
+        right.setStyleSheet("background: transparent;")
+        right_vbox = QtWidgets.QVBoxLayout(right)
+        right_vbox.setContentsMargins(0, 0, 0, 0)
+        right_vbox.setSpacing(4)
+        right_vbox.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+        # Timestamp
+        if ts_text:
+            ts_lbl = QtWidgets.QLabel(ts_text)
+            ts_lbl.setStyleSheet(
+                "color: #FFFFFF; font-size: 9px; font-family: 'Segoe UI'; background: transparent;"
+            )
+            ts_lbl.setAlignment(QtCore.Qt.AlignRight)
+            right_vbox.addWidget(ts_lbl, alignment=QtCore.Qt.AlignRight)
+
+        outer.addWidget(right, alignment=QtCore.Qt.AlignVCenter)
+
+        # ── Click handler ─────────────────────────────────────────────
+        card.clicked.connect(lambda gid=id_game: self.game_detail_requested.emit(str(gid)))
+
+        return card
+
     def update_like_dislike_list(self, games: list[dict]):
-        """Isi card Like dan Dislike dengan list game."""
+        """
+        Isi card Like dan Dislike dengan mini-card bergaya wishlist.
+        Setiap item diharapkan memiliki field:
+            id_game, nama_game, type, created_at,
+            url_gambar (opsional), genres (opsional), rating (opsional).
+        """
         liked    = [g for g in games if g["type"] == "like"]
         disliked = [g for g in games if g["type"] == "dislike"]
 
-        def _fill(card, items, icon_file, empty_text):
+        def _fill(card, items, empty_text):
             layout = card._list_layout
             while layout.count():
                 item = layout.takeAt(0)
@@ -811,33 +837,19 @@ class ProfileWindow(QtWidgets.QMainWindow):
                 layout.addWidget(lbl)
             else:
                 for g in items:
-                    row = QtWidgets.QWidget()
-                    row.setStyleSheet("background: #2A3050; border-radius: 6px; border: none; ")
-                    row.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-                    rh = QtWidgets.QHBoxLayout(row)
-                    rh.setContentsMargins(10, 7, 10, 7)
-                    name_lbl = QtWidgets.QLabel(g["nama_game"])
-                    name_lbl.setStyleSheet("color: #c9d1e0; font-size: 12px; font-family: 'Segoe UI'; background: transparent;")
-                    ico = QtWidgets.QLabel()
-                    ico.setFixedSize(16, 16)
-                    ico.setScaledContents(True)
-                    ico.setPixmap(QtGui.QPixmap(icon_path(icon_file)))
-                    ico.setStyleSheet("background: transparent;")
-                    rh.addWidget(name_lbl)
-                    rh.addStretch()
-                    rh.addWidget(ico)
-                    _gid = g["id_game"]
-                    row.mousePressEvent = lambda _, gid=_gid: self.game_detail_requested.emit(gid)
-                    row.enterEvent      = lambda _, r=row: r.setStyleSheet("background: #2A3050; border-radius: 6px; border: none; ")
-                    row.leaveEvent      = lambda _, r=row: r.setStyleSheet("background: #2A3050; border-radius: 6px; border: none; ")
-                    layout.addWidget(row)
+                    mini = self._build_game_mini_card(g)
+                    layout.addWidget(mini)
             layout.addStretch()
 
-        _fill(self.cardLike,    liked,    "Vector.png",     "Belum ada game yang di-like")
-        _fill(self.cardDislike, disliked, "Vector (2).png", "Belum ada game yang di-dislike")
+        _fill(self.cardLike,    liked,    "Belum ada game yang di-like")
+        _fill(self.cardDislike, disliked, "Belum ada game yang di-dislike")
 
     def update_review_list(self, reviews: list[dict]):
-        """Isi card Komentar dengan list review."""
+        """
+        Isi card Komentar dengan list review.
+        Setiap item diharapkan memiliki field:
+            id_game, nama_game, review_gameplay, review_cerita, review_grafik, created_at
+        """
         layout = self.cardKomentar._list_layout
         while layout.count():
             item = layout.takeAt(0)
@@ -859,22 +871,66 @@ class ProfileWindow(QtWidgets.QMainWindow):
                 rv = QtWidgets.QVBoxLayout(row)
                 rv.setContentsMargins(10, 8, 10, 8)
                 rv.setSpacing(3)
+
+                # Baris atas: nama game (kiri) + timestamp (kanan)
+                top_row = QtWidgets.QHBoxLayout()
+                top_row.setSpacing(4)
+
                 name_lbl = QtWidgets.QLabel(r["nama_game"])
-                name_lbl.setStyleSheet("color: #4ADE80; font-size: 12px; font-weight: bold; font-family: 'Segoe UI'; background: transparent;")
-                rv.addWidget(name_lbl)
-                preview = (r.get("review_gameplay") or r.get("review_cerita") or r.get("review_grafik") or "").strip()
+                name_lbl.setStyleSheet(
+                    "color: #4ADE80; font-size: 12px; font-weight: bold;"
+                    " font-family: 'Segoe UI'; background: transparent;"
+                )
+                top_row.addWidget(name_lbl)
+                top_row.addStretch()
+
+                ts_text = format_created_at(r.get("created_at"))
+                if ts_text:
+                    ts_lbl = QtWidgets.QLabel(ts_text)
+                    ts_lbl.setStyleSheet(
+                        "color: #515050; font-size: 10px; font-family: 'Segoe UI'; background: transparent;"
+                    )
+                    top_row.addWidget(ts_lbl)
+
+                rv.addLayout(top_row)
+
+                # Preview teks review
+                preview = (
+                    r.get("review_gameplay") or
+                    r.get("review_cerita") or
+                    r.get("review_grafik") or ""
+                ).strip()
                 if len(preview) > 60:
                     preview = preview[:60] + "..."
                 if preview:
                     text_lbl = QtWidgets.QLabel(preview)
-                    text_lbl.setStyleSheet("color: #7b8db0; font-size: 11px; font-family: 'Segoe UI'; background: transparent;")
+                    text_lbl.setStyleSheet(
+                        "color: #7b8db0; font-size: 11px; font-family: 'Segoe UI'; background: transparent;"
+                    )
                     rv.addWidget(text_lbl)
+
                 _gid = r["id_game"]
                 row.mousePressEvent = lambda _, gid=_gid: self.game_detail_requested.emit(gid)
-                row.enterEvent      = lambda _, rw=row: rw.setStyleSheet("background: #2A3050; border-radius: 6px; border: none;")
-                row.leaveEvent      = lambda _, rw=row: rw.setStyleSheet("background: #2A3050; border-radius: 6px; border: none;")
+                row.enterEvent      = lambda _, rw=row: rw.setStyleSheet(
+                    "background: #2A3050; border-radius: 6px; border: none;"
+                )
+                row.leaveEvent      = lambda _, rw=row: rw.setStyleSheet(
+                    "background: #2A3050; border-radius: 6px; border: none;"
+                )
                 layout.addWidget(row)
         layout.addStretch()
+
+    # ── Konfirmasi logout ─────────────────────────────────────────────
+    def _on_logout_clicked(self):
+        dialog = ConfirmDialog(
+            title="Konfirmasi Logout",
+            message="Apakah Anda yakin ingin logout dari akun sekarang?",
+            confirm_text="Ya, Logout",
+            parent=self
+        )
+        dialog.exec_()
+        if dialog.confirmed():
+            self.logout_clicked.emit()
 
 
 # ── Entry point ───────────────────────────────────────────────────────

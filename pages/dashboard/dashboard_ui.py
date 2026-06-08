@@ -20,7 +20,6 @@ from widget.cardGame import PopularGameCard, COVER_RATIO as _COVER_RATIO, INFO_H
 
 # ── GamesGrid ─────────────────────────────────────────────────────────────
 class GamesGrid(QWidget):
-    # Bubble-up signal dari card ke MainWindow
     card_clicked = pyqtSignal(dict)
     wishlist_clicked = pyqtSignal(dict) 
 
@@ -31,7 +30,7 @@ class GamesGrid(QWidget):
         self._wishlist_ids = set()
         self.setStyleSheet(f"background: {BG};")
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
+        
         outer = QVBoxLayout(self)
         outer.setContentsMargins(16, 8, 16, 16)
         outer.setSpacing(6)
@@ -44,11 +43,24 @@ class GamesGrid(QWidget):
         self.canvas = QWidget()
         self.canvas.setStyleSheet("background: transparent;")
         outer.addWidget(self.canvas)
-        outer.addStretch()
 
+        self._empty_lbl = QLabel("Tidak ada game yang ditemukan")
+        self._empty_lbl.setAlignment(Qt.AlignCenter)
+        self._empty_lbl.setFont(QFont("Segoe UI", 16))
+        self._empty_lbl.setStyleSheet(f"color: {TEXT2}; background: transparent;")
+        self._empty_lbl.hide()
+
+        outer.addStretch(1)
+        outer.addWidget(self._empty_lbl, alignment=Qt.AlignCenter)
+        outer.addStretch(1)
         self._populate(games)
 
     def _populate(self, games):
+        has_games = len(games) > 0
+        self.canvas.setVisible(has_games)
+        self._empty_lbl.setVisible(not has_games)
+        if not has_games:
+            self.canvas.setFixedHeight(0)
         for c in self.cards:
             c.setParent(None)
             c.deleteLater()
@@ -263,6 +275,7 @@ class MainWindow(QWidget):
         """)
 
         self.grid_widget = GamesGrid(games)
+        self.grid_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         # Bubble-up card click ke MainWindow → Router
         self.grid_widget.card_clicked.connect(self.card_clicked)
         self.grid_widget.wishlist_clicked.connect(self.wishlist_clicked)

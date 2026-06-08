@@ -105,10 +105,11 @@ def fetch_like_dislike_count(id_user: int) -> dict:
 def fetch_liked_games(id_user: int) -> list[dict]:
     """Ambil semua game yang di-like/dislike user."""
     sql = """
-        SELECT g.id_game, g.nama_game, gl.type
+        SELECT g.id_game, g.nama_game, gl.type, gl.created_at
         FROM game_likes gl
         JOIN game g ON gl.id_game = g.id_game
         WHERE gl.id_user = %s
+        ORDER BY gl.created_at DESC
     """
     try:
         conn = get_connection()

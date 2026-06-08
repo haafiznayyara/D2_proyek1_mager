@@ -62,21 +62,36 @@ class GamesGrid(QWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(20, 0, 20, 20)
-        outer.setSpacing(8)
+        outer.setContentsMargins(16, 8, 16, 16)
+        outer.setSpacing(6)
+
         self.count_lbl = QLabel()
         self.count_lbl.setFont(QFont("Segoe UI", 9))
-        self.count_lbl.setStyleSheet(f"color: {TEXT2}; padding-left: 4px;")
+        self.count_lbl.setStyleSheet(f"color: {TEXT2};")
         outer.addWidget(self.count_lbl)
 
         self.canvas = QWidget()
         self.canvas.setStyleSheet("background: transparent;")
         outer.addWidget(self.canvas)
-        outer.addStretch()
+
+        self._empty_lbl = QLabel("Tidak ada game yang ditemukan")
+        self._empty_lbl.setAlignment(Qt.AlignCenter)
+        self._empty_lbl.setFont(QFont("Segoe UI", 16))
+        self._empty_lbl.setStyleSheet(f"color: {TEXT2}; background: transparent;")
+        self._empty_lbl.hide()
+
+        outer.addStretch(1)
+        outer.addWidget(self._empty_lbl, alignment=Qt.AlignCenter)
+        outer.addStretch(1)  
 
         self._populate(games)
 
     def _populate(self, games: list):
+        has_games = len(games) > 0
+        self.canvas.setVisible(has_games)
+        self._empty_lbl.setVisible(not has_games)
+        if not has_games:
+            self.canvas.setFixedHeight(0)
         for c in self.cards:
             c.setParent(None)
             c.deleteLater()
